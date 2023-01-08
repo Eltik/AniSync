@@ -1,0 +1,32 @@
+{
+    "devDependencies": {
+        "@types/node": "^18.11.13",
+        "typescript": "^4.9.4"
+    },
+    "name": "anisync",
+    "description": "MalSync Rewrite",
+    "version": "1.0.0",
+    "main": "./built/AniSync.js",
+    "scripts": {
+        "build": "tsc --build",
+        "clean": "tsc --build --clean",
+        "start": "node ./built/AniSync.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Eltik/AniSync.git"
+    },
+    "author": "eltik",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/Eltik/AniSync/issues"
+    },
+    "homepage": "https://github.com/Eltik/AniSync#readme",
+    "dependencies": {
+        "cheerio": "^1.0.0-rc.12",
+        "cronchy": "^0.0.3",
+        "crypto-js": "^4.1.1",
+        "node-fetch": "^2.6.7",
+        "sqlite3": "^5.1.4"
+    }
+}
