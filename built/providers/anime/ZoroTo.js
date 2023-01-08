@@ -4,7 +4,7 @@ const Anime_1 = require("./Anime");
 const cheerio_1 = require("cheerio");
 class ZoroTo extends Anime_1.default {
     constructor() {
-        super("https://zoro.to");
+        super("https://zoro.to", "ZoroTo");
         // For whether sub/dub
         this.subOrDub = "sub";
         this.ajax = `${this.baseUrl}/ajax/v2`;

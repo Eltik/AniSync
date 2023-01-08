@@ -4,13 +4,13 @@
         "typescript": "^4.9.4"
     },
     "name": "anisync",
-    "description": "MalSync Rewrite",
+    "description": "Mapping sites to AniList and back!",
     "version": "1.0.0",
-    "main": "./built/AniSync.js",
+    "main": "index.js",
     "scripts": {
         "build": "tsc --build",
         "clean": "tsc --build --clean",
-        "start": "node ./built/AniSync.js"
+        "start": "node index.js"
     },
     "repository": {
         "type": "git",

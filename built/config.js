@@ -4,11 +4,9 @@ exports.config = void 0;
 exports.config = {
     encryptionKey: "AniSync",
     mapping: {
-        anime: {
-            threshold: 0.8,
-            comparison_threshold: 0.8,
-            check_genres: false
-        },
+        threshold: 0.8,
+        comparison_threshold: 0.8,
+        check_genres: false,
         anilist: {
             SEASON: "WINTER",
             SEASON_YEAR: 2023,

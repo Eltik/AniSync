@@ -7,7 +7,7 @@ export default class ZoroTo extends Anime {
     private ajax:string = `${this.baseUrl}/ajax/v2`;
 
     constructor() {
-        super("https://zoro.to");
+        super("https://zoro.to", "ZoroTo");
     }
 
     public async search(query:string): Promise<Array<SearchResponse>> {
