@@ -90,3 +90,43 @@ public async search(...): Promise<Search[]> {
 }
 ```
 That's it! Feedback would be appreciated...
+
+## Providers
+<table>
+    <tr>
+        <th>Name</th>
+        <th>Link</th>
+        <th>Notes</th>
+    </tr>
+    <tr>
+        <td><img src="https://zoro.to/images/logo.png" style="width:50%"></img></td>
+        <td><a href="https://zoro.to/">Link</a></td>
+        <td>N/A</td>
+    </tr>
+    <tr>
+        <td><img src="https://logodownload.org/wp-content/uploads/2020/02/crunchyroll-logo-2.png" style="width:50%"></img></td>
+        <td><a href="https://www.crunchyroll.com/">Link</a></td>
+        <td>Requires an account (see config file)</td>
+    </tr>
+    <tr>
+        <td>4anime*</td>
+        <td><a href="https://4anime.gg/">Link</a></td>
+        <td>N/A</td>
+    </tr>
+    <tr>
+        <td>9anime*</td>
+        <td><a href="https://9anime.pl/">Link</a></td>
+        <td>Requires special keys/mapping</td>
+    </tr>
+    <tr>
+        <td>TVDB*</td>
+        <td><a href="https://thetvdb.com/">Link</a></td>
+        <td>Meta</td>
+    </tr>
+    <tr>
+        <td>MyAnimeList*</td>
+        <td><a href="https://myanimelist.com/">Link</a></td>
+        <td>Meta</td>
+    </tr>
+</table>
+*Not finished yet.
