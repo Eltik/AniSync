@@ -104,5 +104,6 @@ interface DOM {
 }
 
 // CREATE TABLE anime(id int(7) NOT NULL, mal int(7) default 0, anilist longtext not null, connectors longtext not null);
+// CREATE TABLE manga(id int(7) NOT NULL, mal int(7) default 0, anilist longtext not null, connectors longtext not null);
 
 export type { DOM };

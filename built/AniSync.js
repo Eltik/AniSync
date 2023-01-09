@@ -7,6 +7,7 @@ const Zoro_1 = require("./providers/anime/Zoro");
 const CrunchyRoll_1 = require("./providers/anime/CrunchyRoll");
 const AniList_1 = require("./providers/meta/AniList");
 const TMDB_1 = require("./providers/meta/TMDB");
+const ComicK_1 = require("./providers/manga/ComicK");
 class AniSync extends API_1.default {
     constructor() {
         super();
@@ -40,7 +41,43 @@ class AniSync extends API_1.default {
                 const provider = result.provider_name;
                 const results = result.results;
                 for (let i = 0; i < results.length; i++) {
-                    const data = this.compareAnime(results[i], aniData, config_1.config.mapping.provider[provider].threshold, config_1.config.mapping.provider[provider].comparison_threshold);
+                    const data = this.compareAnime(results[i], aniData, config_1.config.mapping.provider[provider]?.threshold, config_1.config.mapping.provider[provider]?.comparison_threshold);
+                    if (data != undefined) {
+                        comparison.push({
+                            provider,
+                            data
+                        });
+                    }
+                }
+            });
+            const result = this.formatAnimeData(comparison);
+            return result;
+        }
+        else if (type === "MANGA") {
+            const aniData = [null];
+            // Most likely will have to change MANGA to ONE_SHOT as well.
+            const aniList = new AniList_1.default("", type, "MANGA");
+            const aniListPromise = new Promise((resolve, reject) => {
+                aniList.search(query).then((result) => {
+                    const data = result.data.Page.media;
+                    aniData.push(...data);
+                    resolve(aniData);
+                });
+            });
+            promises.push(aniListPromise);
+            await Promise.all(promises);
+            // Search AniList first, then search the other providers.
+            const possibleData = await this.searchMangaData(aniData);
+            if (possibleData.length > 0) {
+                return possibleData;
+            }
+            const aggregatorData = await this.fetchData(query, type);
+            const comparison = [];
+            aggregatorData.map((result, index) => {
+                const provider = result.provider_name;
+                const results = result.results;
+                for (let i = 0; i < results.length; i++) {
+                    const data = this.compareAnime(results[i], aniData, config_1.config.mapping.provider[provider]?.threshold, config_1.config.mapping.provider[provider]?.comparison_threshold);
                     if (data != undefined) {
                         comparison.push({
                             provider,
@@ -53,7 +90,7 @@ class AniSync extends API_1.default {
             return result;
         }
         else {
-            throw new Error("Manga is not supported yet.");
+            throw new Error("Invalid type. Valid types include ANIME and MANGA.");
         }
     }
     async crawl(type, maxPages, wait) {
@@ -174,7 +211,7 @@ class AniSync extends API_1.default {
                         const provider = result.provider_name;
                         const results = result.results;
                         for (let i = 0; i < results.length; i++) {
-                            const data = this.compareAnime(results[i], [aniData], config_1.config.mapping.provider[provider].threshold, config_1.config.mapping.provider[provider].comparison_threshold);
+                            const data = this.compareAnime(results[i], [aniData], config_1.config.mapping.provider[provider]?.threshold, config_1.config.mapping.provider[provider]?.comparison_threshold);
                             if (data != undefined) {
                                 seasonData.push({
                                     provider,
@@ -247,8 +284,28 @@ class AniSync extends API_1.default {
             await Promise.all(promises);
             return aggregatorData;
         }
+        else if (type === "MANGA") {
+            const comick = new ComicK_1.default();
+            const aggregatorData = [];
+            const comickPromise = new Promise((resolve, reject) => {
+                this.wait(config_1.config.mapping.provider[comick.providerName] ? config_1.config.mapping.provider[comick.providerName].wait : config_1.config.mapping.wait).then(() => {
+                    comick.search(query).then((results) => {
+                        aggregatorData.push({
+                            provider_name: comick.providerName,
+                            results: results
+                        });
+                        resolve(aggregatorData);
+                    }).catch((err) => {
+                        reject(err);
+                    });
+                });
+            });
+            promises.push(comickPromise);
+            await Promise.all(promises);
+            return aggregatorData;
+        }
         else {
-            throw new Error("Manga is not supported yet.");
+            throw new Error("Invalid type. Valid types include ANIME and MANGA.");
         }
     }
     // Formats search results into singular AniList data. Assigns each provider to an AniList object.
@@ -360,6 +417,26 @@ class AniSync extends API_1.default {
             if (id != undefined) {
                 const promise = new Promise(async (resolve, reject) => {
                     const data = await anime.get(String(id));
+                    if (data != null) {
+                        results.push(data);
+                    }
+                    resolve(true);
+                });
+                promises.push(promise);
+            }
+        }
+        await Promise.all(promises);
+        return results;
+    }
+    async searchMangaData(aniListData) {
+        const promises = [];
+        const results = [];
+        const manga = new ComicK_1.default();
+        for (let i = 0; i < aniListData.length; i++) {
+            const id = aniListData[i] ? aniListData[i].id : undefined;
+            if (id != undefined) {
+                const promise = new Promise(async (resolve, reject) => {
+                    const data = await manga.get(String(id));
                     if (data != null) {
                         results.push(data);
                     }
