@@ -61,7 +61,7 @@ export default class AniSync extends API {
                 }
             });
 
-            const result = this.formatAnimeData(comparison);
+            const result = this.formatData(comparison);
             return result;
         } else if (type === "MANGA") {
             const aniData:Media[] = [null];
@@ -102,7 +102,7 @@ export default class AniSync extends API {
                 }
             });
 
-            const result = this.formatAnimeData(comparison);
+            const result = this.formatData(comparison);
             return result;
         } else {
             throw new Error("Invalid type. Valid types include ANIME and MANGA.");
@@ -151,7 +151,42 @@ export default class AniSync extends API {
                 await this.wait(wait);
             }
         } else {
-            throw new Error("Manga is not supported yet.");
+            const aniList = new AniList("", type, "MANGA");
+            const manga = new ComicK();
+
+            for (let i = 0; i < maxPages; i++) {
+                if (config.crawling.debug) {
+                    console.log("On page " + i + ".");
+                }
+
+                const aniListData = await aniList.getSeasonal(i, 10, type);
+
+                if (config.crawling.debug) {
+                    console.log("Got AniList seasonal data successfully.");
+                }
+
+                const aniListMedia = aniListData.data.trending.media;
+                
+                const debugTimer = new Date(Date.now());
+                if (config.crawling.debug) {
+                    console.log("Fetching seasonal data...");
+                }
+
+                const data:Result[] = await this.getSeasonal(aniListMedia, type);
+
+                if (config.crawling.debug) {
+                    const endTimer = new Date(Date.now());
+                    console.log("Finished fetching data. Request took " + (endTimer.getTime() - debugTimer.getTime()) + " milliseconds.");
+                }
+
+                await manga.insert(data);
+
+                if (config.crawling.debug) {
+                    console.log("Finished inserting shows.");
+                }
+
+                await this.wait(wait);
+            }
         }
     }
 
@@ -166,7 +201,14 @@ export default class AniSync extends API {
             const trendingData:Result[] = await this.getSeasonal(trending, type);
             return trendingData;
         } else {
-            throw new Error("Manga is not supported yet.");
+            // Most likely will have to change TV to MOVIE, OVA, etc.
+            const aniList = new AniList("", type, "MANGA");
+            
+            const data = await aniList.getSeasonal();
+            const trending:Media[] = data.data.trending.media;
+
+            const trendingData:Result[] = await this.getSeasonal(trending, type);
+            return trendingData;
         }
     }
 
@@ -181,7 +223,14 @@ export default class AniSync extends API {
             const seasonData:Result[] = await this.getSeasonal(season, type);
             return seasonData;
         } else {
-            throw new Error("Manga is not supported yet.");
+            // Most likely will have to change TV to MOVIE, OVA, etc.
+            const aniList = new AniList("", type, "MANGA");
+            
+            const data = await aniList.getSeasonal();
+            const season:Media[] = data.data.season.media;
+
+            const seasonData:Result[] = await this.getSeasonal(season, type);
+            return seasonData;
         }
     }
 
@@ -196,7 +245,14 @@ export default class AniSync extends API {
             const popularData:Result[] = await this.getSeasonal(popular, type);
             return popularData;
         } else {
-            throw new Error("Manga is not supported yet.");
+            // Most likely will have to change TV to MOVIE, OVA, etc.
+            const aniList = new AniList("", type, "MANGA");
+            
+            const data = await aniList.getSeasonal();
+            const popular:Media[] = data.data.popular.media;
+
+            const popularData:Result[] = await this.getSeasonal(popular, type);
+            return popularData;
         }
     }
 
@@ -211,7 +267,14 @@ export default class AniSync extends API {
             const topData:Result[] = await this.getSeasonal(top, type);
             return topData;
         } else {
-            throw new Error("Manga is not supported yet.");
+            // Most likely will have to change TV to MOVIE, OVA, etc.
+            const aniList = new AniList("", type, "MANGA");
+            
+            const data = await aniList.getSeasonal();
+            const top:Media[] = data.data.top.media;
+
+            const topData:Result[] = await this.getSeasonal(top, type);
+            return topData;
         }
     }
 
@@ -227,7 +290,14 @@ export default class AniSync extends API {
             const nextData:Result[] = await this.getSeasonal(nextSeason, type);
             return nextData;
         } else {
-            throw new Error("Manga is not supported yet.");
+            // Most likely will have to change TV to MOVIE, OVA, etc.
+            const aniList = new AniList("", type, "MANGA");
+            
+            const data = await aniList.getSeasonal();
+            const nextSeason:Media[] = data.data.nextSeason.media;
+
+            const nextData:Result[] = await this.getSeasonal(nextSeason, type);
+            return nextData;
         }
     }
 
@@ -261,12 +331,43 @@ export default class AniSync extends API {
                         }
                     });
                 }
-                const formatted = this.formatAnimeData(seasonData);
+                const formatted = this.formatData(seasonData);
                 allSeason.push(...formatted);
             }
             return allSeason;
         } else {
-            throw new Error("Manga is not supported yet.");
+            const seasonData:Search[] = [];
+            const allSeason:Result[] = [];
+
+            const possibleTrending = await this.searchMangaData(season);
+            if (possibleTrending.length > 0) {
+                allSeason.push(...possibleTrending);
+            } else {
+                for (let i = 0; i < season.length; i++) {
+                    const aniData = season[i];
+                    const title = aniData.title.english;
+    
+                    const aggregatorData:AggregatorData[] = await this.fetchData(title, type);
+    
+                    aggregatorData.map((result, index) => {
+                        const provider = result.provider_name;
+                        const results = result.results;
+    
+                        for (let i = 0; i < results.length; i++) {
+                            const data = this.compareAnime(results[i], [aniData], config.mapping.provider[provider]?.threshold, config.mapping.provider[provider]?.comparison_threshold);
+                            if (data != undefined) {
+                                seasonData.push({
+                                    provider,
+                                    data
+                                });
+                            }
+                        }
+                    });
+                }
+                const formatted = this.formatData(seasonData);
+                allSeason.push(...formatted);
+            }
+            return allSeason;
         }
     }
 
@@ -382,7 +483,7 @@ export default class AniSync extends API {
     }
 
     // Formats search results into singular AniList data. Assigns each provider to an AniList object.
-    private formatAnimeData(results:Search[]):Result[] {
+    private formatData(results:Search[]):Result[] {
         const aniList = [];
 
         for (let i = 0; i < results.length; i++) {

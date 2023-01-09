@@ -16,7 +16,6 @@ export default class Mangakakalot extends Manga {
         const data = await this.fetchJSON(`${this.baseUrl}/home_json_search`, {
             method: "POST",
             headers: {
-                Referer: `${this.baseUrl}/search/story/${this.parseQuery(query)}`,
                 "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
             },
             body: `searchword=${this.parseQuery(query)}`
