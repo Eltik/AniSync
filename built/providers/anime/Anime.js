@@ -8,12 +8,63 @@ class Anime extends API_1.default {
         super();
         this.baseUrl = undefined;
         this.providerName = undefined;
-        this.db = new sqlite3_1.Database((0, path_1.join)(__dirname, "../db.db"));
+        this.db = new sqlite3_1.Database((0, path_1.join)(__dirname, "../../db.db"));
         this.baseUrl = baseUrl;
         this.providerName = providerName;
     }
     async search(any) {
         throw new Error("Method not implemented.");
+    }
+    async insertAnime(results) {
+        // CREATE TABLE anime(id int(7) NOT NULL, anilist longtext not null, connectors longtext not null);
+        const db = this.db;
+        const data = await this.getAll();
+        try {
+            for (let i = 0; i < results.length; i++) {
+                const result = results[i];
+                let canAdd = true;
+                for (let j = 0; j < data.length; j++) {
+                    if (data[j].id === result.id) {
+                        canAdd = false;
+                    }
+                }
+                if (canAdd) {
+                    const stmt = db.prepare("INSERT INTO anime(id, anilist, connectors) VALUES ($id, $anilist, $connectors)");
+                    stmt.run({ $id: result.id, $anilist: JSON.stringify(result.anilist), $connectors: JSON.stringify(result.connectors) });
+                    stmt.finalize();
+                }
+                else {
+                    console.log(result.id + " already exists.");
+                }
+            }
+            return true;
+        }
+        catch (e) {
+            console.error(e);
+            return false;
+        }
+    }
+    async getAll() {
+        const db = this.db;
+        return new Promise((resolve, reject) => {
+            db.all("SELECT * FROM anime", (err, rows) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    const results = [];
+                    for (let i = 0; i < rows.length; i++) {
+                        const row = rows[i];
+                        results.push({
+                            id: row.id,
+                            anilist: JSON.parse(row.anilist),
+                            connectors: JSON.parse(row.connectors)
+                        });
+                    }
+                    resolve(results);
+                }
+            });
+        });
     }
 }
 exports.default = Anime;

@@ -81,9 +81,6 @@ class AniSync extends API_1.default {
     async crawl() {
         throw new Error("Not implemented yet.");
     }
-    async insertAnime(results) {
-        // CREATE TABLE anime(id int(7) NOT NULL, mal int(7) default 0, anilist longtext not null, connectors longtext not null);
-    }
     // Formats search results into singular AniList data. Assigns each provider to an AniList object.
     formatAnimeData(results) {
         const aniList = [];

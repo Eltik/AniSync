@@ -92,10 +92,6 @@ export default class AniSync extends API {
         throw new Error("Not implemented yet.");
     }
 
-    public async insertAnime(results:Search[]) {
-        // CREATE TABLE anime(id int(7) NOT NULL, mal int(7) default 0, anilist longtext not null, connectors longtext not null);
-    }
-
     // Formats search results into singular AniList data. Assigns each provider to an AniList object.
     public formatAnimeData(results:Search[]):Result[] {
         const aniList = [];
@@ -258,3 +254,5 @@ interface Mapping {
     native?: string;
     genres?: string[];
 }
+
+export type { Result };

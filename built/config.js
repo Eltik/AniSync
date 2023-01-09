@@ -9,8 +9,8 @@ exports.config = {
         check_genres: false,
         anime: {
             crunchyroll: {
-                email: "",
-                password: "",
+                email: "alexayalavazquez@hotmail.com",
+                password: "Alejandrito0",
                 locale: "en-US"
             }
         },
