@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const API_1 = require("./API");
 const StringSimilarity_1 = require("./libraries/StringSimilarity");
 const config_1 = require("./config");
-const ZoroTo_1 = require("./providers/anime/ZoroTo");
+const Zoro_1 = require("./providers/anime/Zoro");
 const CrunchyRoll_1 = require("./providers/anime/CrunchyRoll");
 const AniList_1 = require("./AniList");
 class AniSync extends API_1.default {
@@ -58,7 +58,7 @@ class AniSync extends API_1.default {
     async fetchData(query, type) {
         const promises = [];
         if (type === "ANIME") {
-            const zoro = new ZoroTo_1.default();
+            const zoro = new Zoro_1.default();
             const crunchy = new CrunchyRoll_1.default();
             const aggregatorData = [];
             const zoroPromise = new Promise((resolve, reject) => {

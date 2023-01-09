@@ -1,9 +1,9 @@
 import Anime, { SearchResponse } from "./Anime";
 import { load } from "cheerio";
 
-export default class ZoroTo extends Anime {
+export default class Zoro extends Anime {
     constructor() {
-        super("https://zoro.to", "ZoroTo");
+        super("https://zoro.to", "Zoro");
     }
 
     public async search(query:string): Promise<Array<SearchResponse>> {

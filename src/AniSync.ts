@@ -1,7 +1,7 @@
 import API from "./API";
 import StringSimilarity from "./libraries/StringSimilarity";
 import { config } from "./config";
-import ZoroTo from "./providers/anime/ZoroTo";
+import Zoro from "./providers/anime/Zoro";
 import CrunchyRoll from "./providers/anime/CrunchyRoll";
 import AniList, { Media, Type } from "./AniList";
 import { SearchResponse } from "./providers/anime/Anime";
@@ -71,7 +71,7 @@ export default class AniSync extends API {
     private async fetchData(query:string, type:Type["ANIME"]|Type["MANGA"]):Promise<AggregatorData[]> {
         const promises = [];
         if (type === "ANIME") {
-            const zoro = new ZoroTo();
+            const zoro = new Zoro();
             const crunchy = new CrunchyRoll();
 
             const aggregatorData:AggregatorData[] = [];

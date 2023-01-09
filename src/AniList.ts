@@ -53,39 +53,230 @@ export default class AniList extends API {
                     }
                     media(type: $type, search: $search, sort: $sort, format: $format) {
                         id
-                        idMal
-                        siteUrl
                         title {
-                            english
+                            userPreferred
                             romaji
+                            english
                             native
                         }
-                        description(asHtml: false)
-                        status
-                        averageScore
                         coverImage {
                             extraLarge
                             large
-                            medium
-                            color
                         }
                         bannerImage
+                        startDate {
+                            year
+                            month
+                            day
+                        }
+                        endDate {
+                            year
+                            month
+                            day
+                        }
+                        description
+                        season
+                        seasonYear
+                        type
+                        format
+                        status(version: 2)
                         episodes
-                        popularity
+                        duration
+                        chapters
+                        volumes
                         genres
-                        trailer {
+                        synonyms
+                        source(version: 3)
+                        isAdult
+                        isLocked
+                        meanScore
+                        averageScore
+                        popularity
+                        favourites
+                        isFavouriteBlocked
+                        hashtag
+                        countryOfOrigin
+                        isLicensed
+                        isFavourite
+                        isRecommendationBlocked
+                        isFavouriteBlocked
+                        isReviewBlocked
+                        nextAiringEpisode {
+                            airingAt
+                            timeUntilAiring
+                            episode
+                        }
+                        relations {
+                            edges {
+                                id
+                                relationType(version: 2)
+                                node {
+                                    id
+                                    title {
+                                        userPreferred
+                                    }
+                                    format
+                                    type
+                                    status(version: 2)
+                                    bannerImage
+                                    coverImage {
+                                        large
+                                    }
+                                }
+                            }
+                        }
+                        characterPreview: characters(perPage: 6, sort: [ROLE, RELEVANCE, ID]) {
+                            edges {
+                                id
+                                role
+                                name
+                                voiceActors(language: JAPANESE, sort: [RELEVANCE, ID]) {
+                                    id
+                                    name {
+                                        userPreferred
+                                    }
+                                    language: languageV2
+                                    image {
+                                        large
+                                    }
+                                }
+                                node {
+                                    id
+                                    name {
+                                        userPreferred
+                                    }
+                                    image {
+                                        large
+                                    }
+                                }
+                            }
+                        }
+                        staffPreview: staff(perPage: 8, sort: [RELEVANCE, ID]) {
+                            edges {
+                                id
+                                role
+                                node {
+                                    id
+                                    name {
+                                        userPreferred
+                                    }
+                                    language: languageV2
+                                    image {
+                                        large
+                                    }
+                                }
+                            }
+                        }
+                        studios {
+                            edges {
+                                isMain
+                                node {
+                                    id
+                                    name
+                                }
+                            }
+                        }
+                        reviewPreview: reviews(perPage: 2, sort: [RATING_DESC, ID]) {
+                            pageInfo {
+                                total
+                            }
+                            nodes {
+                                id
+                                summary
+                                rating
+                                ratingAmount
+                                user {
+                                    id
+                                    name
+                                    avatar {
+                                        large
+                                    }
+                                }
+                            }
+                        }
+                        recommendations(perPage: 7, sort: [RATING_DESC, ID]) {
+                            pageInfo {
+                                total
+                            }
+                            nodes {
+                                id
+                                rating
+                                userRating
+                                mediaRecommendation {
+                                    id
+                                    title {
+                                        userPreferred
+                                    }
+                                    format
+                                    type
+                                    status(version: 2)
+                                    bannerImage
+                                    coverImage {
+                                        large
+                                    }
+                                }
+                                user {
+                                    id
+                                    name
+                                    avatar {
+                                        large
+                                    }
+                                }
+                            }
+                        }
+                        externalLinks {
                             id
+                            site
+                            url
+                            type
+                            language
+                            color
+                            icon
+                            notes
+                            isDisabled
                         }
                         streamingEpisodes {
+                            site
                             title
                             thumbnail
+                            url
                         }
-                        airingSchedule {
-                            edges {
-                                node{
-                                    episode
-                                    airingAt
-                                }
+                        trailer {
+                            id
+                            site
+                        }
+                        rankings {
+                            id
+                            rank
+                            type
+                            format
+                            year
+                            season
+                            allTime
+                            context
+                        }
+                        tags {
+                            id
+                            name
+                            description
+                            rank
+                            isMediaSpoiler
+                            isGeneralSpoiler
+                            userId
+                        }
+                        mediaListEntry {
+                            id
+                            status
+                            score
+                        }
+                        stats {
+                            statusDistribution {
+                                status
+                                amount
+                            }
+                            scoreDistribution {
+                                score
+                                amount
                             }
                         }
                     }
@@ -183,42 +374,233 @@ export default class AniList extends API {
         if (this.isMal) {
             aniListArgs = {
                 query: `
-                query ($id: Int, $format: MediaType) {
+                query($id: Int, $format: MediaType) {
                     Media(idMal: $id, type: $format) {
                         id
-                        idMal
-                        siteUrl
                         title {
-                            english
+                            userPreferred
                             romaji
+                            english
                             native
                         }
-                        description(asHtml: false)
-                        status
-                        averageScore
                         coverImage {
                             extraLarge
                             large
-                            medium
-                            color
                         }
                         bannerImage
+                        startDate {
+                            year
+                            month
+                            day
+                        }
+                        endDate {
+                            year
+                            month
+                            day
+                        }
+                        description
+                        season
+                        seasonYear
+                        type
+                        format
+                        status(version: 2)
                         episodes
-                        popularity
+                        duration
+                        chapters
+                        volumes
                         genres
-                        trailer {
+                        synonyms
+                        source(version: 3)
+                        isAdult
+                        isLocked
+                        meanScore
+                        averageScore
+                        popularity
+                        favourites
+                        isFavouriteBlocked
+                        hashtag
+                        countryOfOrigin
+                        isLicensed
+                        isFavourite
+                        isRecommendationBlocked
+                        isFavouriteBlocked
+                        isReviewBlocked
+                        nextAiringEpisode {
+                            airingAt
+                            timeUntilAiring
+                            episode
+                        }
+                        relations {
+                            edges {
+                                id
+                                relationType(version: 2)
+                                node {
+                                    id
+                                    title {
+                                        userPreferred
+                                    }
+                                    format
+                                    type
+                                    status(version: 2)
+                                    bannerImage
+                                    coverImage {
+                                        large
+                                    }
+                                }
+                            }
+                        }
+                        characterPreview: characters(perPage: 6, sort: [ROLE, RELEVANCE, ID]) {
+                            edges {
+                                id
+                                role
+                                name
+                                voiceActors(language: JAPANESE, sort: [RELEVANCE, ID]) {
+                                    id
+                                    name {
+                                        userPreferred
+                                    }
+                                    language: languageV2
+                                    image {
+                                        large
+                                    }
+                                }
+                                node {
+                                    id
+                                    name {
+                                        userPreferred
+                                    }
+                                    image {
+                                        large
+                                    }
+                                }
+                            }
+                        }
+                        staffPreview: staff(perPage: 8, sort: [RELEVANCE, ID]) {
+                            edges {
+                                id
+                                role
+                                node {
+                                    id
+                                    name {
+                                        userPreferred
+                                    }
+                                    language: languageV2
+                                    image {
+                                        large
+                                    }
+                                }
+                            }
+                        }
+                        studios {
+                            edges {
+                                isMain
+                                node {
+                                    id
+                                    name
+                                }
+                            }
+                        }
+                        reviewPreview: reviews(perPage: 2, sort: [RATING_DESC, ID]) {
+                            pageInfo {
+                                total
+                            }
+                            nodes {
+                                id
+                                summary
+                                rating
+                                ratingAmount
+                                user {
+                                    id
+                                    name
+                                    avatar {
+                                        large
+                                    }
+                                }
+                            }
+                        }
+                        recommendations(perPage: 7, sort: [RATING_DESC, ID]) {
+                            pageInfo {
+                                total
+                            }
+                            nodes {
+                                id
+                                rating
+                                userRating
+                                mediaRecommendation {
+                                    id
+                                    title {
+                                        userPreferred
+                                    }
+                                    format
+                                    type
+                                    status(version: 2)
+                                    bannerImage
+                                    coverImage {
+                                        large
+                                    }
+                                }
+                                user {
+                                    id
+                                    name
+                                    avatar {
+                                        large
+                                    }
+                                }
+                            }
+                        }
+                        externalLinks {
                             id
+                            site
+                            url
+                            type
+                            language
+                            color
+                            icon
+                            notes
+                            isDisabled
                         }
                         streamingEpisodes {
+                            site
                             title
                             thumbnail
+                            url
                         }
-                        airingSchedule {
-                            edges {
-                                node{
-                                    episode
-                                    airingAt
-                                }
+                        trailer {
+                            id
+                            site
+                        }
+                        rankings {
+                            id
+                            rank
+                            type
+                            format
+                            year
+                            season
+                            allTime
+                            context
+                        }
+                        tags {
+                            id
+                            name
+                            description
+                            rank
+                            isMediaSpoiler
+                            isGeneralSpoiler
+                            userId
+                        }
+                        mediaListEntry {
+                            id
+                            status
+                            score
+                        }
+                        stats {
+                            statusDistribution {
+                                status
+                                amount
+                            }
+                            scoreDistribution {
+                                score
+                                amount
                             }
                         }
                     }
@@ -229,42 +611,233 @@ export default class AniList extends API {
         } else {
             aniListArgs = {
                 query: `
-                query ($id: Int) {
-                    Media(id: $id) {
+                query($id: Int) {
+                    Media(idMal: $id) {
                         id
-                        idMal
-                        siteUrl
                         title {
-                            english
+                            userPreferred
                             romaji
+                            english
                             native
                         }
-                        description(asHtml: false)
-                        status
-                        averageScore
                         coverImage {
                             extraLarge
                             large
-                            medium
-                            color
                         }
                         bannerImage
+                        startDate {
+                            year
+                            month
+                            day
+                        }
+                        endDate {
+                            year
+                            month
+                            day
+                        }
+                        description
+                        season
+                        seasonYear
+                        type
+                        format
+                        status(version: 2)
                         episodes
-                        popularity
+                        duration
+                        chapters
+                        volumes
                         genres
-                        trailer {
+                        synonyms
+                        source(version: 3)
+                        isAdult
+                        isLocked
+                        meanScore
+                        averageScore
+                        popularity
+                        favourites
+                        isFavouriteBlocked
+                        hashtag
+                        countryOfOrigin
+                        isLicensed
+                        isFavourite
+                        isRecommendationBlocked
+                        isFavouriteBlocked
+                        isReviewBlocked
+                        nextAiringEpisode {
+                            airingAt
+                            timeUntilAiring
+                            episode
+                        }
+                        relations {
+                            edges {
+                                id
+                                relationType(version: 2)
+                                node {
+                                    id
+                                    title {
+                                        userPreferred
+                                    }
+                                    format
+                                    type
+                                    status(version: 2)
+                                    bannerImage
+                                    coverImage {
+                                        large
+                                    }
+                                }
+                            }
+                        }
+                        characterPreview: characters(perPage: 6, sort: [ROLE, RELEVANCE, ID]) {
+                            edges {
+                                id
+                                role
+                                name
+                                voiceActors(language: JAPANESE, sort: [RELEVANCE, ID]) {
+                                    id
+                                    name {
+                                        userPreferred
+                                    }
+                                    language: languageV2
+                                    image {
+                                        large
+                                    }
+                                }
+                                node {
+                                    id
+                                    name {
+                                        userPreferred
+                                    }
+                                    image {
+                                        large
+                                    }
+                                }
+                            }
+                        }
+                        staffPreview: staff(perPage: 8, sort: [RELEVANCE, ID]) {
+                            edges {
+                                id
+                                role
+                                node {
+                                    id
+                                    name {
+                                        userPreferred
+                                    }
+                                    language: languageV2
+                                    image {
+                                        large
+                                    }
+                                }
+                            }
+                        }
+                        studios {
+                            edges {
+                                isMain
+                                node {
+                                    id
+                                    name
+                                }
+                            }
+                        }
+                        reviewPreview: reviews(perPage: 2, sort: [RATING_DESC, ID]) {
+                            pageInfo {
+                                total
+                            }
+                            nodes {
+                                id
+                                summary
+                                rating
+                                ratingAmount
+                                user {
+                                    id
+                                    name
+                                    avatar {
+                                        large
+                                    }
+                                }
+                            }
+                        }
+                        recommendations(perPage: 7, sort: [RATING_DESC, ID]) {
+                            pageInfo {
+                                total
+                            }
+                            nodes {
+                                id
+                                rating
+                                userRating
+                                mediaRecommendation {
+                                    id
+                                    title {
+                                        userPreferred
+                                    }
+                                    format
+                                    type
+                                    status(version: 2)
+                                    bannerImage
+                                    coverImage {
+                                        large
+                                    }
+                                }
+                                user {
+                                    id
+                                    name
+                                    avatar {
+                                        large
+                                    }
+                                }
+                            }
+                        }
+                        externalLinks {
                             id
+                            site
+                            url
+                            type
+                            language
+                            color
+                            icon
+                            notes
+                            isDisabled
                         }
                         streamingEpisodes {
+                            site
                             title
                             thumbnail
+                            url
                         }
-                        airingSchedule {
-                            edges {
-                                node{
-                                    episode
-                                    airingAt
-                                }
+                        trailer {
+                            id
+                            site
+                        }
+                        rankings {
+                            id
+                            rank
+                            type
+                            format
+                            year
+                            season
+                            allTime
+                            context
+                        }
+                        tags {
+                            id
+                            name
+                            description
+                            rank
+                            isMediaSpoiler
+                            isGeneralSpoiler
+                            userId
+                        }
+                        mediaListEntry {
+                            id
+                            status
+                            score
+                        }
+                        stats {
+                            statusDistribution {
+                                status
+                                amount
+                            }
+                            scoreDistribution {
+                                score
+                                amount
                             }
                         }
                     }
@@ -354,39 +927,230 @@ export default class AniList extends API {
             
             fragment media on Media {
                 id
-                idMal
-                siteUrl
                 title {
-                    english
+                    userPreferred
                     romaji
+                    english
                     native
                 }
-                description(asHtml: false)
-                status
-                averageScore
                 coverImage {
                     extraLarge
                     large
-                    medium
-                    color
                 }
                 bannerImage
+                startDate {
+                    year
+                    month
+                    day
+                }
+                endDate {
+                    year
+                    month
+                    day
+                }
+                description
+                season
+                seasonYear
+                type
+                format
+                status(version: 2)
                 episodes
-                popularity
+                duration
+                chapters
+                volumes
                 genres
-                trailer {
+                synonyms
+                source(version: 3)
+                isAdult
+                isLocked
+                meanScore
+                averageScore
+                popularity
+                favourites
+                isFavouriteBlocked
+                hashtag
+                countryOfOrigin
+                isLicensed
+                isFavourite
+                isRecommendationBlocked
+                isFavouriteBlocked
+                isReviewBlocked
+                nextAiringEpisode {
+                    airingAt
+                    timeUntilAiring
+                    episode
+                }
+                relations {
+                    edges {
+                        id
+                        relationType(version: 2)
+                        node {
+                            id
+                            title {
+                                userPreferred
+                            }
+                            format
+                            type
+                            status(version: 2)
+                            bannerImage
+                            coverImage {
+                                large
+                            }
+                        }
+                    }
+                }
+                characterPreview: characters(perPage: 6, sort: [ROLE, RELEVANCE, ID]) {
+                    edges {
+                        id
+                        role
+                        name
+                        voiceActors(language: JAPANESE, sort: [RELEVANCE, ID]) {
+                            id
+                            name {
+                                userPreferred
+                            }
+                            language: languageV2
+                            image {
+                                large
+                            }
+                        }
+                        node {
+                            id
+                            name {
+                                userPreferred
+                            }
+                            image {
+                                large
+                            }
+                        }
+                    }
+                }
+                staffPreview: staff(perPage: 8, sort: [RELEVANCE, ID]) {
+                    edges {
+                        id
+                        role
+                        node {
+                            id
+                            name {
+                                userPreferred
+                            }
+                            language: languageV2
+                            image {
+                                large
+                            }
+                        }
+                    }
+                }
+                studios {
+                    edges {
+                        isMain
+                        node {
+                            id
+                            name
+                        }
+                    }
+                }
+                reviewPreview: reviews(perPage: 2, sort: [RATING_DESC, ID]) {
+                    pageInfo {
+                        total
+                    }
+                    nodes {
+                        id
+                        summary
+                        rating
+                        ratingAmount
+                        user {
+                            id
+                            name
+                            avatar {
+                                large
+                            }
+                        }
+                    }
+                }
+                recommendations(perPage: 7, sort: [RATING_DESC, ID]) {
+                    pageInfo {
+                        total
+                    }
+                    nodes {
+                        id
+                        rating
+                        userRating
+                        mediaRecommendation {
+                            id
+                            title {
+                                userPreferred
+                            }
+                            format
+                            type
+                            status(version: 2)
+                            bannerImage
+                            coverImage {
+                                large
+                            }
+                        }
+                        user {
+                            id
+                            name
+                            avatar {
+                                large
+                            }
+                        }
+                    }
+                }
+                externalLinks {
                     id
+                    site
+                    url
+                    type
+                    language
+                    color
+                    icon
+                    notes
+                    isDisabled
                 }
                 streamingEpisodes {
+                    site
                     title
                     thumbnail
+                    url
                 }
-                airingSchedule {
-                    edges {
-                        node {
-                            episode
-                            airingAt
-                        }
+                trailer {
+                    id
+                    site
+                }
+                rankings {
+                    id
+                    rank
+                    type
+                    format
+                    year
+                    season
+                    allTime
+                    context
+                }
+                tags {
+                    id
+                    name
+                    description
+                    rank
+                    isMediaSpoiler
+                    isGeneralSpoiler
+                    userId
+                }
+                mediaListEntry {
+                    id
+                    status
+                    score
+                }
+                stats {
+                    statusDistribution {
+                        status
+                        amount
+                    }
+                    scoreDistribution {
+                        score
+                        amount
                     }
                 }
             }

@@ -9,15 +9,15 @@ exports.config = {
         check_genres: false,
         anime: {
             CrunchyRoll: {
-                threshold: 0.8,
-                comparison_threshold: 0.8,
+                threshold: 0.95,
+                comparison_threshold: 0.95,
                 email: "",
                 password: "",
                 locale: "en-US"
             },
-            ZoroTo: {
-                threshold: 0.8,
-                comparison_threshold: 0.8
+            Zoro: {
+                threshold: 0.95,
+                comparison_threshold: 0.95
             }
         },
         anilist: {
