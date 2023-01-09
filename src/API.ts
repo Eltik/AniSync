@@ -103,7 +103,11 @@ interface DOM {
     Cheerio:Cheerio<any>;
 }
 
-// CREATE TABLE anime(id int(7) NOT NULL, mal int(7) default 0, anilist longtext not null, connectors longtext not null);
-// CREATE TABLE manga(id int(7) NOT NULL, mal int(7) default 0, anilist longtext not null, connectors longtext not null);
+// Base tables are below.
+// CREATE TABLE anime(id int(7) NOT NULL, anilist longtext not null, connectors longtext not null);
+// CREATE TABLE manga(id int(7) NOT NULL, anilist longtext not null, connectors longtext not null);
+
+// Cached table can store episodes or chapters.
+// CREATE TABLE cached(id int(7) NOT NULL, data longtext not null);
 
 export type { DOM };

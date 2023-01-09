@@ -5,11 +5,12 @@
     },
     "name": "anisync",
     "description": "Mapping sites to AniList and back.",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "main": "./built/AniSync.js",
     "scripts": {
         "build": "tsc --build",
         "clean": "tsc --build --clean",
+        "create_db": "sqlite3 ./built/db.db",
         "crawl": "node crawler.js"
     },
     "repository": {

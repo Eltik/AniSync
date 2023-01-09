@@ -174,53 +174,7 @@ Crawling:
     </tr>
 </table>
 
-
 *Unfinished
-
-```typescript
-export var config = {
-    mapping: {
-        threshold: 0.8,
-        comparison_threshold: 0.8,
-        wait: 200,
-        check_genres: false,
-        provider: {
-            CrunchyRoll: {
-                threshold: 0.95,
-                comparison_threshold: 0.95,
-                wait: 500,
-                email: "",
-                password: "",
-                locale: "en-US"
-            },
-            Zoro: {
-                threshold: 0.95,
-                comparison_threshold: 0.95,
-                wait: 200
-            },
-            TMDB: {
-                api_key: "5201b54eb0968700e693a30576d7d4dc",
-                threshold: 0.95,
-                comparison_threshold: 0.95,
-                wait: 350
-            },
-            AniList: {
-                SEASON: "WINTER",
-                SEASON_YEAR: 2023,
-                NEXT_SEASON: "SPRING",
-                NEXT_YEAR: 2023
-            }
-        },
-    },
-    crawling: {
-        debug: true,
-        anime: {
-            wait: 1000,
-            max_pages: 5
-        }
-    }
-};
-```
 
 ### Searching
 It is recommended to use AniSync's search function over other functions. It is faster and captures more data than fetching seasonal data or using multiple crawler instances. How it works is by first searching on AniList, then searching on aggregators and matching each result together. For example, if a search request contains the query `GoSick`, a request will be made to AniList. AniList might return `Gundam`, `GoSick`, and `Goblin Slayer`. A search will then be made to all aggregators. If CrunchyRoll only returns `GoSick` and `Goblin Slayer`, its ID's will be matched to each AniList response like this:
@@ -444,14 +398,54 @@ That's it! Feedback would be appreciated...
         <th>Notes</th>
     </tr>
     <tr>
-        <td><img src="https://zoro.to/images/logo.png" style="width:50%"></img></td>
+        <td>Zoro.To</td>
         <td><a href="https://zoro.to/">Link</a></td>
         <td>N/A</td>
     </tr>
     <tr>
-        <td><img src="https://logodownload.org/wp-content/uploads/2020/02/crunchyroll-logo-2.png" style="width:50%"></img></td>
+        <td>CrunchyRoll</td>
         <td><a href="https://www.crunchyroll.com/">Link</a></td>
         <td>Requires an account (see config file)</td>
+    </tr>
+    <tr>
+        <td>GogoAnime</td>
+        <td><a href="https://www.gogoanime.dk/">Link</a></td>
+        <td>N/A</td>
+    </tr>
+    <tr>
+        <td>AnimeFox</td>
+        <td><a href="https://animefox.tv/">Link</a></td>
+        <td>N/A</td>
+    </tr>
+    <tr>
+        <td>AnimePahe</td>
+        <td><a href="https://animepahe.com/">Link</a></td>
+        <td>N/A</td>
+    </tr>
+    <tr>
+        <td>Enime</td>
+        <td><a href="https://enime.moe/">Link</a></td>
+        <td>N/A</td>
+    </tr>
+    <tr>
+        <td>ComicK</td>
+        <td><a href="https://comick.app/">Link</a></td>
+        <td>N/A</td>
+    </tr>
+    <tr>
+        <td>MangaDex</td>
+        <td><a href="https://mangadex.org/">Link</a></td>
+        <td>N/A</td>
+    </tr>
+    <tr>
+        <td>Mangakakalot</td>
+        <td><a href="https://mangakakalot.com/">Link</a></td>
+        <td>N/A</td>
+    </tr>
+    <tr>
+        <td>TVDB</td>
+        <td><a href="https://thetvdb.com/">Link</a></td>
+        <td>Meta</td>
     </tr>
     <tr>
         <td>4anime*</td>
@@ -462,11 +456,6 @@ That's it! Feedback would be appreciated...
         <td>9anime*</td>
         <td><a href="https://9anime.pl/">Link</a></td>
         <td>Requires special keys/mapping</td>
-    </tr>
-    <tr>
-        <td>TVDB*</td>
-        <td><a href="https://thetvdb.com/">Link</a></td>
-        <td>Meta</td>
     </tr>
     <tr>
         <td>MyAnimeList*</td>
