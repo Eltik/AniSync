@@ -49,6 +49,25 @@ export default class Anime extends API {
         }
     }
 
+    public async get(id:string): Promise<Result> {
+        const db = this.db;
+        return new Promise((resolve, reject) => {
+            db.get("SELECT * FROM anime WHERE id=?", [id], (err, rows) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    if (rows != undefined) {
+                        rows.anilist = JSON.parse(rows.anilist);
+                        rows.connectors = JSON.parse(rows.connectors);
+                        resolve(rows);
+                    } else {
+                        resolve(null);
+                    }
+                }
+            });
+        });
+    }
+
     private async getAll(): Promise<Result[]> {
         const db = this.db;
         return new Promise((resolve, reject) => {

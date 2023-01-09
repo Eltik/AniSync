@@ -8,10 +8,16 @@ exports.config = {
         comparison_threshold: 0.8,
         check_genres: false,
         anime: {
-            crunchyroll: {
-                email: "alexayalavazquez@hotmail.com",
-                password: "Alejandrito0",
+            CrunchyRoll: {
+                threshold: 0.8,
+                comparison_threshold: 0.8,
+                email: "",
+                password: "",
                 locale: "en-US"
+            },
+            ZoroTo: {
+                threshold: 0.8,
+                comparison_threshold: 0.8
             }
         },
         anilist: {

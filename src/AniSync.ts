@@ -1,5 +1,5 @@
 import API from "./API";
-import StringSimilarity from "./StringSimilarity";
+import StringSimilarity from "./libraries/StringSimilarity";
 import { config } from "./config";
 import ZoroTo from "./providers/anime/ZoroTo";
 import CrunchyRoll from "./providers/anime/CrunchyRoll";
@@ -19,10 +19,6 @@ export default class AniSync extends API {
         const promises = [];
 
         if (type === "ANIME") {
-            const zoro = new ZoroTo();
-            const crunchy = new CrunchyRoll();
-
-            const aggregatorData:AggregatorData[] = [];
             const aniData:Media[] = [null];
 
             // Most likely will have to change TV to MOVIE, OVA, etc.
@@ -35,34 +31,10 @@ export default class AniSync extends API {
                     resolve(aniData);
                 });
             });
-            const zoroPromise = new Promise((resolve, reject) => {
-                zoro.search(query).then((results) => {
-                    aggregatorData.push({
-                        provider_name: zoro.providerName,
-                        results: results
-                    });
-                    resolve(aggregatorData);
-                }).catch((err) => {
-                    reject(err);
-                });
-            });
-            const crunchyPromise = new Promise((resolve, reject) => {
-                crunchy.init().then(() => {
-                    crunchy.search(query).then((results) => {
-                        aggregatorData.push({
-                            provider_name: crunchy.providerName,
-                            results: results
-                        });
-                        resolve(aggregatorData);
-                    }).catch((err) => {
-                        reject(err);
-                    });
-                })
-            })
+
+            const aggregatorData:AggregatorData[] = await this.fetchData(query, type);
 
             promises.push(aniListPromise);
-            promises.push(zoroPromise);
-            promises.push(crunchyPromise);
             await Promise.all(promises);
             
             const comparison:Search[] = [];
@@ -88,8 +60,54 @@ export default class AniSync extends API {
         }
     }
 
+    public async getTrending(type:Type["ANIME"]|Type["MANGA"]) {
+        
+    }
+
     public async crawl() {
         throw new Error("Not implemented yet.");
+    }
+
+    private async fetchData(query:string, type:Type["ANIME"]|Type["MANGA"]):Promise<AggregatorData[]> {
+        const promises = [];
+        if (type === "ANIME") {
+            const zoro = new ZoroTo();
+            const crunchy = new CrunchyRoll();
+
+            const aggregatorData:AggregatorData[] = [];
+
+            const zoroPromise = new Promise((resolve, reject) => {
+                zoro.search(query).then((results) => {
+                    aggregatorData.push({
+                        provider_name: zoro.providerName,
+                        results: results
+                    });
+                    resolve(aggregatorData);
+                }).catch((err) => {
+                    reject(err);
+                });
+            });
+            const crunchyPromise = new Promise((resolve, reject) => {
+                crunchy.init().then(() => {
+                    crunchy.search(query).then((results) => {
+                        aggregatorData.push({
+                            provider_name: crunchy.providerName,
+                            results: results
+                        });
+                        resolve(aggregatorData);
+                    }).catch((err) => {
+                        reject(err);
+                    });
+                })
+            })
+
+            promises.push(zoroPromise);
+            promises.push(crunchyPromise);
+            await Promise.all(promises);
+            return aggregatorData;
+        } else {
+            throw new Error("Manga is not supported yet.");
+        }
     }
 
     // Formats search results into singular AniList data. Assigns each provider to an AniList object.
@@ -168,21 +186,6 @@ export default class AniSync extends API {
                 amount++;
             }
         }
-
-        // Check genres
-        /*
-        if (this.config.check_genres) {
-            if (result1.genres.length === result2.genres.length) {
-                matches = false;
-            } else {
-                for (let i = 0; i < result1.genres.length; i++) {
-                    if (result1.genres[i] != result2.genres[i] && this.stringSim.compareTwoStrings(result1.genres[i], result2.genres[i]) < this.config.threshold) {
-                        matches = false;
-                    }
-                }
-            }
-        }
-        */
         return amount / tries;
     }
 

@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const API_1 = require("./API");
-const StringSimilarity_1 = require("./StringSimilarity");
+const StringSimilarity_1 = require("./libraries/StringSimilarity");
 const config_1 = require("./config");
 const ZoroTo_1 = require("./providers/anime/ZoroTo");
 const CrunchyRoll_1 = require("./providers/anime/CrunchyRoll");
@@ -16,9 +16,6 @@ class AniSync extends API_1.default {
     async search(query, type) {
         const promises = [];
         if (type === "ANIME") {
-            const zoro = new ZoroTo_1.default();
-            const crunchy = new CrunchyRoll_1.default();
-            const aggregatorData = [];
             const aniData = [null];
             // Most likely will have to change TV to MOVIE, OVA, etc.
             const aniList = new AniList_1.default("", type, "TV");
@@ -29,6 +26,41 @@ class AniSync extends API_1.default {
                     resolve(aniData);
                 });
             });
+            const aggregatorData = await this.fetchData(query, type);
+            promises.push(aniListPromise);
+            await Promise.all(promises);
+            const comparison = [];
+            aggregatorData.map((result, index) => {
+                const provider = result.provider_name;
+                const results = result.results;
+                for (let i = 0; i < results.length; i++) {
+                    const data = this.compareAnime(results[i], aniData, config_1.config.mapping.anime[provider].threshold, config_1.config.mapping.anime[provider].comparison_threshold);
+                    if (data != undefined) {
+                        comparison.push({
+                            provider,
+                            data
+                        });
+                    }
+                }
+            });
+            const result = this.formatAnimeData(comparison);
+            return result;
+        }
+        else {
+            throw new Error("Manga is not supported yet.");
+        }
+    }
+    async getTrending(type) {
+    }
+    async crawl() {
+        throw new Error("Not implemented yet.");
+    }
+    async fetchData(query, type) {
+        const promises = [];
+        if (type === "ANIME") {
+            const zoro = new ZoroTo_1.default();
+            const crunchy = new CrunchyRoll_1.default();
+            const aggregatorData = [];
             const zoroPromise = new Promise((resolve, reject) => {
                 zoro.search(query).then((results) => {
                     aggregatorData.push({
@@ -53,33 +85,14 @@ class AniSync extends API_1.default {
                     });
                 });
             });
-            promises.push(aniListPromise);
             promises.push(zoroPromise);
             promises.push(crunchyPromise);
             await Promise.all(promises);
-            const comparison = [];
-            aggregatorData.map((result, index) => {
-                const provider = result.provider_name;
-                const results = result.results;
-                for (let i = 0; i < results.length; i++) {
-                    const data = this.compareAnime(results[i], aniData);
-                    if (data != undefined) {
-                        comparison.push({
-                            provider,
-                            data
-                        });
-                    }
-                }
-            });
-            const result = this.formatAnimeData(comparison);
-            return result;
+            return aggregatorData;
         }
         else {
             throw new Error("Manga is not supported yet.");
         }
-    }
-    async crawl() {
-        throw new Error("Not implemented yet.");
     }
     // Formats search results into singular AniList data. Assigns each provider to an AniList object.
     formatAnimeData(results) {
@@ -117,7 +130,7 @@ class AniSync extends API_1.default {
         }
         return aniList;
     }
-    checkItem(result1, result2) {
+    checkItem(result1, result2, threshold) {
         let amount = 0;
         let tries = 0;
         result1.title = result1.title != undefined ? result1.title.toLowerCase() : undefined;
@@ -130,41 +143,29 @@ class AniSync extends API_1.default {
         if (result1.title != undefined && result2.title != undefined) {
             tries++;
             const stringComparison = this.stringSim.compareTwoStrings(result1.title, result2.title);
-            if (result1.title === result2.title || stringComparison > this.config.threshold) {
+            if (result1.title === result2.title || stringComparison > threshold) {
                 amount++;
             }
         }
         if (result1.romaji != undefined && result2.romaji != undefined) {
             tries++;
             const stringComparison = this.stringSim.compareTwoStrings(result1.romaji, result2.romaji);
-            if (result1.romaji === result2.romaji || stringComparison > this.config.threshold) {
+            if (result1.romaji === result2.romaji || stringComparison > threshold) {
                 amount++;
             }
         }
         if (result1.native != undefined && result2.native != undefined) {
             tries++;
             const stringComparison = this.stringSim.compareTwoStrings(result1.native, result2.native);
-            if (result1.native === result2.native || stringComparison > this.config.threshold) {
+            if (result1.native === result2.native || stringComparison > threshold) {
                 amount++;
             }
         }
-        // Check genres
-        /*
-        if (this.config.check_genres) {
-            if (result1.genres.length === result2.genres.length) {
-                matches = false;
-            } else {
-                for (let i = 0; i < result1.genres.length; i++) {
-                    if (result1.genres[i] != result2.genres[i] && this.stringSim.compareTwoStrings(result1.genres[i], result2.genres[i]) < this.config.threshold) {
-                        matches = false;
-                    }
-                }
-            }
-        }
-        */
         return amount / tries;
     }
-    compareAnime(anime, aniList) {
+    compareAnime(anime, aniList, threshold, comparison_threshold) {
+        threshold = threshold ? threshold : config_1.config.mapping.threshold;
+        comparison_threshold = comparison_threshold ? comparison_threshold : config_1.config.mapping.comparison_threshold;
         const result = [];
         for (let i = 0; i < aniList.length; i++) {
             const media = aniList[i];
@@ -181,8 +182,8 @@ class AniSync extends API_1.default {
                 romaji: media.title.romaji,
                 native: media.title.native
             };
-            const comparison = this.checkItem(map1, map2);
-            if (comparison > this.config.comparison_threshold) {
+            const comparison = this.checkItem(map1, map2, threshold);
+            if (comparison > comparison_threshold) {
                 result.push({
                     result: anime,
                     media,

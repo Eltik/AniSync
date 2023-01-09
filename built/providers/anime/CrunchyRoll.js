@@ -6,7 +6,7 @@ const cronchy_1 = require("cronchy");
 class CrunchyRoll extends Anime_1.default {
     constructor() {
         super("https://www.crunchyroll.com", "CrunchyRoll");
-        this.config = config_1.config.mapping.anime.crunchyroll;
+        this.config = config_1.config.mapping.anime.CrunchyRoll;
         this.credentials = {
             email: this.config.email,
             password: this.config.password

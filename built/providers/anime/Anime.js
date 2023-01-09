@@ -15,7 +15,7 @@ class Anime extends API_1.default {
     async search(any) {
         throw new Error("Method not implemented.");
     }
-    async insertAnime(results) {
+    async insert(results) {
         // CREATE TABLE anime(id int(7) NOT NULL, anilist longtext not null, connectors longtext not null);
         const db = this.db;
         const data = await this.getAll();
@@ -43,6 +43,26 @@ class Anime extends API_1.default {
             console.error(e);
             return false;
         }
+    }
+    async get(id) {
+        const db = this.db;
+        return new Promise((resolve, reject) => {
+            db.get("SELECT * FROM anime WHERE id=?", [id], (err, rows) => {
+                if (err) {
+                    reject(err);
+                }
+                else {
+                    if (rows != undefined) {
+                        rows.anilist = JSON.parse(rows.anilist);
+                        rows.connectors = JSON.parse(rows.connectors);
+                        resolve(rows);
+                    }
+                    else {
+                        resolve(null);
+                    }
+                }
+            });
+        });
     }
     async getAll() {
         const db = this.db;

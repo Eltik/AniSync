@@ -1,4 +1,4 @@
-import PromiseRequest, { Options, Response } from "./promise-request/promise-request";
+import PromiseRequest, { Options, Response } from "./libraries/promise-request";
 import { Cheerio, load } from "cheerio";
 import { ReadStream, WriteStream } from "fs";
 import * as CryptoJS from "crypto-js";
@@ -46,18 +46,6 @@ export default class API {
         return dom;
     }
 
-    public async getHTML(url:string, options?:Options): Promise<string> {
-        const request = new PromiseRequest(url, {
-            ...options,
-            headers: {
-                ...options?.headers,
-                'User-Agent': this.userAgent
-            }
-        });
-        const data = await request.request();
-        return data.text();
-    }
-
     public async stream(url:string, stream:ReadableStream|WritableStream|ReadStream|WriteStream, options?:Options) {
         const request = new PromiseRequest(url, {
             ...options,
@@ -93,19 +81,6 @@ export default class API {
                 charactersLength));
         }
         return result;
-    }
-
-    public encryptURL(url:string):string {
-        const encrypted = CryptoJS.AES.encrypt(url, config.encryptionKey).toString();
-        const b64 = CryptoJS.enc.Base64.parse(encrypted);
-        return b64.toString(CryptoJS.enc.Hex);
-    }
-
-    public decryptURL(url:string):string {
-        const b64 = CryptoJS.enc.Hex.parse(url);
-        const bytes = b64.toString(CryptoJS.enc.Base64);
-        const decrypted = CryptoJS.AES.decrypt(bytes, config.encryptionKey);
-        return decrypted.toString(CryptoJS.enc.Utf8);
     }
 
     public stringSearch(string:string, pattern:string):number {

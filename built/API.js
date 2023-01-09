@@ -1,9 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const promise_request_1 = require("./promise-request/promise-request");
+const promise_request_1 = require("./libraries/promise-request");
 const cheerio_1 = require("cheerio");
-const CryptoJS = require("crypto-js");
-const config_1 = require("./config");
 class API {
     constructor() {
         this.userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36';
@@ -39,17 +37,6 @@ class API {
         };
         return dom;
     }
-    async getHTML(url, options) {
-        const request = new promise_request_1.default(url, {
-            ...options,
-            headers: {
-                ...options?.headers,
-                'User-Agent': this.userAgent
-            }
-        });
-        const data = await request.request();
-        return data.text();
-    }
     async stream(url, stream, options) {
         const request = new promise_request_1.default(url, {
             ...options,
@@ -82,17 +69,6 @@ class API {
                 charactersLength));
         }
         return result;
-    }
-    encryptURL(url) {
-        const encrypted = CryptoJS.AES.encrypt(url, config_1.config.encryptionKey).toString();
-        const b64 = CryptoJS.enc.Base64.parse(encrypted);
-        return b64.toString(CryptoJS.enc.Hex);
-    }
-    decryptURL(url) {
-        const b64 = CryptoJS.enc.Hex.parse(url);
-        const bytes = b64.toString(CryptoJS.enc.Base64);
-        const decrypted = CryptoJS.AES.decrypt(bytes, config_1.config.encryptionKey);
-        return decrypted.toString(CryptoJS.enc.Utf8);
     }
     stringSearch(string, pattern) {
         let count = 0;
