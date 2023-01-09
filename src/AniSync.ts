@@ -64,6 +64,49 @@ export default class AniSync extends API {
         }
     }
 
+    public async crawl(type:Type["ANIME"]|Type["MANGA"]) {
+        if (type === "ANIME") {
+            const aniList = new AniList("", type, "TV");
+            const anime = new Zoro();
+
+            for (let i = 0; i < config.crawling.anime.maxPages; i++) {
+                if (config.crawling.debug) {
+                    console.log("On page " + i + ".");
+                }
+
+                const aniListData = await aniList.getSeasonal(i, 10, type);
+
+                if (config.crawling.debug) {
+                    console.log("Got AniList seasonal data successfully.");
+                }
+
+                const aniListMedia = aniListData.data.trending.media;
+                
+                const debugTimer = new Date(Date.now());
+                if (config.crawling.debug) {
+                    console.log("Fetching seasonal data...");
+                }
+
+                const data:Result[] = await this.getSeasonal(aniListMedia, type);
+
+                if (config.crawling.debug) {
+                    const endTimer = new Date(Date.now());
+                    console.log("Finished fetching data. Request took " + (endTimer.getTime() - debugTimer.getTime()) + " milliseconds.");
+                }
+
+                await anime.insert(data);
+
+                if (config.crawling.debug) {
+                    console.log("Finished inserting shows.");
+                }
+
+                await this.wait(config.crawling.anime.wait);
+            }
+        } else {
+            throw new Error("Manga is not supported yet.");
+        }
+    }
+
     public async getTrending(type:Type["ANIME"]|Type["MANGA"]):Promise<Result[]> {
         if (type === "ANIME") {
             // Most likely will have to change TV to MOVIE, OVA, etc.
@@ -138,10 +181,6 @@ export default class AniSync extends API {
         } else {
             throw new Error("Manga is not supported yet.");
         }
-    }
-
-    public async crawl() {
-        throw new Error("Not implemented yet.");
     }
 
     private async getSeasonal(season:Media[], type:Type["ANIME"]|Type["MANGA"]):Promise<Result[]> {

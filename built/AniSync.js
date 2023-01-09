@@ -55,6 +55,39 @@ class AniSync extends API_1.default {
             throw new Error("Manga is not supported yet.");
         }
     }
+    async crawl(type) {
+        if (type === "ANIME") {
+            const aniList = new AniList_1.default("", type, "TV");
+            const anime = new Zoro_1.default();
+            for (let i = 0; i < config_1.config.crawling.anime.maxPages; i++) {
+                if (config_1.config.crawling.debug) {
+                    console.log("On page " + i + ".");
+                }
+                const aniListData = await aniList.getSeasonal(i, 10, type);
+                if (config_1.config.crawling.debug) {
+                    console.log("Got AniList seasonal data successfully.");
+                }
+                const aniListMedia = aniListData.data.trending.media;
+                const debugTimer = new Date(Date.now());
+                if (config_1.config.crawling.debug) {
+                    console.log("Fetching seasonal data...");
+                }
+                const data = await this.getSeasonal(aniListMedia, type);
+                if (config_1.config.crawling.debug) {
+                    const endTimer = new Date(Date.now());
+                    console.log("Finished fetching data. Request took " + (endTimer.getTime() - debugTimer.getTime()) + " milliseconds.");
+                }
+                await anime.insert(data);
+                if (config_1.config.crawling.debug) {
+                    console.log("Finished inserting shows.");
+                }
+                await this.wait(config_1.config.crawling.anime.wait);
+            }
+        }
+        else {
+            throw new Error("Manga is not supported yet.");
+        }
+    }
     async getTrending(type) {
         if (type === "ANIME") {
             // Most likely will have to change TV to MOVIE, OVA, etc.
@@ -120,9 +153,6 @@ class AniSync extends API_1.default {
         else {
             throw new Error("Manga is not supported yet.");
         }
-    }
-    async crawl() {
-        throw new Error("Not implemented yet.");
     }
     async getSeasonal(season, type) {
         if (type === "ANIME") {

@@ -13,8 +13,8 @@ exports.config = {
                 threshold: 0.95,
                 comparison_threshold: 0.95,
                 wait: 500,
-                email: "alexayalavazquez@hotmail.com",
-                password: "Alejandrito0",
+                email: "",
+                password: "",
                 locale: "en-US"
             },
             Zoro: {
@@ -28,6 +28,13 @@ exports.config = {
             SEASON_YEAR: 2023,
             NEXT_SEASON: "SPRING",
             NEXT_YEAR: 2023
+        }
+    },
+    crawling: {
+        debug: true,
+        anime: {
+            wait: 1000,
+            maxPages: 5
         }
     }
 };

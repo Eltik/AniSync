@@ -38,8 +38,7 @@ export default class Anime extends API {
                     const stmt = db.prepare("INSERT INTO anime(id, anilist, connectors) VALUES ($id, $anilist, $connectors)");
                     stmt.run({ $id: result.id, $anilist: JSON.stringify(result.anilist), $connectors: JSON.stringify(result.connectors) });
                     stmt.finalize();
-                } else {
-                    console.log(result.id + " already exists.");
+                    console.log("Inserted " + result.anilist.title.english);
                 }
             }
             return true;

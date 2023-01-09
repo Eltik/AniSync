@@ -26,5 +26,12 @@ export var config = {
             NEXT_SEASON: "SPRING",
             NEXT_YEAR: 2023
         }
+    },
+    crawling: {
+        debug: true,
+        anime: {
+            wait: 1000,
+            maxPages: 5
+        }
     }
 };
