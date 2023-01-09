@@ -1,5 +1,4 @@
 export var config = {
-    encryptionKey: "AniSync",
     mapping: {
         threshold: 0.8,
         comparison_threshold: 0.8,
@@ -31,7 +30,7 @@ export var config = {
         debug: true,
         anime: {
             wait: 1000,
-            maxPages: 5
+            max_pages: 5
         }
     }
 };

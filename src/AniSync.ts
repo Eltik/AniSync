@@ -65,7 +65,7 @@ export default class AniSync extends API {
     }
 
     public async crawl(type:Type["ANIME"]|Type["MANGA"], maxPages?:number, wait?:number) {
-        maxPages = maxPages ? maxPages : config.crawling.anime.maxPages;
+        maxPages = maxPages ? maxPages : config.crawling.anime.max_pages;
         wait = wait ? wait : config.crawling.anime.wait;
 
         if (type === "ANIME") {

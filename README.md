@@ -63,6 +63,157 @@ npm run build
 ```
 This will clean the build folder and re-install the required modules. Cleaning the build folder does not delete the database file, but rather cleans all built files in the `/src` folder.
 
+### Configuration
+The `config.ts` file is a basic config file that changes how AniSync works. The mapping section contains the functions of mapping anime to AniList results. Each provider can have it's own value specified, but if it doens't exist it defaults to the `config.mapping.#` value rather than the `config.mapping.anime.[provider].#` value. The crawling section are the options used when crawling through AniList.
+
+Mapping:
+<table>
+    <tr>
+        <th>Field</th>
+        <th>Description</th>
+        <th>Default Value</th>
+    </tr>
+    <tr>
+        <td>threshold</td>
+        <td>The string comparison threshold at which to match a result. For example, GoSick vs GoSicko will return a threshold of about 0.98.</td>
+        <td>0.8</td>
+    </tr>
+    <tr>
+        <td>comparison_threshold</td>
+        <td>If there are multiple names for a show (the romaji and native), the amount of successful threshold tests will be divided by the amount of tries. For example, if the name GoSick does not match My Hero Academia, the comparison threshold would be 0/1.</td>
+        <td>0.8</td>
+    </tr>
+    <tr>
+        <td>wait</td>
+        <td>Amount of time to wait in milliseconds before sending another request. Used to avoid rate limits.</td>
+        <td>200</td>
+    </tr>
+    <tr>
+        <td>check_genres*</td>
+        <td>Whether to map genres/check them.</td>
+        <td>false</td>
+    </tr>
+</table>
+
+CrunchyRoll Options
+
+<table>
+    <tr>
+        <th>Field</th>
+        <th>Description</th>
+        <th>Default Value</th>
+    </tr>
+    <tr>
+        <td>email</td>
+        <td>Email to sign-in to CrunchyRoll.</td>
+        <td>Empty String</td>
+    </tr>
+    <tr>
+        <td>password</td>
+        <td>Password to sign-in to CrunchyRoll.</td>
+        <td>Empty String</td>
+    </tr>
+    <tr>
+        <td>locale</td>
+        <td>CrunchyRoll is funky and needs a locale to use. Must be a valid CrunchyRoll locale like en-US.</td>
+        <td>en-US</td>
+    </tr>
+</table>
+
+AniList Options
+
+<table>
+    <tr>
+        <th>Field</th>
+        <th>Description</th>
+        <th>Default Value</th>
+    </tr>
+    <tr>
+        <td>SEASON</td>
+        <td>Current airing season name (Spring/Winter).</td>
+        <td>Depends.</td>
+    </tr>
+    <tr>
+        <td>SEASON_YEAR</td>
+        <td>Current airing season year.</td>
+        <td>Depends.</td>
+    </tr>
+    <tr>
+        <td>NEXT_SEASON</td>
+        <td>Next season's name (Spring/Winter).</td>
+        <td>Depends.</td>
+    </tr>
+    <tr>
+        <td>NEXT_YEAR</td>
+        <td>Next season's year.</td>
+        <td>Depends.</td>
+    </tr>
+</table>
+*Unfinished
+
+Crawling:
+<table>
+    <tr>
+        <th>Field</th>
+        <th>Description</th>
+        <th>Default Value</th>
+    </tr>
+    <tr>
+        <td>debug</td>
+        <td>Whether to log debug options or not.</td>
+        <td>true</td>
+    </tr>
+    <tr>
+        <td>anime#wait</td>
+        <td>How long to wait in milliseconds between each page. Not the same as mapping wait limit.</td>
+        <td>1000</td>
+    </tr>
+    <tr>
+        <td>anime#max_pages</td>
+        <td>Max amount of AniList pages to loop through.</td>
+        <td>5</td>
+    </tr>
+</table>
+
+```typescript
+export var config = {
+    mapping: {
+        threshold: 0.8,
+        comparison_threshold: 0.8,
+        wait: 200,
+        check_genres: false,
+        anime: {
+            CrunchyRoll: {
+                threshold: 0.95,
+                comparison_threshold: 0.95,
+                wait: 500,
+                email: "",
+                password: "",
+                locale: "en-US"
+            },
+            Zoro: {
+                threshold: 0.95,
+                comparison_threshold: 0.95,
+                wait: 200
+            }
+        },
+        anilist: {
+            SEASON: "WINTER",
+            SEASON_YEAR: 2023,
+            NEXT_SEASON: "SPRING",
+            NEXT_YEAR: 2023
+        }
+    },
+    crawling: {
+        debug: true,
+        anime: {
+            wait: 1000,
+            max_pages: 5
+        }
+    }
+};
+```
+
 ### Searching
 It is recommended to use AniSync's search function over other functions. It is faster and captures more data than fetching seasonal data or using multiple crawler instances. How it works is by first searching on AniList, then searching on aggregators and matching each result together. For example, if a search request contains the query `GoSick`, a request will be made to AniList. AniList might return `Gundam`, `GoSick`, and `Goblin Slayer`. A search will then be made to all aggregators. If CrunchyRoll only returns `GoSick` and `Goblin Slayer`, its ID's will be matched to each AniList response like this:
 ```json
