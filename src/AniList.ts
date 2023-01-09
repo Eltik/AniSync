@@ -124,7 +124,6 @@ export default class AniList extends API {
     tags {
         id
         name
-        description
     }
     stats {
         statusDistribution {
@@ -565,7 +564,6 @@ interface Media {
     tags: {
         id:number;
         name:string;
-        description?:string;
     };
     stats: {
         statusDistribution: {

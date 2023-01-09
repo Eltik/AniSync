@@ -126,7 +126,6 @@ class AniList extends API_1.default {
     tags {
         id
         name
-        description
     }
     stats {
         statusDistribution {

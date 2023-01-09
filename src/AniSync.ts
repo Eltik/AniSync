@@ -31,12 +31,16 @@ export default class AniSync extends API {
                     resolve(aniData);
                 });
             });
-
-            const aggregatorData:AggregatorData[] = await this.fetchData(query, type);
-
             promises.push(aniListPromise);
             await Promise.all(promises);
+
+            // Search AniList first, then search the other providers.
+            const possibleData = await this.searchAnimeData(aniData);
+            if (possibleData.length > 0) {
+                return possibleData;
+            }
             
+            const aggregatorData:AggregatorData[] = await this.fetchData(query, type);
             const comparison:Search[] = [];
             aggregatorData.map((result, index) => {
                 const provider = result.provider_name;
@@ -62,14 +66,75 @@ export default class AniSync extends API {
 
     public async getTrending(type:Type["ANIME"]|Type["MANGA"]):Promise<Result[]> {
         if (type === "ANIME") {
-            const aniData:Media[] = [null];
-
             // Most likely will have to change TV to MOVIE, OVA, etc.
             const aniList = new AniList("", type, "TV");
             
             const data = await aniList.getSeasonal();
-            const trending = data.data.trending.media;
-            return null;
+            const trending:Media[] = data.data.trending.media;
+
+            const trendingData:Result[] = await this.getSeasonal(trending, type);
+            return trendingData;
+        } else {
+            throw new Error("Manga is not supported yet.");
+        }
+    }
+
+    public async getSeason(type:Type["ANIME"]|Type["MANGA"]):Promise<Result[]> {
+        if (type === "ANIME") {
+            // Most likely will have to change TV to MOVIE, OVA, etc.
+            const aniList = new AniList("", type, "TV");
+            
+            const data = await aniList.getSeasonal();
+            const season:Media[] = data.data.season.media;
+
+            const seasonData:Result[] = await this.getSeasonal(season, type);
+            return seasonData;
+        } else {
+            throw new Error("Manga is not supported yet.");
+        }
+    }
+
+    public async getPopular(type:Type["ANIME"]|Type["MANGA"]):Promise<Result[]> {
+        if (type === "ANIME") {
+            // Most likely will have to change TV to MOVIE, OVA, etc.
+            const aniList = new AniList("", type, "TV");
+            
+            const data = await aniList.getSeasonal();
+            const popular:Media[] = data.data.popular.media;
+
+            const popularData:Result[] = await this.getSeasonal(popular, type);
+            return popularData;
+        } else {
+            throw new Error("Manga is not supported yet.");
+        }
+    }
+
+    public async getTop(type:Type["ANIME"]|Type["MANGA"]):Promise<Result[]> {
+        if (type === "ANIME") {
+            // Most likely will have to change TV to MOVIE, OVA, etc.
+            const aniList = new AniList("", type, "TV");
+            
+            const data = await aniList.getSeasonal();
+            const top:Media[] = data.data.top.media;
+
+            const topData:Result[] = await this.getSeasonal(top, type);
+            return topData;
+        } else {
+            throw new Error("Manga is not supported yet.");
+        }
+    }
+
+    public async getNextSeason(type:Type["ANIME"]|Type["MANGA"]):Promise<Result[]> {
+        // WILL MOST LIKELY HAVE NO RESULTS
+        if (type === "ANIME") {
+            // Most likely will have to change TV to MOVIE, OVA, etc.
+            const aniList = new AniList("", type, "TV");
+            
+            const data = await aniList.getSeasonal();
+            const nextSeason:Media[] = data.data.nextSeason.media;
+
+            const nextData:Result[] = await this.getSeasonal(nextSeason, type);
+            return nextData;
         } else {
             throw new Error("Manga is not supported yet.");
         }
@@ -77,6 +142,45 @@ export default class AniSync extends API {
 
     public async crawl() {
         throw new Error("Not implemented yet.");
+    }
+
+    private async getSeasonal(season:Media[], type:Type["ANIME"]|Type["MANGA"]):Promise<Result[]> {
+        if (type === "ANIME") {
+            const seasonData:Search[] = [];
+            const allSeason:Result[] = [];
+
+            const possibleTrending = await this.searchAnimeData(season);
+            if (possibleTrending.length > 0) {
+                allSeason.push(...possibleTrending);
+            } else {
+                for (let i = 0; i < season.length; i++) {
+                    const aniData = season[i];
+                    const title = aniData.title.english;
+    
+                    const aggregatorData:AggregatorData[] = await this.fetchData(title, type);
+    
+                    aggregatorData.map((result, index) => {
+                        const provider = result.provider_name;
+                        const results = result.results;
+    
+                        for (let i = 0; i < results.length; i++) {
+                            const data = this.compareAnime(results[i], [aniData], config.mapping.anime[provider].threshold, config.mapping.anime[provider].comparison_threshold);
+                            if (data != undefined) {
+                                seasonData.push({
+                                    provider,
+                                    data
+                                });
+                            }
+                        }
+                    });
+                }
+                const formatted = this.formatAnimeData(seasonData);
+                allSeason.push(...formatted);
+            }
+            return allSeason;
+        } else {
+            throw new Error("Manga is not supported yet.");
+        }
     }
 
     private async fetchData(query:string, type:Type["ANIME"]|Type["MANGA"]):Promise<AggregatorData[]> {
@@ -88,28 +192,32 @@ export default class AniSync extends API {
             const aggregatorData:AggregatorData[] = [];
 
             const zoroPromise = new Promise((resolve, reject) => {
-                zoro.search(query).then((results) => {
-                    aggregatorData.push({
-                        provider_name: zoro.providerName,
-                        results: results
-                    });
-                    resolve(aggregatorData);
-                }).catch((err) => {
-                    reject(err);
-                });
-            });
-            const crunchyPromise = new Promise((resolve, reject) => {
-                crunchy.init().then(() => {
-                    crunchy.search(query).then((results) => {
+                this.wait(config.mapping.anime[zoro.providerName] ? config.mapping.anime[zoro.providerName].wait : config.mapping.wait).then(() => {
+                    zoro.search(query).then((results) => {
                         aggregatorData.push({
-                            provider_name: crunchy.providerName,
+                            provider_name: zoro.providerName,
                             results: results
                         });
                         resolve(aggregatorData);
                     }).catch((err) => {
                         reject(err);
                     });
-                })
+                });
+            });
+            const crunchyPromise = new Promise((resolve, reject) => {
+                this.wait(config.mapping.anime[crunchy.providerName] ? config.mapping.anime[crunchy.providerName].wait : config.mapping.wait).then(() => {
+                    crunchy.init().then(() => {
+                        crunchy.search(query).then((results) => {
+                            aggregatorData.push({
+                                provider_name: crunchy.providerName,
+                                results: results
+                            });
+                            resolve(aggregatorData);
+                        }).catch((err) => {
+                            reject(err);
+                        });
+                    })
+                });
             })
 
             promises.push(zoroPromise);
@@ -234,6 +342,30 @@ export default class AniSync extends API {
         }
         // It is possible that there are multiple results, so we need to sort them. But generally, there should only be one result.
         return result[0];
+    }
+
+    private async searchAnimeData(aniListData:Media[]):Promise<Result[]> {
+        const promises = [];
+        const results:Result[] = [];
+
+        const anime = new Zoro();
+
+        for (let i = 0; i < aniListData.length; i++) {
+            const id = aniListData[i] ? aniListData[i].id : undefined;
+            if (id != undefined) {
+                const promise = new Promise(async(resolve, reject) => {
+                    const data = await anime.get(String(id));
+                    if (data != null) {
+                        results.push(data);
+                    }
+                    resolve(true);
+                })
+                promises.push(promise);
+            }
+        }
+
+        await Promise.all(promises);
+        return results;
     }
 }
 
