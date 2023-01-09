@@ -8,7 +8,8 @@ a.search("gosick", "ANIME").then((data) => {
     b.insert(data).then(console.log);
 })
 */
-a.crawl("ANIME")
+/*a.crawl("ANIME")*/
+b.export().then(console.log)
 /*
 a.getTop("ANIME").then((data) => {
     console.log(data.length);

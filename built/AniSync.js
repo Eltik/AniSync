@@ -5,7 +5,7 @@ const StringSimilarity_1 = require("./libraries/StringSimilarity");
 const config_1 = require("./config");
 const Zoro_1 = require("./providers/anime/Zoro");
 const CrunchyRoll_1 = require("./providers/anime/CrunchyRoll");
-const AniList_1 = require("./AniList");
+const AniList_1 = require("./providers/meta/AniList");
 class AniSync extends API_1.default {
     constructor() {
         super();
@@ -55,11 +55,13 @@ class AniSync extends API_1.default {
             throw new Error("Manga is not supported yet.");
         }
     }
-    async crawl(type) {
+    async crawl(type, maxPages, wait) {
+        maxPages = maxPages ? maxPages : config_1.config.crawling.anime.maxPages;
+        wait = wait ? wait : config_1.config.crawling.anime.wait;
         if (type === "ANIME") {
             const aniList = new AniList_1.default("", type, "TV");
             const anime = new Zoro_1.default();
-            for (let i = 0; i < config_1.config.crawling.anime.maxPages; i++) {
+            for (let i = 0; i < maxPages; i++) {
                 if (config_1.config.crawling.debug) {
                     console.log("On page " + i + ".");
                 }
@@ -81,7 +83,7 @@ class AniSync extends API_1.default {
                 if (config_1.config.crawling.debug) {
                     console.log("Finished inserting shows.");
                 }
-                await this.wait(config_1.config.crawling.anime.wait);
+                await this.wait(wait);
             }
         }
         else {

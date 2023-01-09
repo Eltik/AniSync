@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const config_1 = require("./config");
-const API_1 = require("./API");
+const config_1 = require("../../config");
+const API_1 = require("../../API");
 class AniList extends API_1.default {
     constructor(id, type, format, isMal) {
         super();

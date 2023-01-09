@@ -1,5 +1,5 @@
-import { config } from "./config";
-import API from "./API";
+import { config } from "../../config";
+import API from "../../API";
 
 export default class AniList extends API {
     private api:string = "https://graphql.anilist.co";

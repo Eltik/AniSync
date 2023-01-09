@@ -3,7 +3,7 @@ import StringSimilarity from "./libraries/StringSimilarity";
 import { config } from "./config";
 import Zoro from "./providers/anime/Zoro";
 import CrunchyRoll from "./providers/anime/CrunchyRoll";
-import AniList, { Media, Type } from "./AniList";
+import AniList, { Media, Type } from "./providers/meta/AniList";
 import { SearchResponse } from "./providers/anime/Anime";
 
 export default class AniSync extends API {
@@ -64,12 +64,15 @@ export default class AniSync extends API {
         }
     }
 
-    public async crawl(type:Type["ANIME"]|Type["MANGA"]) {
+    public async crawl(type:Type["ANIME"]|Type["MANGA"], maxPages?:number, wait?:number) {
+        maxPages = maxPages ? maxPages : config.crawling.anime.maxPages;
+        wait = wait ? wait : config.crawling.anime.wait;
+
         if (type === "ANIME") {
             const aniList = new AniList("", type, "TV");
             const anime = new Zoro();
 
-            for (let i = 0; i < config.crawling.anime.maxPages; i++) {
+            for (let i = 0; i < maxPages; i++) {
                 if (config.crawling.debug) {
                     console.log("On page " + i + ".");
                 }
@@ -100,7 +103,7 @@ export default class AniSync extends API {
                     console.log("Finished inserting shows.");
                 }
 
-                await this.wait(config.crawling.anime.wait);
+                await this.wait(wait);
             }
         } else {
             throw new Error("Manga is not supported yet.");

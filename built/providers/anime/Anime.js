@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const path_1 = require("path");
 const API_1 = require("../../API");
 const sqlite3_1 = require("sqlite3");
+const fs_1 = require("fs");
 class Anime extends API_1.default {
     constructor(baseUrl, providerName) {
         super();
@@ -61,6 +62,12 @@ class Anime extends API_1.default {
                 }
             });
         });
+    }
+    async export() {
+        const all = await this.getAll();
+        const output = (0, path_1.join)(__dirname, "../../../output.json");
+        (0, fs_1.createWriteStream)(output).write(JSON.stringify(all, null, 4));
+        return output;
     }
     async getAll() {
         const db = this.db;

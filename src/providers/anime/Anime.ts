@@ -2,6 +2,7 @@ import { join } from "path";
 import API from "../../API";
 import { Database } from "sqlite3";
 import { Result } from "../../AniSync";
+import { createWriteStream } from "fs";
 
 export default class Anime extends API {
     public baseUrl:string = undefined;
@@ -65,6 +66,14 @@ export default class Anime extends API {
                 }
             });
         });
+    }
+
+    public async export(): Promise<String> {
+        const all = await this.getAll();
+        const output = join(__dirname, "../../../output.json");
+
+        createWriteStream(output).write(JSON.stringify(all, null, 4));
+        return output;
     }
 
     private async getAll(): Promise<Result[]> {
