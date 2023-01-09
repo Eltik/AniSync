@@ -7,6 +7,7 @@ import AniList, { Media, Type } from "./providers/meta/AniList";
 import { SearchResponse } from "./providers/anime/Anime";
 import TMDB from "./providers/meta/TMDB";
 import ComicK from "./providers/manga/ComicK";
+import MangaDex from "./providers/manga/MangaDex";
 
 export default class AniSync extends API {
     private stringSim:StringSimilarity = new StringSimilarity();
@@ -325,6 +326,7 @@ export default class AniSync extends API {
             return aggregatorData;
         } else if (type === "MANGA") {
             const comick = new ComicK();
+            const mangadex = new MangaDex();
             const aggregatorData:AggregatorData[] = [];
 
             const comickPromise = new Promise((resolve, reject) => {
@@ -340,8 +342,22 @@ export default class AniSync extends API {
                     });
                 });
             });
+            const mangadexPromise = new Promise((resolve, reject) => {
+                this.wait(config.mapping.provider[mangadex.providerName] ? config.mapping.provider[mangadex.providerName].wait : config.mapping.wait).then(() => {
+                    mangadex.search(query).then((results) => {
+                        aggregatorData.push({
+                            provider_name: mangadex.providerName,
+                            results: results
+                        });
+                        resolve(aggregatorData);
+                    }).catch((err) => {
+                        reject(err);
+                    });
+                });
+            });
 
             promises.push(comickPromise);
+            promises.push(mangadexPromise);
             await Promise.all(promises);
             return aggregatorData;
         } else {

@@ -8,6 +8,7 @@ const CrunchyRoll_1 = require("./providers/anime/CrunchyRoll");
 const AniList_1 = require("./providers/meta/AniList");
 const TMDB_1 = require("./providers/meta/TMDB");
 const ComicK_1 = require("./providers/manga/ComicK");
+const MangaDex_1 = require("./providers/manga/MangaDex");
 class AniSync extends API_1.default {
     constructor() {
         super();
@@ -286,6 +287,7 @@ class AniSync extends API_1.default {
         }
         else if (type === "MANGA") {
             const comick = new ComicK_1.default();
+            const mangadex = new MangaDex_1.default();
             const aggregatorData = [];
             const comickPromise = new Promise((resolve, reject) => {
                 this.wait(config_1.config.mapping.provider[comick.providerName] ? config_1.config.mapping.provider[comick.providerName].wait : config_1.config.mapping.wait).then(() => {
@@ -300,7 +302,21 @@ class AniSync extends API_1.default {
                     });
                 });
             });
+            const mangadexPromise = new Promise((resolve, reject) => {
+                this.wait(config_1.config.mapping.provider[mangadex.providerName] ? config_1.config.mapping.provider[mangadex.providerName].wait : config_1.config.mapping.wait).then(() => {
+                    mangadex.search(query).then((results) => {
+                        aggregatorData.push({
+                            provider_name: mangadex.providerName,
+                            results: results
+                        });
+                        resolve(aggregatorData);
+                    }).catch((err) => {
+                        reject(err);
+                    });
+                });
+            });
             promises.push(comickPromise);
+            promises.push(mangadexPromise);
             await Promise.all(promises);
             return aggregatorData;
         }

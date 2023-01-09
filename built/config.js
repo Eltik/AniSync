@@ -21,6 +21,16 @@ exports.config = {
                 comparison_threshold: 0.95,
                 wait: 200
             },
+            ComicK: {
+                threshold: 0.8,
+                comparison_threshold: 0.8,
+                wait: 200
+            },
+            MangaDex: {
+                threshold: 0.8,
+                comparison_threshold: 0.8,
+                wait: 200
+            },
             TMDB: {
                 api_key: "5201b54eb0968700e693a30576d7d4dc",
                 threshold: 0.95,
