@@ -51,6 +51,17 @@ class AniSync extends API_1.default {
         }
     }
     async getTrending(type) {
+        if (type === "ANIME") {
+            const aniData = [null];
+            // Most likely will have to change TV to MOVIE, OVA, etc.
+            const aniList = new AniList_1.default("", type, "TV");
+            const data = await aniList.getSeasonal();
+            const trending = data.data.trending.media;
+            return null;
+        }
+        else {
+            throw new Error("Manga is not supported yet.");
+        }
     }
     async crawl() {
         throw new Error("Not implemented yet.");

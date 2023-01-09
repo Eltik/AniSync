@@ -60,8 +60,19 @@ export default class AniSync extends API {
         }
     }
 
-    public async getTrending(type:Type["ANIME"]|Type["MANGA"]) {
-        
+    public async getTrending(type:Type["ANIME"]|Type["MANGA"]):Promise<Result[]> {
+        if (type === "ANIME") {
+            const aniData:Media[] = [null];
+
+            // Most likely will have to change TV to MOVIE, OVA, etc.
+            const aniList = new AniList("", type, "TV");
+            
+            const data = await aniList.getSeasonal();
+            const trending = data.data.trending.media;
+            return null;
+        } else {
+            throw new Error("Manga is not supported yet.");
+        }
     }
 
     public async crawl() {

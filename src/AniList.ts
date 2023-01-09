@@ -9,6 +9,135 @@ export default class AniList extends API {
     public isMal:boolean = false;
     private config = config.mapping.anilist;
 
+    private query:string = `
+    id
+    idMal
+    title {
+        romaji
+        english
+        native
+    }
+    coverImage {
+        extraLarge
+        large
+    }
+    bannerImage
+    startDate {
+        year
+        month
+        day
+    }
+    endDate {
+        year
+        month
+        day
+    }
+    description
+    season
+    seasonYear
+    type
+    format
+    status(version: 2)
+    episodes
+    duration
+    chapters
+    volumes
+    genres
+    synonyms
+    source(version: 3)
+    isAdult
+    meanScore
+    averageScore
+    popularity
+    favourites
+    hashtag
+    countryOfOrigin
+    isLicensed
+    nextAiringEpisode {
+        airingAt
+        timeUntilAiring
+        episode
+    }
+    relations {
+        edges {
+            id
+            relationType(version: 2)
+            node {
+                id
+                title {
+                    userPreferred
+                }
+                format
+                type
+                status(version: 2)
+                bannerImage
+                coverImage {
+                    large
+                }
+            }
+        }
+    }
+    characterPreview: characters(perPage: 6, sort: [ROLE, RELEVANCE, ID]) {
+        edges {
+            id
+            role
+            name
+            voiceActors(language: JAPANESE, sort: [RELEVANCE, ID]) {
+                id
+                name {
+                    userPreferred
+                }
+                language: languageV2
+                image {
+                    large
+                }
+            }
+            node {
+                id
+                name {
+                    userPreferred
+                }
+                image {
+                    large
+                }
+            }
+        }
+    }
+    studios {
+        edges {
+            isMain
+            node {
+                id
+                name
+            }
+        }
+    }
+    streamingEpisodes {
+        title
+        thumbnail
+        url
+    }
+    trailer {
+        id
+        site
+    }
+    tags {
+        id
+        name
+        description
+    }
+    stats {
+        statusDistribution {
+            status
+            amount
+        }
+        scoreDistribution {
+            score
+            amount
+        }
+    }
+    `;
+
     constructor(id?:string, type?:Type["ANIME"] | Type["MANGA"], format?:Format["TV"]|Format["TV_SHORT"]|Format["MOVIE"]|Format["SPECIAL"]|Format["OVA"]|Format["ONA"]|Format["MUSIC"]|Format["MANGA"]|Format["NOVEL"]|Format["ONE_SHOT"], isMal?:boolean) {
         super();
         this.id = this.parseURL(id);
@@ -52,233 +181,7 @@ export default class AniList extends API {
                         perPage
                     }
                     media(type: $type, search: $search, sort: $sort, format: $format) {
-                        id
-                        title {
-                            userPreferred
-                            romaji
-                            english
-                            native
-                        }
-                        coverImage {
-                            extraLarge
-                            large
-                        }
-                        bannerImage
-                        startDate {
-                            year
-                            month
-                            day
-                        }
-                        endDate {
-                            year
-                            month
-                            day
-                        }
-                        description
-                        season
-                        seasonYear
-                        type
-                        format
-                        status(version: 2)
-                        episodes
-                        duration
-                        chapters
-                        volumes
-                        genres
-                        synonyms
-                        source(version: 3)
-                        isAdult
-                        isLocked
-                        meanScore
-                        averageScore
-                        popularity
-                        favourites
-                        isFavouriteBlocked
-                        hashtag
-                        countryOfOrigin
-                        isLicensed
-                        isFavourite
-                        isRecommendationBlocked
-                        isFavouriteBlocked
-                        isReviewBlocked
-                        nextAiringEpisode {
-                            airingAt
-                            timeUntilAiring
-                            episode
-                        }
-                        relations {
-                            edges {
-                                id
-                                relationType(version: 2)
-                                node {
-                                    id
-                                    title {
-                                        userPreferred
-                                    }
-                                    format
-                                    type
-                                    status(version: 2)
-                                    bannerImage
-                                    coverImage {
-                                        large
-                                    }
-                                }
-                            }
-                        }
-                        characterPreview: characters(perPage: 6, sort: [ROLE, RELEVANCE, ID]) {
-                            edges {
-                                id
-                                role
-                                name
-                                voiceActors(language: JAPANESE, sort: [RELEVANCE, ID]) {
-                                    id
-                                    name {
-                                        userPreferred
-                                    }
-                                    language: languageV2
-                                    image {
-                                        large
-                                    }
-                                }
-                                node {
-                                    id
-                                    name {
-                                        userPreferred
-                                    }
-                                    image {
-                                        large
-                                    }
-                                }
-                            }
-                        }
-                        staffPreview: staff(perPage: 8, sort: [RELEVANCE, ID]) {
-                            edges {
-                                id
-                                role
-                                node {
-                                    id
-                                    name {
-                                        userPreferred
-                                    }
-                                    language: languageV2
-                                    image {
-                                        large
-                                    }
-                                }
-                            }
-                        }
-                        studios {
-                            edges {
-                                isMain
-                                node {
-                                    id
-                                    name
-                                }
-                            }
-                        }
-                        reviewPreview: reviews(perPage: 2, sort: [RATING_DESC, ID]) {
-                            pageInfo {
-                                total
-                            }
-                            nodes {
-                                id
-                                summary
-                                rating
-                                ratingAmount
-                                user {
-                                    id
-                                    name
-                                    avatar {
-                                        large
-                                    }
-                                }
-                            }
-                        }
-                        recommendations(perPage: 7, sort: [RATING_DESC, ID]) {
-                            pageInfo {
-                                total
-                            }
-                            nodes {
-                                id
-                                rating
-                                userRating
-                                mediaRecommendation {
-                                    id
-                                    title {
-                                        userPreferred
-                                    }
-                                    format
-                                    type
-                                    status(version: 2)
-                                    bannerImage
-                                    coverImage {
-                                        large
-                                    }
-                                }
-                                user {
-                                    id
-                                    name
-                                    avatar {
-                                        large
-                                    }
-                                }
-                            }
-                        }
-                        externalLinks {
-                            id
-                            site
-                            url
-                            type
-                            language
-                            color
-                            icon
-                            notes
-                            isDisabled
-                        }
-                        streamingEpisodes {
-                            site
-                            title
-                            thumbnail
-                            url
-                        }
-                        trailer {
-                            id
-                            site
-                        }
-                        rankings {
-                            id
-                            rank
-                            type
-                            format
-                            year
-                            season
-                            allTime
-                            context
-                        }
-                        tags {
-                            id
-                            name
-                            description
-                            rank
-                            isMediaSpoiler
-                            isGeneralSpoiler
-                            userId
-                        }
-                        mediaListEntry {
-                            id
-                            status
-                            score
-                        }
-                        stats {
-                            statusDistribution {
-                                status
-                                amount
-                            }
-                            scoreDistribution {
-                                score
-                                amount
-                            }
-                        }
+                        ${this.query}
                     }
                 }
             }
@@ -376,233 +279,7 @@ export default class AniList extends API {
                 query: `
                 query($id: Int, $format: MediaType) {
                     Media(idMal: $id, type: $format) {
-                        id
-                        title {
-                            userPreferred
-                            romaji
-                            english
-                            native
-                        }
-                        coverImage {
-                            extraLarge
-                            large
-                        }
-                        bannerImage
-                        startDate {
-                            year
-                            month
-                            day
-                        }
-                        endDate {
-                            year
-                            month
-                            day
-                        }
-                        description
-                        season
-                        seasonYear
-                        type
-                        format
-                        status(version: 2)
-                        episodes
-                        duration
-                        chapters
-                        volumes
-                        genres
-                        synonyms
-                        source(version: 3)
-                        isAdult
-                        isLocked
-                        meanScore
-                        averageScore
-                        popularity
-                        favourites
-                        isFavouriteBlocked
-                        hashtag
-                        countryOfOrigin
-                        isLicensed
-                        isFavourite
-                        isRecommendationBlocked
-                        isFavouriteBlocked
-                        isReviewBlocked
-                        nextAiringEpisode {
-                            airingAt
-                            timeUntilAiring
-                            episode
-                        }
-                        relations {
-                            edges {
-                                id
-                                relationType(version: 2)
-                                node {
-                                    id
-                                    title {
-                                        userPreferred
-                                    }
-                                    format
-                                    type
-                                    status(version: 2)
-                                    bannerImage
-                                    coverImage {
-                                        large
-                                    }
-                                }
-                            }
-                        }
-                        characterPreview: characters(perPage: 6, sort: [ROLE, RELEVANCE, ID]) {
-                            edges {
-                                id
-                                role
-                                name
-                                voiceActors(language: JAPANESE, sort: [RELEVANCE, ID]) {
-                                    id
-                                    name {
-                                        userPreferred
-                                    }
-                                    language: languageV2
-                                    image {
-                                        large
-                                    }
-                                }
-                                node {
-                                    id
-                                    name {
-                                        userPreferred
-                                    }
-                                    image {
-                                        large
-                                    }
-                                }
-                            }
-                        }
-                        staffPreview: staff(perPage: 8, sort: [RELEVANCE, ID]) {
-                            edges {
-                                id
-                                role
-                                node {
-                                    id
-                                    name {
-                                        userPreferred
-                                    }
-                                    language: languageV2
-                                    image {
-                                        large
-                                    }
-                                }
-                            }
-                        }
-                        studios {
-                            edges {
-                                isMain
-                                node {
-                                    id
-                                    name
-                                }
-                            }
-                        }
-                        reviewPreview: reviews(perPage: 2, sort: [RATING_DESC, ID]) {
-                            pageInfo {
-                                total
-                            }
-                            nodes {
-                                id
-                                summary
-                                rating
-                                ratingAmount
-                                user {
-                                    id
-                                    name
-                                    avatar {
-                                        large
-                                    }
-                                }
-                            }
-                        }
-                        recommendations(perPage: 7, sort: [RATING_DESC, ID]) {
-                            pageInfo {
-                                total
-                            }
-                            nodes {
-                                id
-                                rating
-                                userRating
-                                mediaRecommendation {
-                                    id
-                                    title {
-                                        userPreferred
-                                    }
-                                    format
-                                    type
-                                    status(version: 2)
-                                    bannerImage
-                                    coverImage {
-                                        large
-                                    }
-                                }
-                                user {
-                                    id
-                                    name
-                                    avatar {
-                                        large
-                                    }
-                                }
-                            }
-                        }
-                        externalLinks {
-                            id
-                            site
-                            url
-                            type
-                            language
-                            color
-                            icon
-                            notes
-                            isDisabled
-                        }
-                        streamingEpisodes {
-                            site
-                            title
-                            thumbnail
-                            url
-                        }
-                        trailer {
-                            id
-                            site
-                        }
-                        rankings {
-                            id
-                            rank
-                            type
-                            format
-                            year
-                            season
-                            allTime
-                            context
-                        }
-                        tags {
-                            id
-                            name
-                            description
-                            rank
-                            isMediaSpoiler
-                            isGeneralSpoiler
-                            userId
-                        }
-                        mediaListEntry {
-                            id
-                            status
-                            score
-                        }
-                        stats {
-                            statusDistribution {
-                                status
-                                amount
-                            }
-                            scoreDistribution {
-                                score
-                                amount
-                            }
-                        }
+                        ${this.query}
                     }
                 }
                 `,
@@ -613,233 +290,7 @@ export default class AniList extends API {
                 query: `
                 query($id: Int) {
                     Media(idMal: $id) {
-                        id
-                        title {
-                            userPreferred
-                            romaji
-                            english
-                            native
-                        }
-                        coverImage {
-                            extraLarge
-                            large
-                        }
-                        bannerImage
-                        startDate {
-                            year
-                            month
-                            day
-                        }
-                        endDate {
-                            year
-                            month
-                            day
-                        }
-                        description
-                        season
-                        seasonYear
-                        type
-                        format
-                        status(version: 2)
-                        episodes
-                        duration
-                        chapters
-                        volumes
-                        genres
-                        synonyms
-                        source(version: 3)
-                        isAdult
-                        isLocked
-                        meanScore
-                        averageScore
-                        popularity
-                        favourites
-                        isFavouriteBlocked
-                        hashtag
-                        countryOfOrigin
-                        isLicensed
-                        isFavourite
-                        isRecommendationBlocked
-                        isFavouriteBlocked
-                        isReviewBlocked
-                        nextAiringEpisode {
-                            airingAt
-                            timeUntilAiring
-                            episode
-                        }
-                        relations {
-                            edges {
-                                id
-                                relationType(version: 2)
-                                node {
-                                    id
-                                    title {
-                                        userPreferred
-                                    }
-                                    format
-                                    type
-                                    status(version: 2)
-                                    bannerImage
-                                    coverImage {
-                                        large
-                                    }
-                                }
-                            }
-                        }
-                        characterPreview: characters(perPage: 6, sort: [ROLE, RELEVANCE, ID]) {
-                            edges {
-                                id
-                                role
-                                name
-                                voiceActors(language: JAPANESE, sort: [RELEVANCE, ID]) {
-                                    id
-                                    name {
-                                        userPreferred
-                                    }
-                                    language: languageV2
-                                    image {
-                                        large
-                                    }
-                                }
-                                node {
-                                    id
-                                    name {
-                                        userPreferred
-                                    }
-                                    image {
-                                        large
-                                    }
-                                }
-                            }
-                        }
-                        staffPreview: staff(perPage: 8, sort: [RELEVANCE, ID]) {
-                            edges {
-                                id
-                                role
-                                node {
-                                    id
-                                    name {
-                                        userPreferred
-                                    }
-                                    language: languageV2
-                                    image {
-                                        large
-                                    }
-                                }
-                            }
-                        }
-                        studios {
-                            edges {
-                                isMain
-                                node {
-                                    id
-                                    name
-                                }
-                            }
-                        }
-                        reviewPreview: reviews(perPage: 2, sort: [RATING_DESC, ID]) {
-                            pageInfo {
-                                total
-                            }
-                            nodes {
-                                id
-                                summary
-                                rating
-                                ratingAmount
-                                user {
-                                    id
-                                    name
-                                    avatar {
-                                        large
-                                    }
-                                }
-                            }
-                        }
-                        recommendations(perPage: 7, sort: [RATING_DESC, ID]) {
-                            pageInfo {
-                                total
-                            }
-                            nodes {
-                                id
-                                rating
-                                userRating
-                                mediaRecommendation {
-                                    id
-                                    title {
-                                        userPreferred
-                                    }
-                                    format
-                                    type
-                                    status(version: 2)
-                                    bannerImage
-                                    coverImage {
-                                        large
-                                    }
-                                }
-                                user {
-                                    id
-                                    name
-                                    avatar {
-                                        large
-                                    }
-                                }
-                            }
-                        }
-                        externalLinks {
-                            id
-                            site
-                            url
-                            type
-                            language
-                            color
-                            icon
-                            notes
-                            isDisabled
-                        }
-                        streamingEpisodes {
-                            site
-                            title
-                            thumbnail
-                            url
-                        }
-                        trailer {
-                            id
-                            site
-                        }
-                        rankings {
-                            id
-                            rank
-                            type
-                            format
-                            year
-                            season
-                            allTime
-                            context
-                        }
-                        tags {
-                            id
-                            name
-                            description
-                            rank
-                            isMediaSpoiler
-                            isGeneralSpoiler
-                            userId
-                        }
-                        mediaListEntry {
-                            id
-                            status
-                            score
-                        }
-                        stats {
-                            statusDistribution {
-                                status
-                                amount
-                            }
-                            scoreDistribution {
-                                score
-                                amount
-                            }
-                        }
+                        ${this.query}
                     }
                 }
                 `,
@@ -926,233 +377,7 @@ export default class AniList extends API {
             }
             
             fragment media on Media {
-                id
-                title {
-                    userPreferred
-                    romaji
-                    english
-                    native
-                }
-                coverImage {
-                    extraLarge
-                    large
-                }
-                bannerImage
-                startDate {
-                    year
-                    month
-                    day
-                }
-                endDate {
-                    year
-                    month
-                    day
-                }
-                description
-                season
-                seasonYear
-                type
-                format
-                status(version: 2)
-                episodes
-                duration
-                chapters
-                volumes
-                genres
-                synonyms
-                source(version: 3)
-                isAdult
-                isLocked
-                meanScore
-                averageScore
-                popularity
-                favourites
-                isFavouriteBlocked
-                hashtag
-                countryOfOrigin
-                isLicensed
-                isFavourite
-                isRecommendationBlocked
-                isFavouriteBlocked
-                isReviewBlocked
-                nextAiringEpisode {
-                    airingAt
-                    timeUntilAiring
-                    episode
-                }
-                relations {
-                    edges {
-                        id
-                        relationType(version: 2)
-                        node {
-                            id
-                            title {
-                                userPreferred
-                            }
-                            format
-                            type
-                            status(version: 2)
-                            bannerImage
-                            coverImage {
-                                large
-                            }
-                        }
-                    }
-                }
-                characterPreview: characters(perPage: 6, sort: [ROLE, RELEVANCE, ID]) {
-                    edges {
-                        id
-                        role
-                        name
-                        voiceActors(language: JAPANESE, sort: [RELEVANCE, ID]) {
-                            id
-                            name {
-                                userPreferred
-                            }
-                            language: languageV2
-                            image {
-                                large
-                            }
-                        }
-                        node {
-                            id
-                            name {
-                                userPreferred
-                            }
-                            image {
-                                large
-                            }
-                        }
-                    }
-                }
-                staffPreview: staff(perPage: 8, sort: [RELEVANCE, ID]) {
-                    edges {
-                        id
-                        role
-                        node {
-                            id
-                            name {
-                                userPreferred
-                            }
-                            language: languageV2
-                            image {
-                                large
-                            }
-                        }
-                    }
-                }
-                studios {
-                    edges {
-                        isMain
-                        node {
-                            id
-                            name
-                        }
-                    }
-                }
-                reviewPreview: reviews(perPage: 2, sort: [RATING_DESC, ID]) {
-                    pageInfo {
-                        total
-                    }
-                    nodes {
-                        id
-                        summary
-                        rating
-                        ratingAmount
-                        user {
-                            id
-                            name
-                            avatar {
-                                large
-                            }
-                        }
-                    }
-                }
-                recommendations(perPage: 7, sort: [RATING_DESC, ID]) {
-                    pageInfo {
-                        total
-                    }
-                    nodes {
-                        id
-                        rating
-                        userRating
-                        mediaRecommendation {
-                            id
-                            title {
-                                userPreferred
-                            }
-                            format
-                            type
-                            status(version: 2)
-                            bannerImage
-                            coverImage {
-                                large
-                            }
-                        }
-                        user {
-                            id
-                            name
-                            avatar {
-                                large
-                            }
-                        }
-                    }
-                }
-                externalLinks {
-                    id
-                    site
-                    url
-                    type
-                    language
-                    color
-                    icon
-                    notes
-                    isDisabled
-                }
-                streamingEpisodes {
-                    site
-                    title
-                    thumbnail
-                    url
-                }
-                trailer {
-                    id
-                    site
-                }
-                rankings {
-                    id
-                    rank
-                    type
-                    format
-                    year
-                    season
-                    allTime
-                    context
-                }
-                tags {
-                    id
-                    name
-                    description
-                    rank
-                    isMediaSpoiler
-                    isGeneralSpoiler
-                    userId
-                }
-                mediaListEntry {
-                    id
-                    status
-                    score
-                }
-                stats {
-                    statusDistribution {
-                        status
-                        amount
-                    }
-                    scoreDistribution {
-                        score
-                        amount
-                    }
-                }
+                ${this.query}
             }
             `,
             variables: {
@@ -1230,39 +455,129 @@ interface AniListResponse {
 }
 
 interface Media {
-    id: number;
-    idMal: number;
-    siteUrl: string;
+    id:number;
+    idMal:number;
     title: Title;
-    description: string;
-    status: string;
-    averageScore: number;
     coverImage: {
-        extraLarge?: string;
-        large?: string;
-        medium?: string;
-        color?: string;
+        extraLarge:string;
+        large:string;
     };
-    bannerImage: string;
-    episodes: number;
-    popularity: number;
-    genres: string[];
-    trailer: {
-        id: string;
+    bannerImage:string;
+    startDate: {
+        year:number;
+        month:number;
+        day:number;
+    };
+    endDate: {
+        year:number;
+        month:number;
+        day:number;
+    };
+    description:string;
+    season:"WINTER"|"SPRING"|"SUMMER"|"FALL";
+    seasonYear:number;
+    type:Type["ANIME"]|Type["MANGA"];
+    format:Format["MANGA"]|Format["MOVIE"]|Format["MUSIC"]|Format["NOVEL"]|Format["ONA"]|Format["ONE_SHOT"]|Format["OVA"]|Format["SPECIAL"]|Format["TV"]|Format["TV_SHORT"];
+    status:"FINISHED"|"RELEASING"|"NOT_YET_RELEASED"|"CANCELLED";
+    episodes?:number;
+    duration?:number;
+    chapters?:number;
+    volumes?:number;
+    genres:string[];
+    synonyms:string[]
+    source:"ORIGINAL"|"LIGHT_NOVEL"|"VISUAL_NOVEL"|"VIDEO_GAME"|"OTHER"|"NOVEL"|"MANGA"|"DOUJINSHI"|"ANIME"|"WEB_MANGA"|"BOOK"|"CARD_GAME"|"COMIC"|"GAME"|"MUSIC"|"NOVEL"|"ONE_SHOT"|"OTHER"|"PICTURE_BOOK"|"RADIO"|"TV"|"UNKNOWN";
+    isAdult:boolean;
+    meanScore:number;
+    averageScore:number;
+    popularity:number;
+    favourites:number;
+    hashtag?:string;
+    countryOfOrigin:string;
+    isLicensed:boolean;
+    nextAiringEpisode: {
+        airingAt:number;
+        timeUntilAiring:number;
+        episode:number;
+    };
+    relations: {
+        edges: {
+            id:number;
+            relationType:string;
+            node: {
+                id:number;
+                title: {
+                    userPreferred:string;
+                };
+                format:Format["MANGA"]|Format["MOVIE"]|Format["MUSIC"]|Format["NOVEL"]|Format["ONA"]|Format["ONE_SHOT"]|Format["OVA"]|Format["SPECIAL"]|Format["TV"]|Format["TV_SHORT"];
+                type:Type["ANIME"]|Type["MANGA"];
+                status:string;
+                bannerImage:string;
+                coverImage: {
+                    large:string;
+                }
+            };
+        };
+    };
+    characterPreview: {
+        edges: {
+            id:number;
+            role:string;
+            name?:string;
+            voiceActors: {
+                id:number;
+                name: {
+                    userPreferred:string;
+                };
+                language:string;
+                image: {
+                    large:string;
+                };
+            };
+            node: {
+                id:number;
+                name: {
+                    userPreferred:string;
+                };
+                image: {
+                    large:string;
+                };
+            };
+        };
+    };
+    studios: {
+        edges: {
+            isMain:boolean;
+            node: {
+                id:number;
+                name:string;
+            };
+        };
     };
     streamingEpisodes: {
-        title: string;
-        thumbnail: string;
-    }[];
-    airingSchedule: {
-        edges: {
-            node: {
-                episode: number;
-                airingAt: number;
-            }
-        }[]
+        title?:string;
+        thumbnail?:string;
+        url?:string;
     };
-}
+    trailer: {
+        id:string;
+        site:string;
+    };
+    tags: {
+        id:number;
+        name:string;
+        description?:string;
+    };
+    stats: {
+        statusDistribution: {
+            status:"CURRENT"|"PLANNING"|"COMPLETED"|"DROPPED"|"PAUSED"|"REPEATING";
+            amount:number;
+        };
+        scoreDistribution: {
+            score:number;
+            amount:number;
+        };
+    };
+};
 
 interface Title {
     english?: string;

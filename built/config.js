@@ -11,13 +11,15 @@ exports.config = {
             CrunchyRoll: {
                 threshold: 0.95,
                 comparison_threshold: 0.95,
-                email: "",
-                password: "",
+                wait: 200,
+                email: "alexayalavazquez@hotmail.com",
+                password: "Alejandrito0",
                 locale: "en-US"
             },
             Zoro: {
                 threshold: 0.95,
-                comparison_threshold: 0.95
+                comparison_threshold: 0.95,
+                wait: 200
             }
         },
         anilist: {

@@ -8,13 +8,15 @@ export var config = {
             CrunchyRoll: {
                 threshold: 0.95,
                 comparison_threshold: 0.95,
+                wait: 200,
                 email: "",
                 password: "",
                 locale: "en-US"
             },
             Zoro: {
                 threshold: 0.95,
-                comparison_threshold: 0.95
+                comparison_threshold: 0.95,
+                wait: 200
             }
         },
         anilist: {
