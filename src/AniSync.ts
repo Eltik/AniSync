@@ -4,7 +4,7 @@ import { config } from "./config";
 import ZoroTo from "./providers/anime/ZoroTo";
 import CrunchyRoll from "./providers/anime/CrunchyRoll";
 import AniList, { Media, Type } from "./AniList";
-import Anime, { SearchResponse } from "./providers/anime/Anime";
+import { SearchResponse } from "./providers/anime/Anime";
 
 export default class AniSync extends API {
     private stringSim:StringSimilarity = new StringSimilarity();
@@ -15,7 +15,7 @@ export default class AniSync extends API {
     }
 
     // You want to search the database first, but since that hasn't been setup yet, we'll just search the providers.
-    public async search(query:string, type:Type["ANIME"]|Type["MANGA"]): Promise<Search[]> {
+    public async search(query:string, type:Type["ANIME"]|Type["MANGA"]): Promise<Result[]> {
         const promises = [];
 
         if (type === "ANIME") {
@@ -81,7 +81,8 @@ export default class AniSync extends API {
                 }
             });
 
-            return comparison;
+            const result = this.formatAnimeData(comparison);
+            return result;
         } else {
             throw new Error("Manga is not supported yet.");
         }
@@ -89,6 +90,50 @@ export default class AniSync extends API {
 
     public async crawl() {
         throw new Error("Not implemented yet.");
+    }
+
+    public async insertAnime(results:Search[]) {
+        // CREATE TABLE anime(id int(7) NOT NULL, mal int(7) default 0, anilist longtext not null, connectors longtext not null);
+    }
+
+    // Formats search results into singular AniList data. Assigns each provider to an AniList object.
+    public formatAnimeData(results:Search[]):Result[] {
+        const aniList = [];
+
+        for (let i = 0; i < results.length; i++) {
+            const result = results[i];
+            const provider = result.provider;
+            const data = result.data;
+
+            let media:any = data.media;
+            let canPush = true;
+            let index = -1;
+
+            for (let j = 0; j < aniList.length; j++) {
+                if (aniList[j].id === media.id) {
+                    canPush = false;
+                    media = aniList[j];
+                    index = j;
+                }
+            }
+            if (canPush) {
+                aniList.push({
+                    id: media.id,
+                    anilist: media,
+                    connectors: [{ provider: provider, data: result.data.result, comparison: result.data.comparison }]
+                });
+            } else {
+                const aniListData = media.anilist;
+                const formatted = {
+                    id: media.id,
+                    anilist: aniListData,
+                    connectors: [...aniList[index].connectors, { provider: provider, data: result.data.result, comparison: result.data.comparison }]
+                }
+                aniList[index] = formatted;
+            }
+        }
+
+        return aniList;
     }
 
     private checkItem(result1:Mapping, result2:Mapping):number {
@@ -182,6 +227,18 @@ export default class AniSync extends API {
 interface Search {
     provider: string;
     data: ComparisonData;
+}
+
+interface Result {
+    id: number;
+    anilist: Media;
+    connectors: [
+        {
+            provider: string;
+            data: SearchResponse;
+            comparison: number;
+        }
+    ];
 }
 
 interface ComparisonData {

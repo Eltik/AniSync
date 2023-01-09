@@ -71,7 +71,8 @@ class AniSync extends API_1.default {
                     }
                 }
             });
-            return comparison;
+            const result = this.formatAnimeData(comparison);
+            return result;
         }
         else {
             throw new Error("Manga is not supported yet.");
@@ -79,6 +80,45 @@ class AniSync extends API_1.default {
     }
     async crawl() {
         throw new Error("Not implemented yet.");
+    }
+    async insertAnime(results) {
+        // CREATE TABLE anime(id int(7) NOT NULL, mal int(7) default 0, anilist longtext not null, connectors longtext not null);
+    }
+    // Formats search results into singular AniList data. Assigns each provider to an AniList object.
+    formatAnimeData(results) {
+        const aniList = [];
+        for (let i = 0; i < results.length; i++) {
+            const result = results[i];
+            const provider = result.provider;
+            const data = result.data;
+            let media = data.media;
+            let canPush = true;
+            let index = -1;
+            for (let j = 0; j < aniList.length; j++) {
+                if (aniList[j].id === media.id) {
+                    canPush = false;
+                    media = aniList[j];
+                    index = j;
+                }
+            }
+            if (canPush) {
+                aniList.push({
+                    id: media.id,
+                    anilist: media,
+                    connectors: [{ provider: provider, data: result.data.result, comparison: result.data.comparison }]
+                });
+            }
+            else {
+                const aniListData = media.anilist;
+                const formatted = {
+                    id: media.id,
+                    anilist: aniListData,
+                    connectors: [...aniList[index].connectors, { provider: provider, data: result.data.result, comparison: result.data.comparison }]
+                };
+                aniList[index] = formatted;
+            }
+        }
+        return aniList;
     }
     checkItem(result1, result2) {
         let amount = 0;

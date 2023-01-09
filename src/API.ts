@@ -123,18 +123,6 @@ export default class API {
         }
         return count;
     }
-
-    public async searchFromSQL(): Promise<any> {
-        throw new Error("Method not implemented.");
-    }
-
-    public async insert(): Promise<any> {
-        throw new Error("Method not implemented.");
-    }
-
-    public async updateSQL(): Promise<any> {
-        throw new Error("Method not implemented.");
-    }
 }
 
 interface DOM {

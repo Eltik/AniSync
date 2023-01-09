@@ -110,15 +110,6 @@ class API {
         }
         return count;
     }
-    async searchFromSQL() {
-        throw new Error("Method not implemented.");
-    }
-    async insert() {
-        throw new Error("Method not implemented.");
-    }
-    async updateSQL() {
-        throw new Error("Method not implemented.");
-    }
 }
 exports.default = API;
 //# sourceMappingURL=API.js.map
