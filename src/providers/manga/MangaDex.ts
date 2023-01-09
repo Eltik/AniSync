@@ -1,8 +1,9 @@
+import { config } from "../../config";
 import Manga, { SearchResponse } from "./Manga";
 
 export default class MangaDex extends Manga {
     private api:string = "https://api.mangadex.org";
-    private rateLimit:number = 200;
+    private config = config.mapping.provider.MangaDex;
 
     constructor() {
         super("https://mangadex.org", "MangaDex");
@@ -24,7 +25,7 @@ export default class MangaDex extends Manga {
             uri.searchParams.append('contentRating[]', 'pornographic');
 
             const request = await this.fetchJSON(uri.href);
-            await this.wait(this.rateLimit);
+            await this.wait(this.config.wait);
 
             mangaList = [...mangaList, ...request.json().data];
         }

@@ -1,11 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const config_1 = require("../../config");
 const Manga_1 = require("./Manga");
 class MangaDex extends Manga_1.default {
     constructor() {
         super("https://mangadex.org", "MangaDex");
         this.api = "https://api.mangadex.org";
-        this.rateLimit = 200;
+        this.config = config_1.config.mapping.provider.MangaDex;
     }
     async search(query) {
         let mangaList = [];
@@ -21,7 +22,7 @@ class MangaDex extends Manga_1.default {
             uri.searchParams.append('contentRating[]', 'erotica');
             uri.searchParams.append('contentRating[]', 'pornographic');
             const request = await this.fetchJSON(uri.href);
-            await this.wait(this.rateLimit);
+            await this.wait(this.config.wait);
             mangaList = [...mangaList, ...request.json().data];
         }
         for (let i = 0; i < mangaList.length; i++) {

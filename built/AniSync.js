@@ -9,6 +9,7 @@ const AniList_1 = require("./providers/meta/AniList");
 const TMDB_1 = require("./providers/meta/TMDB");
 const ComicK_1 = require("./providers/manga/ComicK");
 const MangaDex_1 = require("./providers/manga/MangaDex");
+const Mangakakalot_1 = require("./providers/manga/Mangakakalot");
 class AniSync extends API_1.default {
     constructor() {
         super();
@@ -288,6 +289,7 @@ class AniSync extends API_1.default {
         else if (type === "MANGA") {
             const comick = new ComicK_1.default();
             const mangadex = new MangaDex_1.default();
+            const mangakakalot = new Mangakakalot_1.default();
             const aggregatorData = [];
             const comickPromise = new Promise((resolve, reject) => {
                 this.wait(config_1.config.mapping.provider[comick.providerName] ? config_1.config.mapping.provider[comick.providerName].wait : config_1.config.mapping.wait).then(() => {
@@ -315,8 +317,22 @@ class AniSync extends API_1.default {
                     });
                 });
             });
+            const mangakakalotPromise = new Promise((resolve, reject) => {
+                this.wait(config_1.config.mapping.provider[mangakakalot.providerName] ? config_1.config.mapping.provider[mangakakalot.providerName].wait : config_1.config.mapping.wait).then(() => {
+                    mangakakalot.search(query).then((results) => {
+                        aggregatorData.push({
+                            provider_name: mangakakalot.providerName,
+                            results: results
+                        });
+                        resolve(aggregatorData);
+                    }).catch((err) => {
+                        reject(err);
+                    });
+                });
+            });
             promises.push(comickPromise);
             promises.push(mangadexPromise);
+            promises.push(mangakakalotPromise);
             await Promise.all(promises);
             return aggregatorData;
         }
