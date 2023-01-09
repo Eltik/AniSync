@@ -10,11 +10,11 @@ const TMDB_1 = require("./providers/meta/TMDB");
 const ComicK_1 = require("./providers/manga/ComicK");
 const MangaDex_1 = require("./providers/manga/MangaDex");
 const Mangakakalot_1 = require("./providers/manga/Mangakakalot");
+const GogoAnime_1 = require("./providers/anime/GogoAnime");
 class AniSync extends API_1.default {
     constructor() {
         super();
         this.stringSim = new StringSimilarity_1.default();
-        this.config = config_1.config.mapping;
     }
     // You want to search the database first, but since that hasn't been setup yet, we'll just search the providers.
     async search(query, type) {
@@ -316,6 +316,7 @@ class AniSync extends API_1.default {
             const zoro = new Zoro_1.default();
             const crunchy = new CrunchyRoll_1.default();
             const tmdb = new TMDB_1.default();
+            const gogoanime = new GogoAnime_1.default();
             const aggregatorData = [];
             const zoroPromise = new Promise((resolve, reject) => {
                 this.wait(config_1.config.mapping.provider[zoro.providerName] ? config_1.config.mapping.provider[zoro.providerName].wait : config_1.config.mapping.wait).then(() => {
@@ -342,6 +343,19 @@ class AniSync extends API_1.default {
                         }).catch((err) => {
                             reject(err);
                         });
+                    });
+                });
+            });
+            const gogoPromise = new Promise((resolve, reject) => {
+                this.wait(config_1.config.mapping.provider[gogoanime.providerName] ? config_1.config.mapping.provider[gogoanime.providerName].wait : config_1.config.mapping.wait).then(() => {
+                    gogoanime.search(query).then((results) => {
+                        aggregatorData.push({
+                            provider_name: gogoanime.providerName,
+                            results: results
+                        });
+                        resolve(aggregatorData);
+                    }).catch((err) => {
+                        reject(err);
                     });
                 });
             });

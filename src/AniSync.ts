@@ -9,11 +9,10 @@ import TMDB from "./providers/meta/TMDB";
 import ComicK from "./providers/manga/ComicK";
 import MangaDex from "./providers/manga/MangaDex";
 import Mangakakalot from "./providers/manga/Mangakakalot";
+import GogoAnime from "./providers/anime/GogoAnime";
 
 export default class AniSync extends API {
     private stringSim:StringSimilarity = new StringSimilarity();
-    private config = config.mapping;
-    
     constructor() {
         super();
     }
@@ -377,6 +376,7 @@ export default class AniSync extends API {
             const zoro = new Zoro();
             const crunchy = new CrunchyRoll();
             const tmdb = new TMDB();
+            const gogoanime = new GogoAnime();
             const aggregatorData:AggregatorData[] = [];
 
             const zoroPromise = new Promise((resolve, reject) => {
@@ -405,6 +405,19 @@ export default class AniSync extends API {
                             reject(err);
                         });
                     })
+                });
+            });
+            const gogoPromise = new Promise((resolve, reject) => {
+                this.wait(config.mapping.provider[gogoanime.providerName] ? config.mapping.provider[gogoanime.providerName].wait : config.mapping.wait).then(() => {
+                    gogoanime.search(query).then((results) => {
+                        aggregatorData.push({
+                            provider_name: gogoanime.providerName,
+                            results: results
+                        });
+                        resolve(aggregatorData);
+                    }).catch((err) => {
+                        reject(err);
+                    });
                 });
             });
             const tmdbPromise = new Promise((resolve, reject) => {
