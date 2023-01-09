@@ -149,7 +149,6 @@ AniList Options
         <td>Depends.</td>
     </tr>
 </table>
-*Unfinished
 
 Crawling:
 <table>
@@ -174,6 +173,9 @@ Crawling:
         <td>5</td>
     </tr>
 </table>
+
+
+*Unfinished
 
 ```typescript
 export var config = {
@@ -380,7 +382,7 @@ interface Mapping {
 ```
 
 ## Contributing
-Contribution would very much be appreciated. If you have any suggestions or requests, create a [pull request](https://github.com/Eltik/AniSync/pulls) or [issue](https://github.com/Eltik/AniSync/issues). Adding other "connectors" or sites such as [TVDB](https://thetvdb.com/), [MyAnimeList(https://myanimelist.net/), [4anime](https://4anime.gg/), etc. is super easy. The only thing required would be to create a new file under `/providers/[anime/manga]` and add the `search()` function:
+Contribution would very much be appreciated. If you have any suggestions or requests, create a [pull request](https://github.com/Eltik/AniSync/pulls) or [issue](https://github.com/Eltik/AniSync/issues). Adding other "connectors" or sites such as [TVDB](https://thetvdb.com/), [MyAnimeList](https://myanimelist.net/), [4anime](https://4anime.gg/), etc. is super easy. The only thing required would be to create a new file under `/providers/[anime/manga]` and add the `search()` function:
 ```typescript
 export default class FourAnime extends Anime {
   constructor() {
