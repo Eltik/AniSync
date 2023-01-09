@@ -13,8 +13,8 @@ exports.config = {
                 threshold: 0.95,
                 comparison_threshold: 0.95,
                 wait: 500,
-                email: "alexayalavazquez@hotmail.com",
-                password: "Alejandrito0",
+                email: "",
+                password: "",
                 locale: "en-US"
             },
             Zoro: {

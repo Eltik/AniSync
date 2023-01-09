@@ -272,7 +272,7 @@ export default class AniSync extends API {
     }
 
     // Formats search results into singular AniList data. Assigns each provider to an AniList object.
-    public formatAnimeData(results:Search[]):Result[] {
+    private formatAnimeData(results:Search[]):Result[] {
         const aniList = [];
 
         for (let i = 0; i < results.length; i++) {

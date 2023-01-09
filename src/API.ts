@@ -1,8 +1,6 @@
 import PromiseRequest, { Options, Response } from "./libraries/promise-request";
 import { Cheerio, load } from "cheerio";
 import { ReadStream, WriteStream } from "fs";
-import * as CryptoJS from "crypto-js";
-import { config } from "./config";
 
 export default class API {
     private userAgent:string = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36';
