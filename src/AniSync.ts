@@ -71,7 +71,7 @@ export default class AniSync extends API {
                 const results = result.results;
 
                 for (let i = 0; i < results.length; i++) {
-                    const data = this.compareAnime(results[i], aniData);
+                    const data = this.compareAnime(results[i], aniData, config.mapping.anime[provider].threshold, config.mapping.anime[provider].comparison_threshold);
                     if (data != undefined) {
                         comparison.push({
                             provider,
@@ -132,7 +132,7 @@ export default class AniSync extends API {
         return aniList;
     }
 
-    private checkItem(result1:Mapping, result2:Mapping):number {
+    private checkItem(result1:Mapping, result2:Mapping, threshold:number):number {
         let amount = 0;
         let tries = 0;
 
@@ -148,7 +148,7 @@ export default class AniSync extends API {
         if (result1.title != undefined && result2.title != undefined) {
             tries++;
             const stringComparison = this.stringSim.compareTwoStrings(result1.title, result2.title);
-            if (result1.title === result2.title || stringComparison > this.config.threshold) {
+            if (result1.title === result2.title || stringComparison > threshold) {
                 amount++;
             }
         }
@@ -156,7 +156,7 @@ export default class AniSync extends API {
         if (result1.romaji != undefined && result2.romaji != undefined) {
             tries++;
             const stringComparison = this.stringSim.compareTwoStrings(result1.romaji, result2.romaji);
-            if (result1.romaji === result2.romaji || stringComparison > this.config.threshold) {
+            if (result1.romaji === result2.romaji || stringComparison > threshold) {
                 amount++;
             }
         }
@@ -164,7 +164,7 @@ export default class AniSync extends API {
         if (result1.native != undefined && result2.native != undefined) {
             tries++;
             const stringComparison = this.stringSim.compareTwoStrings(result1.native, result2.native);
-            if (result1.native === result2.native || stringComparison > this.config.threshold) {
+            if (result1.native === result2.native || stringComparison > threshold) {
                 amount++;
             }
         }
@@ -186,7 +186,10 @@ export default class AniSync extends API {
         return amount / tries;
     }
 
-    private compareAnime(anime:SearchResponse, aniList:[Media]|Media[]):ComparisonData {
+    private compareAnime(anime:SearchResponse, aniList:[Media]|Media[], threshold:number, comparison_threshold:number):ComparisonData {
+        threshold = threshold ? threshold : config.mapping.threshold;
+        comparison_threshold = comparison_threshold ? comparison_threshold : config.mapping.comparison_threshold;
+        
         const result:ComparisonData[] = [];
         for (let i = 0; i < aniList.length; i++) {
             const media:Media = aniList[i];
@@ -206,8 +209,8 @@ export default class AniSync extends API {
                 native: media.title.native
             }
 
-            const comparison = this.checkItem(map1, map2);
-            if (comparison > this.config.comparison_threshold) {
+            const comparison = this.checkItem(map1, map2, threshold);
+            if (comparison > comparison_threshold) {
                 result.push({
                     result: anime,
                     media,

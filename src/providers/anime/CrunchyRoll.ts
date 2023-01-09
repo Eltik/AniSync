@@ -4,7 +4,7 @@ import Cronchy from "cronchy";
 
 export default class CrunchyRoll extends Anime {
     private credentials:Credentials;
-    private config = config.mapping.anime.crunchyroll;
+    private config = config.mapping.anime.CrunchyRoll;
     private cronchy:Cronchy;
 
     constructor() {

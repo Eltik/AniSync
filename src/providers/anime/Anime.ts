@@ -19,7 +19,7 @@ export default class Anime extends API {
         throw new Error("Method not implemented.");
     }
 
-    public async insertAnime(results:Result[]): Promise<Boolean> {
+    public async insert(results:Result[]): Promise<Boolean> {
         // CREATE TABLE anime(id int(7) NOT NULL, anilist longtext not null, connectors longtext not null);
         const db = this.db;
         const data = await this.getAll();
