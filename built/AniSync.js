@@ -11,6 +11,9 @@ const ComicK_1 = require("./providers/manga/ComicK");
 const MangaDex_1 = require("./providers/manga/MangaDex");
 const Mangakakalot_1 = require("./providers/manga/Mangakakalot");
 const GogoAnime_1 = require("./providers/anime/GogoAnime");
+const AnimeFox_1 = require("./providers/anime/AnimeFox");
+const AnimePahe_1 = require("./providers/anime/AnimePahe");
+const Enime_1 = require("./providers/anime/Enime");
 class AniSync extends API_1.default {
     constructor() {
         super();
@@ -317,6 +320,9 @@ class AniSync extends API_1.default {
             const crunchy = new CrunchyRoll_1.default();
             const tmdb = new TMDB_1.default();
             const gogoanime = new GogoAnime_1.default();
+            const animeFox = new AnimeFox_1.default();
+            const animePahe = new AnimePahe_1.default();
+            const enime = new Enime_1.default();
             const aggregatorData = [];
             const zoroPromise = new Promise((resolve, reject) => {
                 this.wait(config_1.config.mapping.provider[zoro.providerName] ? config_1.config.mapping.provider[zoro.providerName].wait : config_1.config.mapping.wait).then(() => {
@@ -359,6 +365,45 @@ class AniSync extends API_1.default {
                     });
                 });
             });
+            const animeFoxPromise = new Promise((resolve, reject) => {
+                this.wait(config_1.config.mapping.provider[animeFox.providerName] ? config_1.config.mapping.provider[animeFox.providerName].wait : config_1.config.mapping.wait).then(() => {
+                    animeFox.search(query).then((results) => {
+                        aggregatorData.push({
+                            provider_name: animeFox.providerName,
+                            results: results
+                        });
+                        resolve(aggregatorData);
+                    }).catch((err) => {
+                        reject(err);
+                    });
+                });
+            });
+            const animePahePromise = new Promise((resolve, reject) => {
+                this.wait(config_1.config.mapping.provider[animePahe.providerName] ? config_1.config.mapping.provider[animePahe.providerName].wait : config_1.config.mapping.wait).then(() => {
+                    animePahe.search(query).then((results) => {
+                        aggregatorData.push({
+                            provider_name: animePahe.providerName,
+                            results: results
+                        });
+                        resolve(aggregatorData);
+                    }).catch((err) => {
+                        reject(err);
+                    });
+                });
+            });
+            const enimePromise = new Promise((resolve, reject) => {
+                this.wait(config_1.config.mapping.provider[enime.providerName] ? config_1.config.mapping.provider[enime.providerName].wait : config_1.config.mapping.wait).then(() => {
+                    enime.search(query).then((results) => {
+                        aggregatorData.push({
+                            provider_name: enime.providerName,
+                            results: results
+                        });
+                        resolve(aggregatorData);
+                    }).catch((err) => {
+                        reject(err);
+                    });
+                });
+            });
             const tmdbPromise = new Promise((resolve, reject) => {
                 this.wait(config_1.config.mapping.provider[tmdb.providerName] ? config_1.config.mapping.provider[tmdb.providerName].wait : config_1.config.mapping.wait).then(() => {
                     tmdb.search(query).then((results) => {
@@ -375,6 +420,10 @@ class AniSync extends API_1.default {
             promises.push(zoroPromise);
             promises.push(crunchyPromise);
             promises.push(tmdbPromise);
+            promises.push(gogoPromise);
+            promises.push(animeFoxPromise);
+            promises.push(animePahePromise);
+            promises.push(enimePromise);
             await Promise.all(promises);
             return aggregatorData;
         }

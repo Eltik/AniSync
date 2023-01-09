@@ -10,6 +10,9 @@ import ComicK from "./providers/manga/ComicK";
 import MangaDex from "./providers/manga/MangaDex";
 import Mangakakalot from "./providers/manga/Mangakakalot";
 import GogoAnime from "./providers/anime/GogoAnime";
+import AnimeFox from "./providers/anime/AnimeFox";
+import AnimePahe from "./providers/anime/AnimePahe";
+import Enime from "./providers/anime/Enime";
 
 export default class AniSync extends API {
     private stringSim:StringSimilarity = new StringSimilarity();
@@ -377,6 +380,9 @@ export default class AniSync extends API {
             const crunchy = new CrunchyRoll();
             const tmdb = new TMDB();
             const gogoanime = new GogoAnime();
+            const animeFox = new AnimeFox();
+            const animePahe = new AnimePahe();
+            const enime = new Enime();
             const aggregatorData:AggregatorData[] = [];
 
             const zoroPromise = new Promise((resolve, reject) => {
@@ -420,6 +426,45 @@ export default class AniSync extends API {
                     });
                 });
             });
+            const animeFoxPromise = new Promise((resolve, reject) => {
+                this.wait(config.mapping.provider[animeFox.providerName] ? config.mapping.provider[animeFox.providerName].wait : config.mapping.wait).then(() => {
+                    animeFox.search(query).then((results) => {
+                        aggregatorData.push({
+                            provider_name: animeFox.providerName,
+                            results: results
+                        });
+                        resolve(aggregatorData);
+                    }).catch((err) => {
+                        reject(err);
+                    });
+                });
+            });
+            const animePahePromise = new Promise((resolve, reject) => {
+                this.wait(config.mapping.provider[animePahe.providerName] ? config.mapping.provider[animePahe.providerName].wait : config.mapping.wait).then(() => {
+                    animePahe.search(query).then((results) => {
+                        aggregatorData.push({
+                            provider_name: animePahe.providerName,
+                            results: results
+                        });
+                        resolve(aggregatorData);
+                    }).catch((err) => {
+                        reject(err);
+                    });
+                });
+            });
+            const enimePromise = new Promise((resolve, reject) => {
+                this.wait(config.mapping.provider[enime.providerName] ? config.mapping.provider[enime.providerName].wait : config.mapping.wait).then(() => {
+                    enime.search(query).then((results) => {
+                        aggregatorData.push({
+                            provider_name: enime.providerName,
+                            results: results
+                        });
+                        resolve(aggregatorData);
+                    }).catch((err) => {
+                        reject(err);
+                    });
+                });
+            });
             const tmdbPromise = new Promise((resolve, reject) => {
                 this.wait(config.mapping.provider[tmdb.providerName] ? config.mapping.provider[tmdb.providerName].wait : config.mapping.wait).then(() => {
                     tmdb.search(query).then((results) => {
@@ -437,6 +482,10 @@ export default class AniSync extends API {
             promises.push(zoroPromise);
             promises.push(crunchyPromise);
             promises.push(tmdbPromise);
+            promises.push(gogoPromise);
+            promises.push(animeFoxPromise);
+            promises.push(animePahePromise);
+            promises.push(enimePromise);
             await Promise.all(promises);
             return aggregatorData;
         } else if (type === "MANGA") {

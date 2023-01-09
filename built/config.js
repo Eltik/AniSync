@@ -11,7 +11,7 @@ exports.config = {
             CrunchyRoll: {
                 threshold: 0.95,
                 comparison_threshold: 0.95,
-                wait: 500,
+                wait: 600,
                 email: "",
                 password: "",
                 locale: "en-US"
@@ -22,6 +22,21 @@ exports.config = {
                 wait: 200
             },
             GogoAnime: {
+                threshold: 0.6,
+                comparison_threshold: 0.6,
+                wait: 200
+            },
+            AnimeFox: {
+                threshold: 0.65,
+                comparison_threshold: 0.65,
+                wait: 200
+            },
+            AnimePahe: {
+                threshold: 0.7,
+                comparison_threshold: 0.7,
+                wait: 200
+            },
+            Enime: {
                 threshold: 0.95,
                 comparison_threshold: 0.95,
                 wait: 200
