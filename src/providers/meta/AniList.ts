@@ -7,7 +7,7 @@ export default class AniList extends API {
     public type:Type["ANIME"] | Type["MANGA"] = undefined;
     private format:Format["TV"]|Format["TV_SHORT"]|Format["MOVIE"]|Format["SPECIAL"]|Format["OVA"]|Format["ONA"]|Format["MUSIC"]|Format["MANGA"]|Format["NOVEL"]|Format["ONE_SHOT"] = undefined;
     public isMal:boolean = false;
-    private config = config.mapping.anilist;
+    private config = config.mapping.provider.AniList;
 
     private query:string = `
     id

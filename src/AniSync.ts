@@ -5,6 +5,7 @@ import Zoro from "./providers/anime/Zoro";
 import CrunchyRoll from "./providers/anime/CrunchyRoll";
 import AniList, { Media, Type } from "./providers/meta/AniList";
 import { SearchResponse } from "./providers/anime/Anime";
+import TMDB from "./providers/meta/TMDB";
 
 export default class AniSync extends API {
     private stringSim:StringSimilarity = new StringSimilarity();
@@ -47,7 +48,7 @@ export default class AniSync extends API {
                 const results = result.results;
 
                 for (let i = 0; i < results.length; i++) {
-                    const data = this.compareAnime(results[i], aniData, config.mapping.anime[provider].threshold, config.mapping.anime[provider].comparison_threshold);
+                    const data = this.compareAnime(results[i], aniData, config.mapping.provider[provider].threshold, config.mapping.provider[provider].comparison_threshold);
                     if (data != undefined) {
                         comparison.push({
                             provider,
@@ -206,7 +207,7 @@ export default class AniSync extends API {
                         const results = result.results;
     
                         for (let i = 0; i < results.length; i++) {
-                            const data = this.compareAnime(results[i], [aniData], config.mapping.anime[provider].threshold, config.mapping.anime[provider].comparison_threshold);
+                            const data = this.compareAnime(results[i], [aniData], config.mapping.provider[provider].threshold, config.mapping.provider[provider].comparison_threshold);
                             if (data != undefined) {
                                 seasonData.push({
                                     provider,
@@ -230,11 +231,12 @@ export default class AniSync extends API {
         if (type === "ANIME") {
             const zoro = new Zoro();
             const crunchy = new CrunchyRoll();
+            const tmdb = new TMDB();
 
             const aggregatorData:AggregatorData[] = [];
 
             const zoroPromise = new Promise((resolve, reject) => {
-                this.wait(config.mapping.anime[zoro.providerName] ? config.mapping.anime[zoro.providerName].wait : config.mapping.wait).then(() => {
+                this.wait(config.mapping.provider[zoro.providerName] ? config.mapping.provider[zoro.providerName].wait : config.mapping.wait).then(() => {
                     zoro.search(query).then((results) => {
                         aggregatorData.push({
                             provider_name: zoro.providerName,
@@ -247,7 +249,7 @@ export default class AniSync extends API {
                 });
             });
             const crunchyPromise = new Promise((resolve, reject) => {
-                this.wait(config.mapping.anime[crunchy.providerName] ? config.mapping.anime[crunchy.providerName].wait : config.mapping.wait).then(() => {
+                this.wait(config.mapping.provider[crunchy.providerName] ? config.mapping.provider[crunchy.providerName].wait : config.mapping.wait).then(() => {
                     crunchy.init().then(() => {
                         crunchy.search(query).then((results) => {
                             aggregatorData.push({
@@ -260,10 +262,24 @@ export default class AniSync extends API {
                         });
                     })
                 });
-            })
+            });
+            const tmdbPromise = new Promise((resolve, reject) => {
+                this.wait(config.mapping.provider[tmdb.providerName] ? config.mapping.provider[tmdb.providerName].wait : config.mapping.wait).then(() => {
+                    tmdb.search(query).then((results) => {
+                        aggregatorData.push({
+                            provider_name: tmdb.providerName,
+                            results: results
+                        });
+                        resolve(aggregatorData);
+                    }).catch((err) => {
+                        reject(err);
+                    });
+                });
+            });
 
             promises.push(zoroPromise);
             promises.push(crunchyPromise);
+            promises.push(tmdbPromise);
             await Promise.all(promises);
             return aggregatorData;
         } else {

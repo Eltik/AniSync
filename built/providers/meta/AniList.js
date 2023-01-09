@@ -10,7 +10,7 @@ class AniList extends API_1.default {
         this.type = undefined;
         this.format = undefined;
         this.isMal = false;
-        this.config = config_1.config.mapping.anilist;
+        this.config = config_1.config.mapping.provider.AniList;
         this.query = `
     id
     idMal

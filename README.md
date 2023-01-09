@@ -64,7 +64,7 @@ npm run build
 This will clean the build folder and re-install the required modules. Cleaning the build folder does not delete the database file, but rather cleans all built files in the `/src` folder.
 
 ### Configuration
-The `config.ts` file is a basic config file that changes how AniSync works. The mapping section contains the functions of mapping anime to AniList results. Each provider can have it's own value specified, but if it doens't exist it defaults to the `config.mapping.#` value rather than the `config.mapping.anime.[provider].#` value. The crawling section are the options used when crawling through AniList.
+The `config.ts` file is a basic config file that changes how AniSync works. The mapping section contains the functions of mapping anime to AniList results. Each provider can have it's own value specified, but if it doens't exist it defaults to the `config.mapping.#` value rather than the `config.mapping.provider.[provider].#` value. The crawling section are the options used when crawling through AniList.
 
 Mapping:
 <table>
@@ -184,7 +184,7 @@ export var config = {
         comparison_threshold: 0.8,
         wait: 200,
         check_genres: false,
-        anime: {
+        provider: {
             CrunchyRoll: {
                 threshold: 0.95,
                 comparison_threshold: 0.95,
@@ -197,14 +197,20 @@ export var config = {
                 threshold: 0.95,
                 comparison_threshold: 0.95,
                 wait: 200
+            },
+            TMDB: {
+                api_key: "5201b54eb0968700e693a30576d7d4dc",
+                threshold: 0.95,
+                comparison_threshold: 0.95,
+                wait: 350
+            },
+            AniList: {
+                SEASON: "WINTER",
+                SEASON_YEAR: 2023,
+                NEXT_SEASON: "SPRING",
+                NEXT_YEAR: 2023
             }
         },
-        anilist: {
-            SEASON: "WINTER",
-            SEASON_YEAR: 2023,
-            NEXT_SEASON: "SPRING",
-            NEXT_YEAR: 2023
-        }
     },
     crawling: {
         debug: true,

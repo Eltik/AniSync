@@ -6,6 +6,7 @@ const config_1 = require("./config");
 const Zoro_1 = require("./providers/anime/Zoro");
 const CrunchyRoll_1 = require("./providers/anime/CrunchyRoll");
 const AniList_1 = require("./providers/meta/AniList");
+const TMDB_1 = require("./providers/meta/TMDB");
 class AniSync extends API_1.default {
     constructor() {
         super();
@@ -39,7 +40,7 @@ class AniSync extends API_1.default {
                 const provider = result.provider_name;
                 const results = result.results;
                 for (let i = 0; i < results.length; i++) {
-                    const data = this.compareAnime(results[i], aniData, config_1.config.mapping.anime[provider].threshold, config_1.config.mapping.anime[provider].comparison_threshold);
+                    const data = this.compareAnime(results[i], aniData, config_1.config.mapping.provider[provider].threshold, config_1.config.mapping.provider[provider].comparison_threshold);
                     if (data != undefined) {
                         comparison.push({
                             provider,
@@ -56,7 +57,7 @@ class AniSync extends API_1.default {
         }
     }
     async crawl(type, maxPages, wait) {
-        maxPages = maxPages ? maxPages : config_1.config.crawling.anime.maxPages;
+        maxPages = maxPages ? maxPages : config_1.config.crawling.anime.max_pages;
         wait = wait ? wait : config_1.config.crawling.anime.wait;
         if (type === "ANIME") {
             const aniList = new AniList_1.default("", type, "TV");
@@ -173,7 +174,7 @@ class AniSync extends API_1.default {
                         const provider = result.provider_name;
                         const results = result.results;
                         for (let i = 0; i < results.length; i++) {
-                            const data = this.compareAnime(results[i], [aniData], config_1.config.mapping.anime[provider].threshold, config_1.config.mapping.anime[provider].comparison_threshold);
+                            const data = this.compareAnime(results[i], [aniData], config_1.config.mapping.provider[provider].threshold, config_1.config.mapping.provider[provider].comparison_threshold);
                             if (data != undefined) {
                                 seasonData.push({
                                     provider,
@@ -197,9 +198,10 @@ class AniSync extends API_1.default {
         if (type === "ANIME") {
             const zoro = new Zoro_1.default();
             const crunchy = new CrunchyRoll_1.default();
+            const tmdb = new TMDB_1.default();
             const aggregatorData = [];
             const zoroPromise = new Promise((resolve, reject) => {
-                this.wait(config_1.config.mapping.anime[zoro.providerName] ? config_1.config.mapping.anime[zoro.providerName].wait : config_1.config.mapping.wait).then(() => {
+                this.wait(config_1.config.mapping.provider[zoro.providerName] ? config_1.config.mapping.provider[zoro.providerName].wait : config_1.config.mapping.wait).then(() => {
                     zoro.search(query).then((results) => {
                         aggregatorData.push({
                             provider_name: zoro.providerName,
@@ -212,7 +214,7 @@ class AniSync extends API_1.default {
                 });
             });
             const crunchyPromise = new Promise((resolve, reject) => {
-                this.wait(config_1.config.mapping.anime[crunchy.providerName] ? config_1.config.mapping.anime[crunchy.providerName].wait : config_1.config.mapping.wait).then(() => {
+                this.wait(config_1.config.mapping.provider[crunchy.providerName] ? config_1.config.mapping.provider[crunchy.providerName].wait : config_1.config.mapping.wait).then(() => {
                     crunchy.init().then(() => {
                         crunchy.search(query).then((results) => {
                             aggregatorData.push({
@@ -226,8 +228,22 @@ class AniSync extends API_1.default {
                     });
                 });
             });
+            const tmdbPromise = new Promise((resolve, reject) => {
+                this.wait(config_1.config.mapping.provider[tmdb.providerName] ? config_1.config.mapping.provider[tmdb.providerName].wait : config_1.config.mapping.wait).then(() => {
+                    tmdb.search(query).then((results) => {
+                        aggregatorData.push({
+                            provider_name: tmdb.providerName,
+                            results: results
+                        });
+                        resolve(aggregatorData);
+                    }).catch((err) => {
+                        reject(err);
+                    });
+                });
+            });
             promises.push(zoroPromise);
             promises.push(crunchyPromise);
+            promises.push(tmdbPromise);
             await Promise.all(promises);
             return aggregatorData;
         }
