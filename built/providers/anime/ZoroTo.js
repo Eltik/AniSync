@@ -5,9 +5,6 @@ const cheerio_1 = require("cheerio");
 class ZoroTo extends Anime_1.default {
     constructor() {
         super("https://zoro.to", "ZoroTo");
-        // For whether sub/dub
-        this.subOrDub = "sub";
-        this.ajax = `${this.baseUrl}/ajax/v2`;
     }
     async search(query) {
         const dom = await this.fetchDOM(`${this.baseUrl}/search?keyword=${encodeURIComponent(query)}`, ".film_list-wrap > div.flw-item");

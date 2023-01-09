@@ -2,10 +2,6 @@ import Anime, { SearchResponse } from "./Anime";
 import { load } from "cheerio";
 
 export default class ZoroTo extends Anime {
-    // For whether sub/dub
-    private subOrDub:string = "sub";
-    private ajax:string = `${this.baseUrl}/ajax/v2`;
-
     constructor() {
         super("https://zoro.to", "ZoroTo");
     }

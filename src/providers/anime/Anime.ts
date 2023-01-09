@@ -10,11 +10,6 @@ export default class Anime extends API {
 
     private db = new Database(join(__dirname, "../db.db"));
 
-    public AGGREGATORS = {
-        ZoroTo: "https://zoro.to",
-        Crunchyroll: "https://crunchyroll.com"
-    }
-
     constructor(baseUrl:string, providerName:string) {
         super();
         this.baseUrl = baseUrl;

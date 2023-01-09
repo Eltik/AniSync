@@ -2,6 +2,7 @@ import API from "./API";
 import StringSimilarity from "./StringSimilarity";
 import { config } from "./config";
 import ZoroTo from "./providers/anime/ZoroTo";
+import CrunchyRoll from "./providers/anime/CrunchyRoll";
 import AniList, { Media, Type } from "./AniList";
 import Anime, { SearchResponse } from "./providers/anime/Anime";
 
@@ -19,6 +20,7 @@ export default class AniSync extends API {
 
         if (type === "ANIME") {
             const zoro = new ZoroTo();
+            const crunchy = new CrunchyRoll();
 
             const aggregatorData:AggregatorData[] = [];
             const aniData:Media[] = [null];
@@ -43,10 +45,24 @@ export default class AniSync extends API {
                 }).catch((err) => {
                     reject(err);
                 });
+            });
+            const crunchyPromise = new Promise((resolve, reject) => {
+                crunchy.init().then(() => {
+                    crunchy.search(query).then((results) => {
+                        aggregatorData.push({
+                            provider_name: crunchy.providerName,
+                            results: results
+                        });
+                        resolve(aggregatorData);
+                    }).catch((err) => {
+                        reject(err);
+                    });
+                })
             })
 
             promises.push(aniListPromise);
             promises.push(zoroPromise);
+            promises.push(crunchyPromise);
             await Promise.all(promises);
             
             const comparison:Search[] = [];
@@ -63,15 +79,19 @@ export default class AniSync extends API {
                         });
                     }
                 }
-            })
-            
+            });
+
             return comparison;
         } else {
             throw new Error("Manga is not supported yet.");
         }
     }
 
-    public checkItem(result1:Mapping, result2:Mapping):number {
+    public async crawl() {
+        throw new Error("Not implemented yet.");
+    }
+
+    private checkItem(result1:Mapping, result2:Mapping):number {
         let amount = 0;
         let tries = 0;
 
@@ -125,8 +145,8 @@ export default class AniSync extends API {
         return amount / tries;
     }
 
-    public compareAnime(anime:SearchResponse, aniList:[Media]|Media[]) {
-        const result = [];
+    private compareAnime(anime:SearchResponse, aniList:[Media]|Media[]):ComparisonData {
+        const result:ComparisonData[] = [];
         for (let i = 0; i < aniList.length; i++) {
             const media:Media = aniList[i];
 
@@ -148,7 +168,7 @@ export default class AniSync extends API {
             const comparison = this.checkItem(map1, map2);
             if (comparison > this.config.comparison_threshold) {
                 result.push({
-                    anime,
+                    result: anime,
                     media,
                     comparison
                 })
@@ -161,11 +181,13 @@ export default class AniSync extends API {
 
 interface Search {
     provider: string;
-    data: {
-        anime: SearchResponse;
-        media: Media;
-        comparison: number;
-    }
+    data: ComparisonData;
+}
+
+interface ComparisonData {
+    result: SearchResponse;
+    media: Media;
+    comparison: number;
 }
 
 interface AggregatorData {
@@ -179,5 +201,3 @@ interface Mapping {
     native?: string;
     genres?: string[];
 }
-
-export type { Mapping };

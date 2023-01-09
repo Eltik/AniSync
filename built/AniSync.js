@@ -4,6 +4,7 @@ const API_1 = require("./API");
 const StringSimilarity_1 = require("./StringSimilarity");
 const config_1 = require("./config");
 const ZoroTo_1 = require("./providers/anime/ZoroTo");
+const CrunchyRoll_1 = require("./providers/anime/CrunchyRoll");
 const AniList_1 = require("./AniList");
 class AniSync extends API_1.default {
     constructor() {
@@ -16,6 +17,7 @@ class AniSync extends API_1.default {
         const promises = [];
         if (type === "ANIME") {
             const zoro = new ZoroTo_1.default();
+            const crunchy = new CrunchyRoll_1.default();
             const aggregatorData = [];
             const aniData = [null];
             // Most likely will have to change TV to MOVIE, OVA, etc.
@@ -38,8 +40,22 @@ class AniSync extends API_1.default {
                     reject(err);
                 });
             });
+            const crunchyPromise = new Promise((resolve, reject) => {
+                crunchy.init().then(() => {
+                    crunchy.search(query).then((results) => {
+                        aggregatorData.push({
+                            provider_name: crunchy.providerName,
+                            results: results
+                        });
+                        resolve(aggregatorData);
+                    }).catch((err) => {
+                        reject(err);
+                    });
+                });
+            });
             promises.push(aniListPromise);
             promises.push(zoroPromise);
+            promises.push(crunchyPromise);
             await Promise.all(promises);
             const comparison = [];
             aggregatorData.map((result, index) => {
@@ -60,6 +76,9 @@ class AniSync extends API_1.default {
         else {
             throw new Error("Manga is not supported yet.");
         }
+    }
+    async crawl() {
+        throw new Error("Not implemented yet.");
     }
     checkItem(result1, result2) {
         let amount = 0;
@@ -128,7 +147,7 @@ class AniSync extends API_1.default {
             const comparison = this.checkItem(map1, map2);
             if (comparison > this.config.comparison_threshold) {
                 result.push({
-                    anime,
+                    result: anime,
                     media,
                     comparison
                 });
