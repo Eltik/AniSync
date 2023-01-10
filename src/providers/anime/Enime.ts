@@ -1,3 +1,4 @@
+import { config } from "../../config";
 import Anime, { SearchResponse } from "./Anime";
 
 export default class Enime extends Anime {
@@ -15,6 +16,9 @@ export default class Enime extends Anime {
         const data = req.json();
         
         if (!data.data) {
+            if (config.crawling.debug) {
+                console.log("Unable to fetch data for " + query + ".");
+            }
             return [];
         }
 

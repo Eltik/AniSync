@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const config_1 = require("../../config");
 const Anime_1 = require("./Anime");
 class Enime extends Anime_1.default {
     constructor() {
@@ -12,6 +13,9 @@ class Enime extends Anime_1.default {
         const req = await this.fetchJSON(`${this.api}/search/${query}?page=${page}&perPage=${perPage}`);
         const data = req.json();
         if (!data.data) {
+            if (config_1.config.crawling.debug) {
+                console.log("Unable to fetch data for " + query + ".");
+            }
             return [];
         }
         return data.data.map((item) => ({
