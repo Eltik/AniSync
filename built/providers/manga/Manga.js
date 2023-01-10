@@ -6,7 +6,7 @@ const sqlite3_1 = require("sqlite3");
 const fs_1 = require("fs");
 class Manga extends API_1.default {
     constructor(baseUrl, providerName) {
-        super();
+        super(API_1.ProviderType.MANGA);
         this.baseUrl = undefined;
         this.providerName = undefined;
         this.db = new sqlite3_1.Database((0, path_1.join)(__dirname, "../../db.db"));

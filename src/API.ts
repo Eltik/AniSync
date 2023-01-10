@@ -4,8 +4,10 @@ import { ReadStream, WriteStream } from "fs";
 
 export default class API {
     private userAgent:string = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36';
+    private providerType:ProviderType;
 
-    constructor() {
+    constructor(type:ProviderType) {
+        this.providerType = type;
     }
 
     public async fetchJSON(url:string, options?:Options): Promise<Response> {
@@ -101,6 +103,14 @@ export default class API {
 interface DOM {
     Response:Response;
     Cheerio:Cheerio<any>;
+}
+
+export enum ProviderType {
+    ANIME = "ANIME",
+    MANGA = "MANGA",
+    NOVEL = "NOVEL",
+    META = "META",
+    NONE = "NONE"
 }
 
 // Base tables are below.

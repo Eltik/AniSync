@@ -1,5 +1,5 @@
 import { join } from "path";
-import API from "../../API";
+import API, { ProviderType } from "../../API";
 import { Database } from "sqlite3";
 import { Result } from "../../AniSync";
 import { createWriteStream } from "fs";
@@ -11,7 +11,7 @@ export default class Manga extends API {
     private db = new Database(join(__dirname, "../../db.db"));
 
     constructor(baseUrl:string, providerName:string) {
-        super();
+        super(ProviderType.MANGA);
         this.baseUrl = baseUrl;
         this.providerName = providerName;
     }

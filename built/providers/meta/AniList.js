@@ -4,7 +4,7 @@ const config_1 = require("../../config");
 const API_1 = require("../../API");
 class AniList extends API_1.default {
     constructor(id, type, format, isMal) {
-        super();
+        super(API_1.ProviderType.META);
         this.api = "https://graphql.anilist.co";
         this.id = undefined;
         this.type = undefined;

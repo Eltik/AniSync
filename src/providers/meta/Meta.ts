@@ -1,11 +1,11 @@
-import API from "../../API";
+import API, { ProviderType } from "../../API";
 
 export default class Meta extends API {
     public baseUrl:string = undefined;
     public providerName:string = undefined;
 
     constructor(baseUrl:string, providerName:string) {
-        super();
+        super(ProviderType.META);
         this.baseUrl = baseUrl;
         this.providerName = providerName;
     }

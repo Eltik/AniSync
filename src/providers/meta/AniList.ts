@@ -1,5 +1,5 @@
 import { config } from "../../config";
-import API from "../../API";
+import API, { ProviderType } from "../../API";
 
 export default class AniList extends API {
     private api:string = "https://graphql.anilist.co";
@@ -138,7 +138,7 @@ export default class AniList extends API {
     `;
 
     constructor(id?:string, type?:Type["ANIME"] | Type["MANGA"], format?:Format["TV"]|Format["TV_SHORT"]|Format["MOVIE"]|Format["SPECIAL"]|Format["OVA"]|Format["ONA"]|Format["MUSIC"]|Format["MANGA"]|Format["NOVEL"]|Format["ONE_SHOT"], isMal?:boolean) {
-        super();
+        super(ProviderType.META);
         this.id = this.parseURL(id);
         this.isMal = isMal;
         this.type = type ? type : "ANIME";

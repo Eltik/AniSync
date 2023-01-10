@@ -1,10 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ProviderType = void 0;
 const promise_request_1 = require("./libraries/promise-request");
 const cheerio_1 = require("cheerio");
 class API {
-    constructor() {
+    constructor(type) {
         this.userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36';
+        this.providerType = type;
     }
     async fetchJSON(url, options) {
         const request = new promise_request_1.default(url, {
@@ -88,4 +90,12 @@ class API {
     }
 }
 exports.default = API;
+var ProviderType;
+(function (ProviderType) {
+    ProviderType["ANIME"] = "ANIME";
+    ProviderType["MANGA"] = "MANGA";
+    ProviderType["NOVEL"] = "NOVEL";
+    ProviderType["META"] = "META";
+    ProviderType["NONE"] = "NONE";
+})(ProviderType = exports.ProviderType || (exports.ProviderType = {}));
 //# sourceMappingURL=API.js.map

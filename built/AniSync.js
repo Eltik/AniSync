@@ -16,7 +16,7 @@ const Zoro_1 = require("./providers/anime/Zoro");
 const CrunchyRoll_1 = require("./providers/anime/CrunchyRoll");
 class AniSync extends API_1.default {
     constructor() {
-        super();
+        super(API_1.ProviderType.NONE);
         this.stringSim = new StringSimilarity_1.default();
         this.classDictionary = [];
         this.crunchyroll = new CrunchyRoll_1.default();

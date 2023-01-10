@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const API_1 = require("../../API");
 class Meta extends API_1.default {
     constructor(baseUrl, providerName) {
-        super();
+        super(API_1.ProviderType.META);
         this.baseUrl = undefined;
         this.providerName = undefined;
         this.baseUrl = baseUrl;

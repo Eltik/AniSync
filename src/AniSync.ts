@@ -1,4 +1,4 @@
-import API from "./API";
+import API, { ProviderType } from "./API";
 import StringSimilarity from "./libraries/StringSimilarity";
 import { config } from "./config";
 import AniList, { Media, Type } from "./providers/meta/AniList";
@@ -20,7 +20,7 @@ export default class AniSync extends API {
     public classDictionary:Provider[] = [];
 
     constructor() {
-        super();
+        super(ProviderType.NONE);
 
         this.crunchyroll = new CrunchyRoll();
 
