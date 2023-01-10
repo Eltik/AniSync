@@ -25,7 +25,16 @@ export default class CrunchyRoll extends Anime {
 
     public async search(query:string): Promise<Array<SearchResponse>> {
         const results = [];
-        const json:CrunchySearchResponse = await this.cronchy.search(query, 8);
+        const json:CrunchySearchResponse = await this.cronchy.search(query, 8).catch((err) => {
+            return null;
+        });
+
+        if (!json) {
+            if (config.crawling.debug) {
+                console.log("Unable to fetch data for " + query + ".");
+            }
+            return [];
+        }
 
         const data:Data[] = json.data;
         const items:Item[] = data[1].items;

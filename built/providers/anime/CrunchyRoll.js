@@ -21,7 +21,15 @@ class CrunchyRoll extends Anime_1.default {
     }
     async search(query) {
         const results = [];
-        const json = await this.cronchy.search(query, 8);
+        const json = await this.cronchy.search(query, 8).catch((err) => {
+            return null;
+        });
+        if (!json) {
+            if (config_1.config.crawling.debug) {
+                console.log("Unable to fetch data for " + query + ".");
+            }
+            return [];
+        }
         const data = json.data;
         const items = data[1].items;
         items.map((item, index) => {
