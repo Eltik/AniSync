@@ -10,7 +10,7 @@
     "scripts": {
         "build": "tsc --build",
         "clean": "tsc --build --clean",
-        "config": "tsc config.ts",
+        "config": "tsc ./src/config.ts",
         "create_db": "sqlite3 ./built/db.db",
         "crawl:anime": "node ./scripts/crawl_anime.js",
         "crawl:manga": "node ./scripts/crawl_manga.js",
