@@ -1,8 +1,6 @@
 import API from "./API";
 import StringSimilarity from "./libraries/StringSimilarity";
 import { config } from "./config";
-import Zoro from "./providers/anime/Zoro";
-import CrunchyRoll from "./providers/anime/CrunchyRoll";
 import AniList, { Media, Type } from "./providers/meta/AniList";
 import { SearchResponse } from "./providers/anime/Anime";
 import TMDB from "./providers/meta/TMDB";
@@ -13,15 +11,72 @@ import GogoAnime from "./providers/anime/GogoAnime";
 import AnimeFox from "./providers/anime/AnimeFox";
 import AnimePahe from "./providers/anime/AnimePahe";
 import Enime from "./providers/anime/Enime";
+import Zoro from "./providers/anime/Zoro";
+import CrunchyRoll from "./providers/anime/CrunchyRoll";
 
 export default class AniSync extends API {
     private stringSim:StringSimilarity = new StringSimilarity();
     private crunchyroll:CrunchyRoll;
+    public classDictionary:Provider[] = [];
 
     constructor() {
         super();
 
         this.crunchyroll = new CrunchyRoll();
+
+        const tmdb = new TMDB();
+        const comicK = new ComicK();
+        const mangadex = new MangaDex();
+        const mangakakalot = new Mangakakalot();
+        const gogoAnime = new GogoAnime();
+        const animeFox = new AnimeFox();
+        const animePahe = new AnimePahe();
+        const enime = new Enime();
+        const zoro = new Zoro();
+
+        // Loop through config to set class dictionary
+        this.classDictionary = [
+            {
+                name: tmdb.providerName,
+                object: tmdb
+            },
+            {
+                name: comicK.providerName,
+                object: comicK
+            },
+            {
+                name: mangadex.providerName,
+                object: mangadex
+            },
+            {
+                name: mangakakalot.providerName,
+                object: mangakakalot
+            },
+            {
+                name: gogoAnime.providerName,
+                object: gogoAnime
+            },
+            {
+                name: animeFox.providerName,
+                object: animeFox
+            },
+            {
+                name: animePahe.providerName,
+                object: animePahe
+            },
+            {
+                name: enime.providerName,
+                object: enime
+            },
+            {
+                name: zoro.providerName,
+                object: zoro
+            },
+            {
+                name: this.crunchyroll.providerName,
+                object: this.crunchyroll
+            }
+        ];
     }
 
     // You want to search the database first, but since that hasn't been setup yet, we'll just search the providers.
@@ -490,22 +545,23 @@ export default class AniSync extends API {
 
     private async fetchData(query:string, type:Type["ANIME"]|Type["MANGA"]):Promise<AggregatorData[]> {
         const promises = [];
-        if (type === "ANIME") {
-            const zoro = new Zoro();
-            const crunchy = this.crunchyroll;
-            const tmdb = new TMDB();
-            const gogoanime = new GogoAnime();
-            const animeFox = new AnimeFox();
-            const animePahe = new AnimePahe();
-            const enime = new Enime();
-            const aggregatorData:AggregatorData[] = [];
+        const aggregatorData:AggregatorData[] = [];
 
-            const zoroPromise = new Promise((resolve, reject) => {
-                if (!config.mapping.provider[zoro.providerName].disabled) {
-                    this.wait(config.mapping.provider[zoro.providerName] ? config.mapping.provider[zoro.providerName].wait : config.mapping.wait).then(() => {
-                        zoro.search(query).then((results) => {
+        for (let i = 0; i < this.classDictionary.length; i++) {
+            const provider = this.classDictionary[i].object;
+            const name = this.classDictionary[i].name;
+
+            const promise = new Promise((resolve, reject) => {
+                if (!config.mapping.provider[name].disabled) {
+                    this.wait(config.mapping.provider[name] ? config.mapping.provider[name].wait : config.mapping.wait).then(async() => {
+                        if (name === this.crunchyroll.providerName) {
+                            if (!this.crunchyroll.hasInit) {
+                                await this.crunchyroll.init();
+                            }
+                        }
+                        provider.search(query).then((results) => {
                             aggregatorData.push({
-                                provider_name: zoro.providerName,
+                                provider_name: name,
                                 results: results
                             });
                             resolve(aggregatorData);
@@ -516,188 +572,11 @@ export default class AniSync extends API {
                 } else {
                     resolve(true);
                 }
-            });
-            const crunchyPromise = new Promise((resolve, reject) => {
-                if (!config.mapping.provider[crunchy.providerName].disabled) {
-                    this.wait(config.mapping.provider[crunchy.providerName] ? config.mapping.provider[crunchy.providerName].wait : config.mapping.wait).then(async() => {
-                        if (!crunchy.hasInit) {
-                            await crunchy.init();
-                        }
-                        crunchy.search(query).then((results) => {
-                            aggregatorData.push({
-                                provider_name: crunchy.providerName,
-                                results: results
-                            });
-                            resolve(aggregatorData);
-                        }).catch((err) => {
-                            reject(err);
-                        });
-                    });
-                } else {
-                    resolve(true);
-                }
-            });
-            const gogoPromise = new Promise((resolve, reject) => {
-                if (!config.mapping.provider[gogoanime.providerName].disabled) {
-                    this.wait(config.mapping.provider[gogoanime.providerName] ? config.mapping.provider[gogoanime.providerName].wait : config.mapping.wait).then(() => {
-                        gogoanime.search(query).then((results) => {
-                            aggregatorData.push({
-                                provider_name: gogoanime.providerName,
-                                results: results
-                            });
-                            resolve(aggregatorData);
-                        }).catch((err) => {
-                            reject(err);
-                        });
-                    });
-                } else {
-                    resolve(true);
-                }
-            });
-            const animeFoxPromise = new Promise((resolve, reject) => {
-                if (!config.mapping.provider[animeFox.providerName].disabled) {
-                    this.wait(config.mapping.provider[animeFox.providerName] ? config.mapping.provider[animeFox.providerName].wait : config.mapping.wait).then(() => {
-                        animeFox.search(query).then((results) => {
-                            aggregatorData.push({
-                                provider_name: animeFox.providerName,
-                                results: results
-                            });
-                            resolve(aggregatorData);
-                        }).catch((err) => {
-                            reject(err);
-                        });
-                    });
-                } else {
-                    resolve(true);
-                }
-            });
-            const animePahePromise = new Promise((resolve, reject) => {
-                if (!config.mapping.provider[animePahe.providerName].disabled) {
-                    this.wait(config.mapping.provider[animePahe.providerName] ? config.mapping.provider[animePahe.providerName].wait : config.mapping.wait).then(() => {
-                        animePahe.search(query).then((results) => {
-                            aggregatorData.push({
-                                provider_name: animePahe.providerName,
-                                results: results
-                            });
-                            resolve(aggregatorData);
-                        }).catch((err) => {
-                            reject(err);
-                        });
-                    });
-                } else {
-                    resolve(true);
-                }
-            });
-            const enimePromise = new Promise((resolve, reject) => {
-                if (!config.mapping.provider[enime.providerName].disabled) {
-                    this.wait(config.mapping.provider[enime.providerName] ? config.mapping.provider[enime.providerName].wait : config.mapping.wait).then(() => {
-                        enime.search(query).then((results) => {
-                            aggregatorData.push({
-                                provider_name: enime.providerName,
-                                results: results
-                            });
-                            resolve(aggregatorData);
-                        }).catch((err) => {
-                            reject(err);
-                        });
-                    });
-                } else {
-                    resolve(true);
-                }
-            });
-            const tmdbPromise = new Promise((resolve, reject) => {
-                if (!config.mapping.provider[tmdb.providerName].disabled) {
-                    this.wait(config.mapping.provider[tmdb.providerName] ? config.mapping.provider[tmdb.providerName].wait : config.mapping.wait).then(() => {
-                        tmdb.search(query).then((results) => {
-                            aggregatorData.push({
-                                provider_name: tmdb.providerName,
-                                results: results
-                            });
-                            resolve(aggregatorData);
-                        }).catch((err) => {
-                            reject(err);
-                        });
-                    });
-                } else {
-                    resolve(true);
-                }
-            });
-
-            promises.push(zoroPromise);
-            promises.push(crunchyPromise);
-            promises.push(tmdbPromise);
-            promises.push(gogoPromise);
-            promises.push(animeFoxPromise);
-            promises.push(animePahePromise);
-            promises.push(enimePromise);
-            await Promise.all(promises);
-            return aggregatorData;
-        } else if (type === "MANGA") {
-            const comick = new ComicK();
-            const mangadex = new MangaDex();
-            const mangakakalot = new Mangakakalot();
-            const aggregatorData:AggregatorData[] = [];
-
-            const comickPromise = new Promise((resolve, reject) => {
-                if (!config.mapping.provider[comick.providerName].disabled) {
-                    this.wait(config.mapping.provider[comick.providerName] ? config.mapping.provider[comick.providerName].wait : config.mapping.wait).then(() => {
-                        comick.search(query).then((results) => {
-                            aggregatorData.push({
-                                provider_name: comick.providerName,
-                                results: results
-                            });
-                            resolve(aggregatorData);
-                        }).catch((err) => {
-                            reject(err);
-                        });
-                    });
-                } else {
-                    resolve(true);
-                }
-            });
-            const mangadexPromise = new Promise((resolve, reject) => {
-                if (!config.mapping.provider[mangadex.providerName].disabled) {
-                    this.wait(config.mapping.provider[mangadex.providerName] ? config.mapping.provider[mangadex.providerName].wait : config.mapping.wait).then(() => {
-                        mangadex.search(query).then((results) => {
-                            aggregatorData.push({
-                                provider_name: mangadex.providerName,
-                                results: results
-                            });
-                            resolve(aggregatorData);
-                        }).catch((err) => {
-                            reject(err);
-                        });
-                    });
-                } else {
-                    resolve(true);
-                }
-            });
-            const mangakakalotPromise = new Promise((resolve, reject) => {
-                if (!config.mapping.provider[mangakakalot.providerName].disabled) {
-                    this.wait(config.mapping.provider[mangakakalot.providerName] ? config.mapping.provider[mangakakalot.providerName].wait : config.mapping.wait).then(() => {
-                        mangakakalot.search(query).then((results) => {
-                            aggregatorData.push({
-                                provider_name: mangakakalot.providerName,
-                                results: results
-                            });
-                            resolve(aggregatorData);
-                        }).catch((err) => {
-                            reject(err);
-                        });
-                    });
-                } else {
-                    resolve(true);
-                }
-            });
-
-            promises.push(comickPromise);
-            promises.push(mangadexPromise);
-            promises.push(mangakakalotPromise);
-            await Promise.all(promises);
-            return aggregatorData;
-        } else {
-            throw new Error("Invalid type. Valid types include ANIME and MANGA.");
+            })
+            promises.push(promise);
         }
+        await Promise.all(promises);
+        return aggregatorData;
     }
 
     // Formats search results into singular AniList data. Assigns each provider to an AniList object.
@@ -909,6 +788,11 @@ interface Mapping {
     romaji?: string;
     native?: string;
     genres?: string[];
+}
+
+interface Provider {
+    name: string;
+    object: any;
 }
 
 export type { Result };
