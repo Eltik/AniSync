@@ -37,7 +37,12 @@ export default class CrunchyRoll extends Anime {
         }
 
         const data:Data[] = json.data;
-        const items:Item[] = data[1].items;
+        const item = data[1] ? data[1] : data[0];
+        const items:Item[] = item ? item.items : null;
+        if (!items) {
+            console.log("Unable to parse data.");
+            return [];
+        }
         items.map((item, index) => {
             const images = item.images.poster_tall;
             const url = `${this.baseUrl}/series/${item.id}`;
