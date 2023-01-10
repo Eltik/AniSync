@@ -20,6 +20,9 @@ export default class CrunchyRoll extends Anime {
     public async init() {
         await this.cronchy.login();
         this.hasInit = true;
+        setInterval(() => {
+            this.cronchy.login();
+        }, 30000)
         return this.cronchy;
     }
 

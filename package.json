@@ -5,16 +5,16 @@
     },
     "name": "anisync",
     "description": "Mapping sites to AniList and back.",
-    "version": "1.0.4",
+    "version": "1.0.5",
     "main": "./built/AniSync.js",
     "scripts": {
         "build": "tsc --build",
         "clean": "tsc --build --clean",
         "create_db": "sqlite3 ./built/db.db",
-        "crawl_anime": "node ./scripts/crawl_anime.js",
-        "crawl_manga": "node ./scripts/crawl_manga.js",
-        "export_anime": "node ./scripts/export_anime.js",
-        "export_manga": "node./scripts/export_manga.js"
+        "crawl:anime": "node ./scripts/crawl_anime.js",
+        "crawl:manga": "node ./scripts/crawl_manga.js",
+        "export:anime": "node ./scripts/export_anime.js",
+        "export:manga": "node./scripts/export_manga.js"
     },
     "repository": {
         "type": "git",
@@ -28,7 +28,7 @@
     "homepage": "https://github.com/Eltik/AniSync#readme",
     "dependencies": {
         "cheerio": "^1.0.0-rc.12",
-        "cronchy": "^0.0.3",
+        "cronchy": "^0.0.7",
         "node-fetch": "^2.6.7",
         "sqlite3": "^5.1.4"
     }

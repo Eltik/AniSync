@@ -17,6 +17,9 @@ class CrunchyRoll extends Anime_1.default {
     async init() {
         await this.cronchy.login();
         this.hasInit = true;
+        setInterval(() => {
+            this.cronchy.login();
+        }, 30000);
         return this.cronchy;
     }
     async search(query) {
