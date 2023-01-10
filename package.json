@@ -5,7 +5,7 @@
     },
     "name": "anisync",
     "description": "Mapping sites to AniList and back.",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "main": "./built/AniSync.js",
     "scripts": {
         "build": "tsc --build",
@@ -31,5 +31,8 @@
         "cronchy": "^0.0.3",
         "node-fetch": "^2.6.7",
         "sqlite3": "^5.1.4"
+    },
+    "publishConfig": {
+        "registry": "https://npm.pkg.github.com"
     }
 }
