@@ -7,6 +7,7 @@ class CrunchyRoll extends Anime_1.default {
     constructor() {
         super("https://www.crunchyroll.com", "CrunchyRoll");
         this.config = config_1.config.mapping.provider.CrunchyRoll;
+        this.hasInit = false;
         this.credentials = {
             email: this.config.email,
             password: this.config.password
@@ -15,6 +16,7 @@ class CrunchyRoll extends Anime_1.default {
     }
     async init() {
         await this.cronchy.login();
+        this.hasInit = true;
         return this.cronchy;
     }
     async search(query) {

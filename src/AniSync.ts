@@ -16,8 +16,12 @@ import Enime from "./providers/anime/Enime";
 
 export default class AniSync extends API {
     private stringSim:StringSimilarity = new StringSimilarity();
+    private crunchyroll:CrunchyRoll;
+
     constructor() {
         super();
+
+        this.crunchyroll = new CrunchyRoll();
     }
 
     // You want to search the database first, but since that hasn't been setup yet, we'll just search the providers.
@@ -377,7 +381,7 @@ export default class AniSync extends API {
         const promises = [];
         if (type === "ANIME") {
             const zoro = new Zoro();
-            const crunchy = new CrunchyRoll();
+            const crunchy = this.crunchyroll;
             const tmdb = new TMDB();
             const gogoanime = new GogoAnime();
             const animeFox = new AnimeFox();
@@ -386,21 +390,28 @@ export default class AniSync extends API {
             const aggregatorData:AggregatorData[] = [];
 
             const zoroPromise = new Promise((resolve, reject) => {
-                this.wait(config.mapping.provider[zoro.providerName] ? config.mapping.provider[zoro.providerName].wait : config.mapping.wait).then(() => {
-                    zoro.search(query).then((results) => {
-                        aggregatorData.push({
-                            provider_name: zoro.providerName,
-                            results: results
+                if (!config.mapping.provider[zoro.providerName].disabled) {
+                    this.wait(config.mapping.provider[zoro.providerName] ? config.mapping.provider[zoro.providerName].wait : config.mapping.wait).then(() => {
+                        zoro.search(query).then((results) => {
+                            aggregatorData.push({
+                                provider_name: zoro.providerName,
+                                results: results
+                            });
+                            resolve(aggregatorData);
+                        }).catch((err) => {
+                            reject(err);
                         });
-                        resolve(aggregatorData);
-                    }).catch((err) => {
-                        reject(err);
-                    });
-                });
+                    });   
+                } else {
+                    resolve(true);
+                }
             });
             const crunchyPromise = new Promise((resolve, reject) => {
-                this.wait(config.mapping.provider[crunchy.providerName] ? config.mapping.provider[crunchy.providerName].wait : config.mapping.wait).then(() => {
-                    crunchy.init().then(() => {
+                if (!config.mapping.provider[crunchy.providerName].disabled) {
+                    this.wait(config.mapping.provider[crunchy.providerName] ? config.mapping.provider[crunchy.providerName].wait : config.mapping.wait).then(async() => {
+                        if (!crunchy.hasInit) {
+                            await crunchy.init();
+                        }
                         crunchy.search(query).then((results) => {
                             aggregatorData.push({
                                 provider_name: crunchy.providerName,
@@ -410,73 +421,95 @@ export default class AniSync extends API {
                         }).catch((err) => {
                             reject(err);
                         });
-                    })
-                });
+                    });
+                } else {
+                    resolve(true);
+                }
             });
             const gogoPromise = new Promise((resolve, reject) => {
-                this.wait(config.mapping.provider[gogoanime.providerName] ? config.mapping.provider[gogoanime.providerName].wait : config.mapping.wait).then(() => {
-                    gogoanime.search(query).then((results) => {
-                        aggregatorData.push({
-                            provider_name: gogoanime.providerName,
-                            results: results
+                if (!config.mapping.provider[gogoanime.providerName].disabled) {
+                    this.wait(config.mapping.provider[gogoanime.providerName] ? config.mapping.provider[gogoanime.providerName].wait : config.mapping.wait).then(() => {
+                        gogoanime.search(query).then((results) => {
+                            aggregatorData.push({
+                                provider_name: gogoanime.providerName,
+                                results: results
+                            });
+                            resolve(aggregatorData);
+                        }).catch((err) => {
+                            reject(err);
                         });
-                        resolve(aggregatorData);
-                    }).catch((err) => {
-                        reject(err);
                     });
-                });
+                } else {
+                    resolve(true);
+                }
             });
             const animeFoxPromise = new Promise((resolve, reject) => {
-                this.wait(config.mapping.provider[animeFox.providerName] ? config.mapping.provider[animeFox.providerName].wait : config.mapping.wait).then(() => {
-                    animeFox.search(query).then((results) => {
-                        aggregatorData.push({
-                            provider_name: animeFox.providerName,
-                            results: results
+                if (!config.mapping.provider[animeFox.providerName].disabled) {
+                    this.wait(config.mapping.provider[animeFox.providerName] ? config.mapping.provider[animeFox.providerName].wait : config.mapping.wait).then(() => {
+                        animeFox.search(query).then((results) => {
+                            aggregatorData.push({
+                                provider_name: animeFox.providerName,
+                                results: results
+                            });
+                            resolve(aggregatorData);
+                        }).catch((err) => {
+                            reject(err);
                         });
-                        resolve(aggregatorData);
-                    }).catch((err) => {
-                        reject(err);
                     });
-                });
+                } else {
+                    resolve(true);
+                }
             });
             const animePahePromise = new Promise((resolve, reject) => {
-                this.wait(config.mapping.provider[animePahe.providerName] ? config.mapping.provider[animePahe.providerName].wait : config.mapping.wait).then(() => {
-                    animePahe.search(query).then((results) => {
-                        aggregatorData.push({
-                            provider_name: animePahe.providerName,
-                            results: results
+                if (!config.mapping.provider[animePahe.providerName].disabled) {
+                    this.wait(config.mapping.provider[animePahe.providerName] ? config.mapping.provider[animePahe.providerName].wait : config.mapping.wait).then(() => {
+                        animePahe.search(query).then((results) => {
+                            aggregatorData.push({
+                                provider_name: animePahe.providerName,
+                                results: results
+                            });
+                            resolve(aggregatorData);
+                        }).catch((err) => {
+                            reject(err);
                         });
-                        resolve(aggregatorData);
-                    }).catch((err) => {
-                        reject(err);
                     });
-                });
+                } else {
+                    resolve(true);
+                }
             });
             const enimePromise = new Promise((resolve, reject) => {
-                this.wait(config.mapping.provider[enime.providerName] ? config.mapping.provider[enime.providerName].wait : config.mapping.wait).then(() => {
-                    enime.search(query).then((results) => {
-                        aggregatorData.push({
-                            provider_name: enime.providerName,
-                            results: results
+                if (!config.mapping.provider[enime.providerName].disabled) {
+                    this.wait(config.mapping.provider[enime.providerName] ? config.mapping.provider[enime.providerName].wait : config.mapping.wait).then(() => {
+                        enime.search(query).then((results) => {
+                            aggregatorData.push({
+                                provider_name: enime.providerName,
+                                results: results
+                            });
+                            resolve(aggregatorData);
+                        }).catch((err) => {
+                            reject(err);
                         });
-                        resolve(aggregatorData);
-                    }).catch((err) => {
-                        reject(err);
                     });
-                });
+                } else {
+                    resolve(true);
+                }
             });
             const tmdbPromise = new Promise((resolve, reject) => {
-                this.wait(config.mapping.provider[tmdb.providerName] ? config.mapping.provider[tmdb.providerName].wait : config.mapping.wait).then(() => {
-                    tmdb.search(query).then((results) => {
-                        aggregatorData.push({
-                            provider_name: tmdb.providerName,
-                            results: results
+                if (!config.mapping.provider[tmdb.providerName].disabled) {
+                    this.wait(config.mapping.provider[tmdb.providerName] ? config.mapping.provider[tmdb.providerName].wait : config.mapping.wait).then(() => {
+                        tmdb.search(query).then((results) => {
+                            aggregatorData.push({
+                                provider_name: tmdb.providerName,
+                                results: results
+                            });
+                            resolve(aggregatorData);
+                        }).catch((err) => {
+                            reject(err);
                         });
-                        resolve(aggregatorData);
-                    }).catch((err) => {
-                        reject(err);
                     });
-                });
+                } else {
+                    resolve(true);
+                }
             });
 
             promises.push(zoroPromise);
@@ -495,43 +528,55 @@ export default class AniSync extends API {
             const aggregatorData:AggregatorData[] = [];
 
             const comickPromise = new Promise((resolve, reject) => {
-                this.wait(config.mapping.provider[comick.providerName] ? config.mapping.provider[comick.providerName].wait : config.mapping.wait).then(() => {
-                    comick.search(query).then((results) => {
-                        aggregatorData.push({
-                            provider_name: comick.providerName,
-                            results: results
+                if (!config.mapping.provider[comick.providerName].disabled) {
+                    this.wait(config.mapping.provider[comick.providerName] ? config.mapping.provider[comick.providerName].wait : config.mapping.wait).then(() => {
+                        comick.search(query).then((results) => {
+                            aggregatorData.push({
+                                provider_name: comick.providerName,
+                                results: results
+                            });
+                            resolve(aggregatorData);
+                        }).catch((err) => {
+                            reject(err);
                         });
-                        resolve(aggregatorData);
-                    }).catch((err) => {
-                        reject(err);
                     });
-                });
+                } else {
+                    resolve(true);
+                }
             });
             const mangadexPromise = new Promise((resolve, reject) => {
-                this.wait(config.mapping.provider[mangadex.providerName] ? config.mapping.provider[mangadex.providerName].wait : config.mapping.wait).then(() => {
-                    mangadex.search(query).then((results) => {
-                        aggregatorData.push({
-                            provider_name: mangadex.providerName,
-                            results: results
+                if (!config.mapping.provider[mangadex.providerName].disabled) {
+                    this.wait(config.mapping.provider[mangadex.providerName] ? config.mapping.provider[mangadex.providerName].wait : config.mapping.wait).then(() => {
+                        mangadex.search(query).then((results) => {
+                            aggregatorData.push({
+                                provider_name: mangadex.providerName,
+                                results: results
+                            });
+                            resolve(aggregatorData);
+                        }).catch((err) => {
+                            reject(err);
                         });
-                        resolve(aggregatorData);
-                    }).catch((err) => {
-                        reject(err);
                     });
-                });
+                } else {
+                    resolve(true);
+                }
             });
             const mangakakalotPromise = new Promise((resolve, reject) => {
-                this.wait(config.mapping.provider[mangakakalot.providerName] ? config.mapping.provider[mangakakalot.providerName].wait : config.mapping.wait).then(() => {
-                    mangakakalot.search(query).then((results) => {
-                        aggregatorData.push({
-                            provider_name: mangakakalot.providerName,
-                            results: results
+                if (!config.mapping.provider[mangakakalot.providerName].disabled) {
+                    this.wait(config.mapping.provider[mangakakalot.providerName] ? config.mapping.provider[mangakakalot.providerName].wait : config.mapping.wait).then(() => {
+                        mangakakalot.search(query).then((results) => {
+                            aggregatorData.push({
+                                provider_name: mangakakalot.providerName,
+                                results: results
+                            });
+                            resolve(aggregatorData);
+                        }).catch((err) => {
+                            reject(err);
                         });
-                        resolve(aggregatorData);
-                    }).catch((err) => {
-                        reject(err);
                     });
-                });
+                } else {
+                    resolve(true);
+                }
             });
 
             promises.push(comickPromise);

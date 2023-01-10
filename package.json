@@ -11,7 +11,10 @@
         "build": "tsc --build",
         "clean": "tsc --build --clean",
         "create_db": "sqlite3 ./built/db.db",
-        "crawl": "node crawler.js"
+        "crawl_anime": "node ./scripts/crawl_anime.js",
+        "crawl_manga": "node ./scripts/crawl_manga.js",
+        "export_anime": "node ./scripts/export_anime.js",
+        "export_manga": "node./scripts/export_manga.js"
     },
     "repository": {
         "type": "git",

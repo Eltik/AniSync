@@ -6,6 +6,7 @@ export default class CrunchyRoll extends Anime {
     private credentials:Credentials;
     private config = config.mapping.provider.CrunchyRoll;
     private cronchy:Cronchy;
+    public hasInit = false;
 
     constructor() {
         super("https://www.crunchyroll.com", "CrunchyRoll");
@@ -18,6 +19,7 @@ export default class CrunchyRoll extends Anime {
 
     public async init() {
         await this.cronchy.login();
+        this.hasInit = true;
         return this.cronchy;
     }
 
