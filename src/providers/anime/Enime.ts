@@ -13,6 +13,11 @@ export default class Enime extends Anime {
 
         const req = await this.fetchJSON(`${this.api}/search/${query}?page=${page}&perPage=${perPage}`);
         const data = req.json();
+        
+        if (!data.data) {
+            return [];
+        }
+
         return data.data.map((item:any) => ({
             id: item.id,
             title: item.title.english ?? item.title.romaji ?? item.title.native,

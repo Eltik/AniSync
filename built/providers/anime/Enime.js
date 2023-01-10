@@ -11,6 +11,9 @@ class Enime extends Anime_1.default {
         const perPage = 18;
         const req = await this.fetchJSON(`${this.api}/search/${query}?page=${page}&perPage=${perPage}`);
         const data = req.json();
+        if (!data.data) {
+            return [];
+        }
         return data.data.map((item) => ({
             id: item.id,
             title: item.title.english ?? item.title.romaji ?? item.title.native,

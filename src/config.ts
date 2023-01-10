@@ -41,7 +41,7 @@ export var config = {
             Enime: {
                 threshold: 0.95,
                 comparison_threshold: 0.95,
-                wait: 200,
+                wait: 400,
                 disabled: false
             },
             ComicK: {
