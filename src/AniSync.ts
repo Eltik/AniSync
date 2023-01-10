@@ -141,7 +141,6 @@ export default class AniSync extends API {
                 const aniListMedia = aniListData.data.trending.media;
                 if (!aniListMedia || aniListMedia.length === 0) {
                     canCrawl = false;
-                    break;
                 }
                 
                 const debugTimer = new Date(Date.now());
@@ -164,6 +163,7 @@ export default class AniSync extends API {
 
                 await this.wait(wait);
             }
+            console.log("Finished crawling!");
         } else {
             const aniList = new AniList("", type, "MANGA");
             const manga = new ComicK();
