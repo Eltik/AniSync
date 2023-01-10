@@ -311,6 +311,17 @@ export default class AniSync extends API {
         }
     }
 
+    public async get(id:string): Promise<Result> {
+        const anime = new Zoro();
+        const manga = new ComicK();
+
+        let possible:Result = await anime.get(id);
+        if (!possible) {
+            possible = await manga.get(id);
+        }
+        return possible;
+    }
+
     private async fetchCrawlData(season:Media[], type:Type["ANIME"]|Type["MANGA"]):Promise<Result[]> {
         if (type === "ANIME") {
             const seasonData:Search[] = [];

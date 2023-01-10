@@ -256,6 +256,15 @@ class AniSync extends API_1.default {
             return nextData;
         }
     }
+    async get(id) {
+        const anime = new Zoro_1.default();
+        const manga = new ComicK_1.default();
+        let possible = await anime.get(id);
+        if (!possible) {
+            possible = await manga.get(id);
+        }
+        return possible;
+    }
     async fetchCrawlData(season, type) {
         if (type === "ANIME") {
             const seasonData = [];
