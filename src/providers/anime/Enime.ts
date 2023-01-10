@@ -12,16 +12,15 @@ export default class Enime extends Anime {
         const page = 0;
         const perPage = 18;
 
-        const req = await this.fetchJSON(`${this.api}/search/${query}?page=${page}&perPage=${perPage}`);
+        const req = await this.fetchJSON(`${this.api}/search/${encodeURIComponent(query)}?page=${page}&perPage=${perPage}`);
         const data = req.json();
-        
+
         if (!data.data) {
             if (config.crawling.debug) {
                 console.log("Unable to fetch data for " + query + ".");
             }
             return [];
         }
-
         return data.data.map((item:any) => ({
             id: item.id,
             title: item.title.english ?? item.title.romaji ?? item.title.native,

@@ -16,7 +16,6 @@ export default class AnimePahe extends Anime {
             }
             return [];
         }
-
         return data.data.map((item:Result) => ({
             id: item.session,
             title: item.title,

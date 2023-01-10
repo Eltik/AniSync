@@ -50,7 +50,10 @@ export default class AniSync extends API {
                 return possibleData;
             }
             
-            const aggregatorData:AggregatorData[] = await this.fetchData(query, type);
+            const aggregatorData:AggregatorData[] = await this.fetchData(query, type).catch((err) => {
+                console.error(err);
+                return [];
+            });
             const comparison:Search[] = [];
             aggregatorData.map((result, index) => {
                 const provider = result.provider_name;
@@ -91,7 +94,10 @@ export default class AniSync extends API {
                 return possibleData;
             }
             
-            const aggregatorData:AggregatorData[] = await this.fetchData(query, type);
+            const aggregatorData:AggregatorData[] = await this.fetchData(query, type).catch((err) => {
+                console.error(err);
+                return [];
+            });
             const comparison:Search[] = [];
             aggregatorData.map((result, index) => {
                 const provider = result.provider_name;
@@ -115,33 +121,35 @@ export default class AniSync extends API {
         }
     }
 
-    public async crawl(type:Type["ANIME"]|Type["MANGA"], maxPages?:number, wait?:number) {
+    public async crawl(type:Type["ANIME"]|Type["MANGA"], start?:number, maxPages?:number, wait?:number) {
         maxPages = maxPages ? maxPages : config.crawling.anime.max_pages;
         wait = wait ? wait : config.crawling.anime.wait;
+        start = start ? start : config.crawling.anime.start;
 
         if (type === "ANIME") {
+            let canCrawl = true;
             const aniList = new AniList("", type, "TV");
             const anime = new Zoro();
 
-            for (let i = 0; i < maxPages; i++) {
+            for (let i = start; i < maxPages && canCrawl; i++) {
                 if (config.crawling.debug) {
-                    console.log("On page " + i + ".");
+                    console.log("Crawling page " + i + "...");
                 }
 
                 const aniListData = await aniList.getSeasonal(i, 10, type);
 
-                if (config.crawling.debug) {
-                    console.log("Got AniList seasonal data successfully.");
-                }
-
                 const aniListMedia = aniListData.data.trending.media;
+                if (!aniListMedia || aniListMedia.length === 0) {
+                    canCrawl = false;
+                    break;
+                }
                 
                 const debugTimer = new Date(Date.now());
                 if (config.crawling.debug) {
                     console.log("Fetching seasonal data...");
                 }
 
-                const data:Result[] = await this.getSeasonal(aniListMedia, type);
+                const data:Result[] = await this.fetchCrawlData(aniListMedia, type);
 
                 if (config.crawling.debug) {
                     const endTimer = new Date(Date.now());
@@ -162,14 +170,10 @@ export default class AniSync extends API {
 
             for (let i = 0; i < maxPages; i++) {
                 if (config.crawling.debug) {
-                    console.log("On page " + i + ".");
+                    console.log("Crawling page " + i + ".");
                 }
 
                 const aniListData = await aniList.getSeasonal(i, 10, type);
-
-                if (config.crawling.debug) {
-                    console.log("Got AniList seasonal data successfully.");
-                }
 
                 const aniListMedia = aniListData.data.trending.media;
                 
@@ -307,6 +311,96 @@ export default class AniSync extends API {
         }
     }
 
+    private async fetchCrawlData(season:Media[], type:Type["ANIME"]|Type["MANGA"]):Promise<Result[]> {
+        if (type === "ANIME") {
+            const seasonData:Search[] = [];
+            const allSeason:Result[] = [];
+
+            const promises = [];
+            for (let i = 0; i < season.length; i++) {
+                const promise = new Promise(async(resolve, reject) => {
+                    const aniData = season[i];
+
+                    const possible = await this.getShow(String(aniData.id));
+                    if (!possible) {
+                        const title = aniData.title.english;
+    
+                        const aggregatorData:AggregatorData[] = await this.fetchData(title, type).catch((err) => {
+                            console.error(err);
+                            return [];
+                        });
+        
+                        aggregatorData.map((result, index) => {
+                            const provider = result.provider_name;
+                            const results = result.results;
+        
+                            for (let i = 0; i < results.length; i++) {
+                                const data = this.compareAnime(results[i], [aniData], config.mapping.provider[provider]?.threshold, config.mapping.provider[provider]?.comparison_threshold);
+                                if (data != undefined) {
+                                    seasonData.push({
+                                        provider,
+                                        data
+                                    });
+                                }
+                            }
+                        });
+                        resolve(true);
+                    } else {
+                        allSeason.push(possible);
+                        resolve(true);
+                    }
+                })
+                promises.push(promise);
+            }
+            await Promise.all(promises);
+            const formatted = this.formatData(seasonData);
+            allSeason.push(...formatted);
+            return allSeason;
+        } else {
+            const seasonData:Search[] = [];
+            const allSeason:Result[] = [];
+
+            const promises = [];
+            for (let i = 0; i < season.length; i++) {
+                const promise = new Promise(async(resolve, reject) => {
+                    const aniData = season[i];
+
+                    const possible = await this.getManga(String(aniData.id));
+                    if (!possible) {
+                        const title = aniData.title.english;
+    
+                        const aggregatorData:AggregatorData[] = await this.fetchData(title, type).catch((err) => {
+                            console.error(err);
+                            return [];
+                        });
+        
+                        aggregatorData.map((result, index) => {
+                            const provider = result.provider_name;
+                            const results = result.results;
+        
+                            for (let i = 0; i < results.length; i++) {
+                                const data = this.compareAnime(results[i], [aniData], config.mapping.provider[provider]?.threshold, config.mapping.provider[provider]?.comparison_threshold);
+                                if (data != undefined) {
+                                    seasonData.push({
+                                        provider,
+                                        data
+                                    });
+                                }
+                            }
+                        });
+                    } else {
+                        allSeason.push(possible);
+                    }
+                })
+                promises.push(promise);
+            }
+            await Promise.all(promises);
+            const formatted = this.formatData(seasonData);
+            allSeason.push(...formatted);
+            return allSeason;
+        }
+    }
+
     private async getSeasonal(season:Media[], type:Type["ANIME"]|Type["MANGA"]):Promise<Result[]> {
         if (type === "ANIME") {
             const seasonData:Search[] = [];
@@ -320,7 +414,10 @@ export default class AniSync extends API {
                     const aniData = season[i];
                     const title = aniData.title.english;
     
-                    const aggregatorData:AggregatorData[] = await this.fetchData(title, type);
+                    const aggregatorData:AggregatorData[] = await this.fetchData(title, type).catch((err) => {
+                        console.error(err);
+                        return [];
+                    });
     
                     aggregatorData.map((result, index) => {
                         const provider = result.provider_name;
@@ -353,7 +450,10 @@ export default class AniSync extends API {
                     const aniData = season[i];
                     const title = aniData.title.english;
     
-                    const aggregatorData:AggregatorData[] = await this.fetchData(title, type);
+                    const aggregatorData:AggregatorData[] = await this.fetchData(title, type).catch((err) => {
+                        console.error(err);
+                        return [];
+                    });
     
                     aggregatorData.map((result, index) => {
                         const provider = result.provider_name;
@@ -702,6 +802,18 @@ export default class AniSync extends API {
         }
         // It is possible that there are multiple results, so we need to sort them. But generally, there should only be one result.
         return result[0];
+    }
+
+    private async getShow(id:string):Promise<Result> {
+        const anime = new Zoro();
+        const data = await anime.get(id);
+        return data;
+    }
+
+    private async getManga(id:string):Promise<Result> {
+        const manga = new ComicK();
+        const data = await manga.get(id);
+        return data;
     }
 
     private async searchAnimeData(aniListData:Media[]):Promise<Result[]> {

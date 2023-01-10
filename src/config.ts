@@ -82,7 +82,8 @@ export var config = {
         debug: true,
         anime: {
             wait: 1000,
-            max_pages: 3
+            max_pages: 15,
+            start: 0
         }
     }
 };

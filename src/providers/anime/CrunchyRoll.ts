@@ -25,7 +25,7 @@ export default class CrunchyRoll extends Anime {
 
     public async search(query:string): Promise<Array<SearchResponse>> {
         const results = [];
-        const json:CrunchySearchResponse = await this.cronchy.search(query, 8).catch((err) => {
+        const json:CrunchySearchResponse = await this.cronchy.search(encodeURIComponent(query), 8).catch((err) => {
             return null;
         });
 
