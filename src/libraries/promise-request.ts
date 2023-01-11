@@ -1,4 +1,4 @@
-import fetch from "node-fetch";
+import axios from "axios";
 import { pipeline } from 'node:stream';
 import { promisify } from 'node:util';
 
@@ -16,11 +16,12 @@ export default class PromiseRequest {
             try {
                 if (this.options.stream) {
                     throw new Error("Use the stream() function instead.");
-                } else if (this.options.allowRedirect) {
-                    fetch(this.url, {
+                } else {
+                    const options = {
                         ...this.options,
-                        redirect: "follow"
-                    }).then(async(response) => {
+                    };
+
+                    axios(this.url, options).then(async(response) => {
                         const request:Request = {
                             url: this.url,
                             options: this.options
@@ -28,18 +29,20 @@ export default class PromiseRequest {
 
                         let redirectUrl = this.url;
                         try {
-                            redirectUrl = new URL(response.headers.get('location'), response.url).href;
+                            redirectUrl = new URL(response.request.responseURL).href;
                         } catch {
                             redirectUrl = this.url;
                         }
 
-                        const text = await response.text();
-                        let json = text;
+                        const text = JSON.stringify(response.data);
+                        let json = response.data;
                         try {
-                            json = JSON.parse(text);
+                            json = JSON.parse(response.data);
                         } catch {
-                            json = {};
+                            json = response.data;
                         }
+
+                        const stringified = `Status: ${response.status} ${response.statusText}\nURL: ${this.url}\nHeaders: ${JSON.stringify(response.headers)}\nBody: ${JSON.stringify(text)}`;
         
                         const res:Response = {
                             request,
@@ -48,6 +51,7 @@ export default class PromiseRequest {
                             url: redirectUrl,
                             error: [],
                             headers: response.headers,
+                            toString: () => stringified,
                             raw: () => response,
                             text: () => text,
                             json: () => json
@@ -55,40 +59,7 @@ export default class PromiseRequest {
         
                         resolve(res);
                     }).catch((err) => {
-                        console.error(err.message);
-                    });
-                } else {
-                    fetch(this.url, {
-                        ...this.options,
-                    }).then(async(response) => {
-                        const request:Request = {
-                            url: this.url,
-                            options: this.options
-                        };
-        
-                        const text = await response.text();
-                        let json = text;
-                        try {
-                            json = JSON.parse(text);
-                        } catch {
-                            json = {};
-                        }
-        
-                        const res:Response = {
-                            request,
-                            status: response.status,
-                            statusText: response.statusText,
-                            url: this.url,
-                            error: [],
-                            headers: response.headers,
-                            raw: () => response,
-                            text: () => text,
-                            json: () => json
-                        };
-        
-                        resolve(res);
-                    }).catch((err) => {
-                        console.error(err.message);
+                        console.error(err);
                     });
                 }
             } catch {
@@ -100,36 +71,20 @@ export default class PromiseRequest {
     public async stream(stream) {
         return new Promise((resolve, reject) => {
             try {
-                if (this.options.allowRedirect) {
-                    fetch(this.url, {
-                        ...this.options,
-                        redirect: "follow"
-                    }).then((response) => {
-                        if (!response.ok) console.error(`unexpected response ${response.statusText}`);
-                        const streamPipeline = promisify(pipeline);
-                        streamPipeline(response.body, stream).then(() => {
-                            resolve(true);
-                        }).catch((err) => {
-                            reject(err);
-                        });
+                axios(this.url, {
+                    ...this.options,
+                    responseType: "stream"
+                }).then((response) => {
+                    if (response.statusText != "OK") console.error(`unexpected response ${response.statusText}`);
+                    const streamPipeline = promisify(pipeline);
+                    streamPipeline(response.data, stream).then(() => {
+                        resolve(true);
                     }).catch((err) => {
                         reject(err);
                     });
-                } else {
-                    fetch(this.url, {
-                        ...this.options
-                    }).then((response) => {
-                        if (!response.ok) console.error(`unexpected response ${response.statusText}`);
-                        const streamPipeline = promisify(pipeline);
-                        streamPipeline(response.body, stream).then(() => {
-                            resolve(true);
-                        }).catch((err) => {
-                            reject(err);
-                        });
-                    }).catch((err) => {
-                        reject(err);
-                    });
-                }
+                }).catch((err) => {
+                    reject(err);
+                });
             } catch {
                 console.error("Error with streaming.");
             }
@@ -138,24 +93,11 @@ export default class PromiseRequest {
 }
 
 type Options = {
-    method?: Method["GET"] | Method["POST"] | Method["COOKIE"] | Method["TOKENS"];
+    method?: string;
     headers?: { [key: string]: string };
-    body?: string;
-    allowRedirect?: boolean;
+    data?: string|URLSearchParams|FormData|any;
+    maxRedirects?: number;
     stream?: boolean;
-};
-
-type Method = {
-    "GET": string;
-    "POST": string;
-    "COOKIE": string;
-    "TOKENS": string;
-    
-    // THE FOLLOWING ARE UNSUPPORTED TEMPORARILY
-    "PUT": string;
-    "DELETE": string;
-    "PATCH": string;
-    "HEAD": string;
 };
 
 interface Response {
@@ -165,6 +107,7 @@ interface Response {
     url: string;
     error: string[];
     headers: { [key: string]: string }|Headers;
+    toString: ()=>string;
     raw: ()=>any;
     text: ()=>string;
     json: ()=>any;
@@ -175,4 +118,4 @@ interface Request {
     options: Options;
 };
 
-export type { Options, Method, Response, Request };
+export type { Options, Response, Request };

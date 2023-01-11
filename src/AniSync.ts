@@ -186,7 +186,7 @@ export default class AniSync extends API {
             const aniList = new AniList("", type, "TV");
             const anime = new Zoro();
 
-            for (let i = start; i < maxPages && canCrawl; i++) {
+            for (let i = start; i < maxPages; i++) {
                 if (config.crawling.debug) {
                     console.log("Crawling page " + i + "...");
                 }
@@ -195,6 +195,7 @@ export default class AniSync extends API {
 
                 const aniListMedia = aniListData.data.trending.media;
                 if (!aniListMedia || aniListMedia.length === 0) {
+                    console.log("No more data to crawl.");
                     canCrawl = false;
                 }
                 
@@ -553,22 +554,24 @@ export default class AniSync extends API {
 
             const promise = new Promise((resolve, reject) => {
                 if (!config.mapping.provider[name].disabled) {
-                    this.wait(config.mapping.provider[name] ? config.mapping.provider[name].wait : config.mapping.wait).then(async() => {
-                        if (name === this.crunchyroll.providerName) {
-                            if (!this.crunchyroll.hasInit) {
-                                await this.crunchyroll.init();
+                    if (type === provider.providerType) {
+                        this.wait(config.mapping.provider[name] ? config.mapping.provider[name].wait : config.mapping.wait).then(async() => {
+                            if (name === this.crunchyroll.providerName) {
+                                if (!this.crunchyroll.hasInit) {
+                                    await this.crunchyroll.init();
+                                }
                             }
-                        }
-                        provider.search(query).then((results) => {
-                            aggregatorData.push({
-                                provider_name: name,
-                                results: results
+                            provider.search(query).then((results) => {
+                                aggregatorData.push({
+                                    provider_name: name,
+                                    results: results
+                                });
+                                resolve(aggregatorData);
+                            }).catch((err) => {
+                                reject(err);
                             });
-                            resolve(aggregatorData);
-                        }).catch((err) => {
-                            reject(err);
-                        });
-                    });   
+                        });   
+                    }
                 } else {
                     resolve(true);
                 }
@@ -795,4 +798,4 @@ interface Provider {
     object: any;
 }
 
-export type { Result };
+export type { Result, Provider };

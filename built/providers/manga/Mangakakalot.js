@@ -17,7 +17,7 @@ class Mangakakalot extends Manga_1.default {
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
             },
-            body: `searchword=${this.parseQuery(query)}`
+            data: `searchword=${this.parseQuery(query)}`
         });
         const json = data.json();
         const results = json.map((result) => {
@@ -33,7 +33,7 @@ class Mangakakalot extends Manga_1.default {
     }
     // Change alias function from Mangakakalot
     parseQuery(query) {
-        let str = query;
+        let str = query ? query : "";
         str = str.toLowerCase();
         str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
         str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");

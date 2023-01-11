@@ -166,13 +166,14 @@ class AniSync extends API_1.default {
             let canCrawl = true;
             const aniList = new AniList_1.default("", type, "TV");
             const anime = new Zoro_1.default();
-            for (let i = start; i < maxPages && canCrawl; i++) {
+            for (let i = start; i < maxPages; i++) {
                 if (config_1.config.crawling.debug) {
                     console.log("Crawling page " + i + "...");
                 }
                 const aniListData = await aniList.getSeasonal(i, 10, type);
                 const aniListMedia = aniListData.data.trending.media;
                 if (!aniListMedia || aniListMedia.length === 0) {
+                    console.log("No more data to crawl.");
                     canCrawl = false;
                 }
                 const debugTimer = new Date(Date.now());
@@ -478,22 +479,24 @@ class AniSync extends API_1.default {
             const name = this.classDictionary[i].name;
             const promise = new Promise((resolve, reject) => {
                 if (!config_1.config.mapping.provider[name].disabled) {
-                    this.wait(config_1.config.mapping.provider[name] ? config_1.config.mapping.provider[name].wait : config_1.config.mapping.wait).then(async () => {
-                        if (name === this.crunchyroll.providerName) {
-                            if (!this.crunchyroll.hasInit) {
-                                await this.crunchyroll.init();
+                    if (type === provider.providerType) {
+                        this.wait(config_1.config.mapping.provider[name] ? config_1.config.mapping.provider[name].wait : config_1.config.mapping.wait).then(async () => {
+                            if (name === this.crunchyroll.providerName) {
+                                if (!this.crunchyroll.hasInit) {
+                                    await this.crunchyroll.init();
+                                }
                             }
-                        }
-                        provider.search(query).then((results) => {
-                            aggregatorData.push({
-                                provider_name: name,
-                                results: results
+                            provider.search(query).then((results) => {
+                                aggregatorData.push({
+                                    provider_name: name,
+                                    results: results
+                                });
+                                resolve(aggregatorData);
+                            }).catch((err) => {
+                                reject(err);
                             });
-                            resolve(aggregatorData);
-                        }).catch((err) => {
-                            reject(err);
                         });
-                    });
+                    }
                 }
                 else {
                     resolve(true);

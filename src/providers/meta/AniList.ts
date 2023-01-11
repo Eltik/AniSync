@@ -4,7 +4,7 @@ import API, { ProviderType } from "../../API";
 export default class AniList extends API {
     private api:string = "https://graphql.anilist.co";
     public id:string = undefined;
-    public type:Type["ANIME"] | Type["MANGA"] = undefined;
+    public type:Type["ANIME"]|Type["MANGA"] = undefined;
     private format:Format["TV"]|Format["TV_SHORT"]|Format["MOVIE"]|Format["SPECIAL"]|Format["OVA"]|Format["ONA"]|Format["MUSIC"]|Format["MANGA"]|Format["NOVEL"]|Format["ONE_SHOT"] = undefined;
     public isMal:boolean = false;
     private config = config.mapping.provider.AniList;
@@ -137,7 +137,7 @@ export default class AniList extends API {
     }
     `;
 
-    constructor(id?:string, type?:Type["ANIME"] | Type["MANGA"], format?:Format["TV"]|Format["TV_SHORT"]|Format["MOVIE"]|Format["SPECIAL"]|Format["OVA"]|Format["ONA"]|Format["MUSIC"]|Format["MANGA"]|Format["NOVEL"]|Format["ONE_SHOT"], isMal?:boolean) {
+    constructor(id?:string, type?:Type["ANIME"]|Type["MANGA"], format?:Format["TV"]|Format["TV_SHORT"]|Format["MOVIE"]|Format["SPECIAL"]|Format["OVA"]|Format["ONA"]|Format["MUSIC"]|Format["MANGA"]|Format["NOVEL"]|Format["ONE_SHOT"], isMal?:boolean) {
         super(ProviderType.META);
         this.id = this.parseURL(id);
         this.isMal = isMal;
@@ -197,7 +197,7 @@ export default class AniList extends API {
 
         try {
             const req = await this.fetchJSON(this.api, {
-                body: JSON.stringify(aniListArgs),
+                data: JSON.stringify(aniListArgs),
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -245,7 +245,7 @@ export default class AniList extends API {
         }
         try {
             const req = await this.fetchJSON(this.api, {
-                body: JSON.stringify(aniListArgs),
+                data: JSON.stringify(aniListArgs),
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -302,7 +302,7 @@ export default class AniList extends API {
         }
         try {
             const req = await this.fetchJSON(this.api, {
-                body: JSON.stringify(aniListArgs),
+                data: JSON.stringify(aniListArgs),
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -390,7 +390,7 @@ export default class AniList extends API {
 
         try {
             const req = await this.fetchJSON(this.api, {
-                body: JSON.stringify(aniListArgs),
+                data: JSON.stringify(aniListArgs),
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -409,8 +409,8 @@ export default class AniList extends API {
 }
 
 interface Type {
-    ANIME: "ANIME";
-    MANGA: "MANGA";
+    ANIME: "ANIME",
+    MANGA: "MANGA"
 }
 
 interface Format {
@@ -618,4 +618,4 @@ interface SeasonalResponse {
     }
 }
 
-export type { Type, Format, Media, SearchResponse, SeasonalResponse };
+export type { Format, Type, Media, SearchResponse, SeasonalResponse };

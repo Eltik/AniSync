@@ -193,7 +193,7 @@ class AniList extends API_1.default {
         };
         try {
             const req = await this.fetchJSON(this.api, {
-                body: JSON.stringify(aniListArgs),
+                data: JSON.stringify(aniListArgs),
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -237,7 +237,7 @@ class AniList extends API_1.default {
         }
         try {
             const req = await this.fetchJSON(this.api, {
-                body: JSON.stringify(aniListArgs),
+                data: JSON.stringify(aniListArgs),
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -289,7 +289,7 @@ class AniList extends API_1.default {
         }
         try {
             const req = await this.fetchJSON(this.api, {
-                body: JSON.stringify(aniListArgs),
+                data: JSON.stringify(aniListArgs),
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -369,7 +369,7 @@ class AniList extends API_1.default {
         };
         try {
             const req = await this.fetchJSON(this.api, {
-                body: JSON.stringify(aniListArgs),
+                data: JSON.stringify(aniListArgs),
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

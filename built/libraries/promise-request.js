@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const node_fetch_1 = require("node-fetch");
+const axios_1 = require("axios");
 const node_stream_1 = require("node:stream");
 const node_util_1 = require("node:util");
 class PromiseRequest {
@@ -14,30 +14,31 @@ class PromiseRequest {
                 if (this.options.stream) {
                     throw new Error("Use the stream() function instead.");
                 }
-                else if (this.options.allowRedirect) {
-                    (0, node_fetch_1.default)(this.url, {
+                else {
+                    const options = {
                         ...this.options,
-                        redirect: "follow"
-                    }).then(async (response) => {
+                    };
+                    (0, axios_1.default)(this.url, options).then(async (response) => {
                         const request = {
                             url: this.url,
                             options: this.options
                         };
                         let redirectUrl = this.url;
                         try {
-                            redirectUrl = new URL(response.headers.get('location'), response.url).href;
+                            redirectUrl = new URL(response.request.responseURL).href;
                         }
                         catch {
                             redirectUrl = this.url;
                         }
-                        const text = await response.text();
-                        let json = text;
+                        const text = JSON.stringify(response.data);
+                        let json = response.data;
                         try {
-                            json = JSON.parse(text);
+                            json = JSON.parse(response.data);
                         }
                         catch {
-                            json = {};
+                            json = response.data;
                         }
+                        const stringified = `Status: ${response.status} ${response.statusText}\nURL: ${this.url}\nHeaders: ${JSON.stringify(response.headers)}\nBody: ${JSON.stringify(text)}`;
                         const res = {
                             request,
                             status: response.status,
@@ -45,45 +46,14 @@ class PromiseRequest {
                             url: redirectUrl,
                             error: [],
                             headers: response.headers,
+                            toString: () => stringified,
                             raw: () => response,
                             text: () => text,
                             json: () => json
                         };
                         resolve(res);
                     }).catch((err) => {
-                        console.error(err.message);
-                    });
-                }
-                else {
-                    (0, node_fetch_1.default)(this.url, {
-                        ...this.options,
-                    }).then(async (response) => {
-                        const request = {
-                            url: this.url,
-                            options: this.options
-                        };
-                        const text = await response.text();
-                        let json = text;
-                        try {
-                            json = JSON.parse(text);
-                        }
-                        catch {
-                            json = {};
-                        }
-                        const res = {
-                            request,
-                            status: response.status,
-                            statusText: response.statusText,
-                            url: this.url,
-                            error: [],
-                            headers: response.headers,
-                            raw: () => response,
-                            text: () => text,
-                            json: () => json
-                        };
-                        resolve(res);
-                    }).catch((err) => {
-                        console.error(err.message);
+                        console.error(err);
                     });
                 }
             }
@@ -95,39 +65,21 @@ class PromiseRequest {
     async stream(stream) {
         return new Promise((resolve, reject) => {
             try {
-                if (this.options.allowRedirect) {
-                    (0, node_fetch_1.default)(this.url, {
-                        ...this.options,
-                        redirect: "follow"
-                    }).then((response) => {
-                        if (!response.ok)
-                            console.error(`unexpected response ${response.statusText}`);
-                        const streamPipeline = (0, node_util_1.promisify)(node_stream_1.pipeline);
-                        streamPipeline(response.body, stream).then(() => {
-                            resolve(true);
-                        }).catch((err) => {
-                            reject(err);
-                        });
+                (0, axios_1.default)(this.url, {
+                    ...this.options,
+                    responseType: "stream"
+                }).then((response) => {
+                    if (response.statusText != "OK")
+                        console.error(`unexpected response ${response.statusText}`);
+                    const streamPipeline = (0, node_util_1.promisify)(node_stream_1.pipeline);
+                    streamPipeline(response.data, stream).then(() => {
+                        resolve(true);
                     }).catch((err) => {
                         reject(err);
                     });
-                }
-                else {
-                    (0, node_fetch_1.default)(this.url, {
-                        ...this.options
-                    }).then((response) => {
-                        if (!response.ok)
-                            console.error(`unexpected response ${response.statusText}`);
-                        const streamPipeline = (0, node_util_1.promisify)(node_stream_1.pipeline);
-                        streamPipeline(response.body, stream).then(() => {
-                            resolve(true);
-                        }).catch((err) => {
-                            reject(err);
-                        });
-                    }).catch((err) => {
-                        reject(err);
-                    });
-                }
+                }).catch((err) => {
+                    reject(err);
+                });
             }
             catch {
                 console.error("Error with streaming.");

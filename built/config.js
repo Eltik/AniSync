@@ -19,7 +19,7 @@ exports.config = {
                 email: "",
                 password: "",
                 locale: "en-US",
-                disabled: false
+                disabled: true
             },
             Zoro: {
                 threshold: 0.95,
@@ -90,7 +90,7 @@ exports.config = {
         anime: {
             wait: 1000,
             max_pages: 15,
-            start: 0
+            start: 8
         }
     }
 };
