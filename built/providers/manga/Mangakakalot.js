@@ -17,7 +17,7 @@ class Mangakakalot extends Manga_1.default {
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
             },
-            data: `searchword=${this.parseQuery(query)}`
+            body: `searchword=${this.parseQuery(query)}`
         });
         const json = data.json();
         const results = json.map((result) => {

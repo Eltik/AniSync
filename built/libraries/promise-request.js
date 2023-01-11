@@ -15,9 +15,15 @@ class PromiseRequest {
                     throw new Error("Use the stream() function instead.");
                 }
                 else {
-                    const options = {
+                    let options = {
                         ...this.options,
                     };
+                    if (options.body != undefined) {
+                        options = {
+                            ...options,
+                            data: this.options.body
+                        };
+                    }
                     (0, axios_1.default)(this.url, options).then(async (response) => {
                         const request = {
                             url: this.url,
@@ -57,14 +63,23 @@ class PromiseRequest {
                     });
                 }
             }
-            catch {
-                console.error("Unable to send request.");
+            catch (e) {
+                console.error(e);
             }
         });
     }
     async stream(stream) {
         return new Promise((resolve, reject) => {
             try {
+                let options = {
+                    ...this.options,
+                };
+                if (options.body != undefined) {
+                    options = {
+                        ...options,
+                        data: this.options.body
+                    };
+                }
                 (0, axios_1.default)(this.url, {
                     ...this.options,
                     responseType: "stream"

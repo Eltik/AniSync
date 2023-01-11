@@ -4,4 +4,6 @@
  */
 const AniSync = require("../built/AniSync").default;
 const a = new AniSync();
-a.crawl("MANGA")
+a.crawl("MANGA").then(() => {
+    console.log("Done.");
+})

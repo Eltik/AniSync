@@ -166,7 +166,7 @@ class AniSync extends API_1.default {
             let canCrawl = true;
             const aniList = new AniList_1.default("", type, "TV");
             const anime = new Zoro_1.default();
-            for (let i = start; i < maxPages; i++) {
+            for (let i = start; i < maxPages && canCrawl; i++) {
                 if (config_1.config.crawling.debug) {
                     console.log("Crawling page " + i + "...");
                 }
@@ -496,6 +496,9 @@ class AniSync extends API_1.default {
                                 reject(err);
                             });
                         });
+                    }
+                    else {
+                        resolve(true);
                     }
                 }
                 else {

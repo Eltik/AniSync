@@ -17,9 +17,15 @@ export default class PromiseRequest {
                 if (this.options.stream) {
                     throw new Error("Use the stream() function instead.");
                 } else {
-                    const options = {
+                    let options:any = {
                         ...this.options,
                     };
+                    if (options.body != undefined) {
+                        options = {
+                            ...options,
+                            data: this.options.body
+                        }
+                    }
 
                     axios(this.url, options).then(async(response) => {
                         const request:Request = {
@@ -62,8 +68,8 @@ export default class PromiseRequest {
                         console.error(err);
                     });
                 }
-            } catch {
-                console.error("Unable to send request.");
+            } catch (e) {
+                console.error(e);
             }
         });
     }
@@ -71,6 +77,15 @@ export default class PromiseRequest {
     public async stream(stream) {
         return new Promise((resolve, reject) => {
             try {
+                let options:any = {
+                    ...this.options,
+                };
+                if (options.body != undefined) {
+                    options = {
+                        ...options,
+                        data: this.options.body
+                    }
+                }
                 axios(this.url, {
                     ...this.options,
                     responseType: "stream"
@@ -95,7 +110,7 @@ export default class PromiseRequest {
 type Options = {
     method?: string;
     headers?: { [key: string]: string };
-    data?: string|URLSearchParams|FormData|any;
+    body?: string|URLSearchParams|FormData|any;
     maxRedirects?: number;
     stream?: boolean;
 };
