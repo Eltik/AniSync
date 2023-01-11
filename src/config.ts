@@ -1,4 +1,8 @@
 export var config = {
+    web_server: {
+        port: 3000,
+        cors: ["*"],
+    },
     mapping: {
         threshold: 0.8,
         comparison_threshold: 0.8,

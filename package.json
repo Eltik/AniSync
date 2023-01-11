@@ -15,7 +15,8 @@
         "crawl:anime": "node ./scripts/crawl_anime.js",
         "crawl:manga": "node ./scripts/crawl_manga.js",
         "export:anime": "node ./scripts/export_anime.js",
-        "export:manga": "node./scripts/export_manga.js"
+        "export:manga": "node ./scripts/export_manga.js",
+        "start": "node ./built/server.js"
     },
     "repository": {
         "type": "git",
@@ -28,8 +29,11 @@
     },
     "homepage": "https://github.com/Eltik/AniSync#readme",
     "dependencies": {
+        "@fastify/cors": "^8.2.0",
+        "@fastify/formbody": "^7.4.0",
         "cheerio": "^1.0.0-rc.12",
         "cronchy": "^0.0.7",
+        "fastify": "^4.11.0",
         "node-fetch": "^2.6.7",
         "sqlite3": "^5.1.4"
     }
