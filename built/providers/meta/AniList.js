@@ -192,7 +192,7 @@ class AniList extends API_1.default {
             }
         };
         try {
-            const req = await this.fetchJSON(this.api, {
+            const req = await this.fetch(this.api, {
                 body: JSON.stringify(aniListArgs),
                 method: "POST",
                 headers: {
@@ -236,7 +236,7 @@ class AniList extends API_1.default {
             await this.wait(wait);
         }
         try {
-            const req = await this.fetchJSON(this.api, {
+            const req = await this.fetch(this.api, {
                 body: JSON.stringify(aniListArgs),
                 method: "POST",
                 headers: {
@@ -288,7 +288,7 @@ class AniList extends API_1.default {
             await this.wait(wait);
         }
         try {
-            const req = await this.fetchJSON(this.api, {
+            const req = await this.fetch(this.api, {
                 body: JSON.stringify(aniListArgs),
                 method: "POST",
                 headers: {
@@ -368,7 +368,7 @@ class AniList extends API_1.default {
             }
         };
         try {
-            const req = await this.fetchJSON(this.api, {
+            const req = await this.fetch(this.api, {
                 body: JSON.stringify(aniListArgs),
                 method: "POST",
                 headers: {

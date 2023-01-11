@@ -10,7 +10,7 @@ class Enime extends Anime_1.default {
     async search(query) {
         const page = 0;
         const perPage = 18;
-        const req = await this.fetchJSON(`${this.api}/search/${encodeURIComponent(query)}?page=${page}&perPage=${perPage}`);
+        const req = await this.fetch(`${this.api}/search/${encodeURIComponent(query)}?page=${page}&perPage=${perPage}`);
         const data = req.json();
         if (!data.data) {
             if (config_1.config.crawling.debug) {

@@ -13,7 +13,7 @@ class TMDB extends Meta_1.default {
         const page = 0;
         const searchUrl = `/search/multi?api_key=${this.config.api_key}&language=en-US&page=${page}&include_adult=false&query=${query}`;
         try {
-            const req = await this.fetchJSON(this.baseUrl + searchUrl);
+            const req = await this.fetch(this.baseUrl + searchUrl);
             const data = req.json();
             if (data.results.length > 0) {
                 data.results.forEach((result) => {
@@ -50,7 +50,7 @@ class TMDB extends Meta_1.default {
     async getInfo(id) {
         const searchUrl = `${id}?api_key=${this.config.api_key}&language=en-US&append_to_response=release_dates,watch/providers,alternative_titles,credits,external_ids,images,keywords,recommendations,reviews,similar,translations,videos&include_image_language=en`;
         try {
-            const req = await this.fetchJSON(this.apiUrl + searchUrl);
+            const req = await this.fetch(this.apiUrl + searchUrl);
             return req.json();
         }
         catch (e) {

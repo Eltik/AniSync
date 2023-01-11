@@ -31,6 +31,7 @@
     "dependencies": {
         "@fastify/cors": "^8.2.0",
         "@fastify/formbody": "^7.4.0",
+        "axios": "^1.2.2",
         "cheerio": "^1.0.0-rc.12",
         "cronchy": "^0.0.7",
         "fastify": "^4.11.0",

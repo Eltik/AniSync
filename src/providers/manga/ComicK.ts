@@ -9,7 +9,7 @@ export default class ComicK extends Manga {
     }
 
     public async search(query:string): Promise<Array<SearchResponse>> {
-        const data = await this.fetchJSON(`${this.api}/search?q=${encodeURIComponent(query)}`);
+        const data = await this.fetch(`${this.api}/search?q=${encodeURIComponent(query)}`);
         const json = data.json();
         const results = json.map((result:SearchResult) => {
             let cover:any = result.md_covers ? result.md_covers[0] : null;

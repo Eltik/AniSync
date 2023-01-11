@@ -12,7 +12,7 @@ class Mangakakalot extends Manga_1.default {
     }
     async search(query) {
         // https://mangakakalot.com/home_json_tooltips
-        const data = await this.fetchJSON(`${this.baseUrl}/home_json_search`, {
+        const data = await this.fetch(`${this.baseUrl}/home_json_search`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"

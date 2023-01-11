@@ -10,7 +10,7 @@ export default class API {
         this.providerType = type;
     }
 
-    public async fetchJSON(url:string, options?:Options): Promise<Response> {
+    public async fetch(url:string, options?:Options): Promise<Response> {
         const request = new PromiseRequest(url, {
             ...options,
             headers: {

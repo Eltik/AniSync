@@ -17,7 +17,7 @@ export default class TMDB extends Meta {
         const searchUrl = `/search/multi?api_key=${this.config.api_key}&language=en-US&page=${page}&include_adult=false&query=${query}`;
 
         try {
-            const req = await this.fetchJSON(this.baseUrl + searchUrl);
+            const req = await this.fetch(this.baseUrl + searchUrl);
             const data:Result = req.json();
             if (data.results.length > 0) {
                 data.results.forEach((result) => {
@@ -52,7 +52,7 @@ export default class TMDB extends Meta {
     public async getInfo(id:string): Promise<any> {
         const searchUrl = `${id}?api_key=${this.config.api_key}&language=en-US&append_to_response=release_dates,watch/providers,alternative_titles,credits,external_ids,images,keywords,recommendations,reviews,similar,translations,videos&include_image_language=en`;
         try {
-            const req = await this.fetchJSON(this.apiUrl + searchUrl);
+            const req = await this.fetch(this.apiUrl + searchUrl);
             return req.json();
         } catch (e) {
             throw new Error(e);

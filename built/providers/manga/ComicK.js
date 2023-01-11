@@ -8,7 +8,7 @@ class ComicK extends Manga_1.default {
         this.image = "https://meo.comick.pictures";
     }
     async search(query) {
-        const data = await this.fetchJSON(`${this.api}/search?q=${encodeURIComponent(query)}`);
+        const data = await this.fetch(`${this.api}/search?q=${encodeURIComponent(query)}`);
         const json = data.json();
         const results = json.map((result) => {
             let cover = result.md_covers ? result.md_covers[0] : null;

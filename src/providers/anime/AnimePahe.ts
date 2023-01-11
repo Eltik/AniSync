@@ -7,7 +7,7 @@ export default class AnimePahe extends Anime {
     }
 
     public async search(query:string): Promise<Array<SearchResponse>> {
-        const req = await this.fetchJSON(`${this.baseUrl}/api?m=search&q=${encodeURIComponent(query)}`);
+        const req = await this.fetch(`${this.baseUrl}/api?m=search&q=${encodeURIComponent(query)}`);
         const data = req.json();
 
         if (!data.data) {

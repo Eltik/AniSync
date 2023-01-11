@@ -21,7 +21,7 @@ class MangaDex extends Manga_1.default {
             uri.searchParams.append('contentRating[]', 'suggestive');
             uri.searchParams.append('contentRating[]', 'erotica');
             uri.searchParams.append('contentRating[]', 'pornographic');
-            const request = await this.fetchJSON(uri.href);
+            const request = await this.fetch(uri.href);
             await this.wait(this.config.wait);
             mangaList = [...mangaList, ...request.json().data];
         }

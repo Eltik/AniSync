@@ -7,7 +7,7 @@ class AnimePahe extends Anime_1.default {
         super("https://animepahe.com", "AnimePahe");
     }
     async search(query) {
-        const req = await this.fetchJSON(`${this.baseUrl}/api?m=search&q=${encodeURIComponent(query)}`);
+        const req = await this.fetch(`${this.baseUrl}/api?m=search&q=${encodeURIComponent(query)}`);
         const data = req.json();
         if (!data.data) {
             if (config_1.config.crawling.debug) {
