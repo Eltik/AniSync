@@ -4,12 +4,13 @@ const path_1 = require("path");
 const API_1 = require("../../API");
 const sqlite3_1 = require("sqlite3");
 const fs_1 = require("fs");
+const config_1 = require("../../config");
 class Manga extends API_1.default {
     constructor(baseUrl, providerName) {
         super(API_1.ProviderType.MANGA);
         this.baseUrl = undefined;
         this.providerName = undefined;
-        this.db = new sqlite3_1.Database((0, path_1.join)(__dirname, "../../db.db"));
+        this.db = new sqlite3_1.Database(config_1.config.crawling.database_path);
         this.baseUrl = baseUrl;
         this.providerName = providerName;
     }

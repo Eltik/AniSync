@@ -3,12 +3,13 @@ import API, { ProviderType } from "../../API";
 import { Database } from "sqlite3";
 import { Result } from "../../AniSync";
 import { createWriteStream } from "fs";
+import { config } from "../../config";
 
 export default class Anime extends API {
     public baseUrl:string = undefined;
     public providerName:string = undefined;
 
-    private db = new Database(join(__dirname, "../../db.db"));
+    private db = new Database(config.crawling.database_path);
 
     constructor(baseUrl:string, providerName:string) {
         super(ProviderType.ANIME);

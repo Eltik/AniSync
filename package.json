@@ -11,7 +11,7 @@
         "build": "tsc --build",
         "clean": "tsc --build --clean",
         "config": "tsc ./src/config.ts",
-        "create_db": "sqlite3 ./built/db.db",
+        "create_db": "node ./scripts/create_db.js",
         "crawl:anime": "node ./scripts/crawl_anime.js",
         "crawl:manga": "node ./scripts/crawl_manga.js",
         "export:anime": "node ./scripts/export_anime.js",

@@ -83,11 +83,12 @@ export var config = {
         },
     },
     crawling: {
+        database_path: "/Users/eltik/Documents/Coding/AniSync/db.db",
         debug: true,
         anime: {
             wait: 1000,
-            max_pages: 15,
-            start: 8
+            max_pages: 3000,
+            start: 0
         }
     }
 };
