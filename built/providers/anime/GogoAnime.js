@@ -20,7 +20,7 @@ class GogoAnime extends Anime_1.default {
                 url,
                 id,
                 img,
-                title,
+                romaji: title,
             });
         });
         return results;

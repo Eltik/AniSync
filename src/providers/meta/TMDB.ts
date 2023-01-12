@@ -53,6 +53,9 @@ export default class TMDB extends Meta {
         const searchUrl = `${id}?api_key=${this.config.api_key}&language=en-US&append_to_response=release_dates,watch/providers,alternative_titles,credits,external_ids,images,keywords,recommendations,reviews,similar,translations,videos&include_image_language=en`;
         try {
             const req = await this.fetch(this.apiUrl + searchUrl);
+            const json = req.json();
+            json.backdrop_path = `https://image.tmdb.org/t/p/original${json.backdrop_path}`;
+            json.poster_path = `https://image.tmdb.org/t/p/original${json.poster_path}`;
             return req.json();
         } catch (e) {
             throw new Error(e);

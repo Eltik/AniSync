@@ -104,7 +104,7 @@ interface SearchResponse {
     url: string;
     id: string;
     img: string;
-    title: string;
+    title?: string;
     romaji?: string;
     native?: string;
 }

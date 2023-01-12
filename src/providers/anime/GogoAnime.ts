@@ -23,7 +23,7 @@ export default class GogoAnime extends Anime {
                 url,
                 id,
                 img,
-                title,
+                romaji: title,
             })
         })
 
