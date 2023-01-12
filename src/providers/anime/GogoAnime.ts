@@ -3,12 +3,11 @@ import { load } from "cheerio";
 
 export default class GogoAnime extends Anime {
     constructor() {
-        super("https://www.gogoanime.dk", "GogoAnime");
+        super("https://www1.gogoanime.bid", "GogoAnime");
     }
 
     public async search(query:string): Promise<Array<SearchResponse>> {
-        const page = 0;
-        const dom = await this.fetchDOM(`${this.baseUrl}/search.html?keyword=${encodeURIComponent(query)}&page=${page}`, "div.last_episodes > ul > li");
+        const dom = await this.fetchDOM(`${this.baseUrl}/search.html?keyword=${encodeURIComponent(query)}`, "div.last_episodes > ul > li");
         const results = [];
 
         const $ = load(dom.Response.text());

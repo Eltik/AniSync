@@ -14,7 +14,7 @@ class Anime extends API_1.default {
         this.baseUrl = baseUrl;
         this.providerName = providerName;
     }
-    async search(any) {
+    async search(query) {
         throw new Error("Method not implemented.");
     }
     async insert(results) {

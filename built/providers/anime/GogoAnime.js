@@ -4,11 +4,10 @@ const Anime_1 = require("./Anime");
 const cheerio_1 = require("cheerio");
 class GogoAnime extends Anime_1.default {
     constructor() {
-        super("https://www.gogoanime.dk", "GogoAnime");
+        super("https://www1.gogoanime.bid", "GogoAnime");
     }
     async search(query) {
-        const page = 0;
-        const dom = await this.fetchDOM(`${this.baseUrl}/search.html?keyword=${encodeURIComponent(query)}&page=${page}`, "div.last_episodes > ul > li");
+        const dom = await this.fetchDOM(`${this.baseUrl}/search.html?keyword=${encodeURIComponent(query)}`, "div.last_episodes > ul > li");
         const results = [];
         const $ = (0, cheerio_1.load)(dom.Response.text());
         dom.Cheerio.map((index, element) => {

@@ -17,7 +17,7 @@ export default class Manga extends API {
         this.providerName = providerName;
     }
 
-    public async search(any?): Promise<SearchResponse[]> {
+    public async search(query?:string): Promise<SearchResponse[]> {
         throw new Error("Method not implemented.");
     }
 

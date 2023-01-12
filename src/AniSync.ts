@@ -561,7 +561,11 @@ export default class AniSync extends API {
                                     await this.crunchyroll.init();
                                 }
                             }
-                            provider.search(query).then((results) => {
+
+                            const parsedQuery = this.getPartialQuery(query, config.mapping.provider[name].search_partial ? config.mapping.provider[name].partial_amount : 1);
+                            
+                            provider.search(parsedQuery).then((results) => {
+                                console.log(name + " got " + results.length + " from query " + parsedQuery + ".");
                                 aggregatorData.push({
                                     provider_name: name,
                                     results: results
@@ -582,6 +586,18 @@ export default class AniSync extends API {
         }
         await Promise.all(promises);
         return aggregatorData;
+    }
+
+    private getPartialQuery(query:string, partialAmount:number):string {
+        const split:string[] = query.split(" ");
+        const splitLength = split.length;
+        const maxIndex:number = Math.floor(splitLength * partialAmount);
+        let newQuery = "";
+        for (let j = 0; j < maxIndex; j++) {
+            const word = query.split(" ")[j];
+            newQuery += newQuery.length === 0 ? word : " " + word;
+        }
+        return newQuery;
     }
 
     // Formats search results into singular AniList data. Assigns each provider to an AniList object.
