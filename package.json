@@ -8,6 +8,7 @@
     "version": "1.0.6",
     "main": "./built/AniSync.js",
     "scripts": {
+        "test": "node ./scripts/test.js",
         "build": "tsc --build",
         "clean": "tsc --build --clean",
         "config": "tsc ./src/config.ts",
