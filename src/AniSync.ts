@@ -565,7 +565,6 @@ export default class AniSync extends API {
                             const parsedQuery = this.getPartialQuery(query, config.mapping.provider[name].search_partial ? config.mapping.provider[name].partial_amount : 1);
                             
                             provider.search(parsedQuery).then((results) => {
-                                console.log(name + " got " + results.length + " from query " + parsedQuery + ".");
                                 aggregatorData.push({
                                     provider_name: name,
                                     results: results
