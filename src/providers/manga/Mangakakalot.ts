@@ -18,19 +18,23 @@ export default class Mangakakalot extends Manga {
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
             },
-            body: `searchword=${this.parseQuery(query)}`
+            body: `searchword=${encodeURIComponent(this.parseQuery(query))}`
         });
         const json = data.json();
-        const results = json.map((result:SearchResult) => {
-            const uri = new URL(result.story_link);
-            return {
-                url: uri.href,
-                title: this.parseTitle(result.name),
-                id: uri.href.split("https://")[1],
-                img: result.image
-            };
-        });
-        return results;
+        if (json.length > 0) {
+            const results = json.map((result:SearchResult) => {
+                const uri = new URL(result.story_link);
+                return {
+                    url: uri.href,
+                    title: this.parseTitle(result.name),
+                    id: uri.href.split("https://")[1],
+                    img: result.image
+                };
+            });
+            return results;
+        } else {
+            return [];
+        }
     }
 
     // Change alias function from Mangakakalot

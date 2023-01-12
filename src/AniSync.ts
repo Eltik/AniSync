@@ -223,22 +223,27 @@ export default class AniSync extends API {
         } else {
             const aniList = new AniList("", type, "MANGA");
             const manga = new ComicK();
+            let canCrawl = true;
 
-            for (let i = 0; i < maxPages; i++) {
+            for (let i = start; i < maxPages && canCrawl; i++) {
                 if (config.crawling.debug) {
-                    console.log("Crawling page " + i + ".");
+                    console.log("Crawling page " + i + "...");
                 }
 
                 const aniListData = await aniList.getSeasonal(i, 10, type);
 
                 const aniListMedia = aniListData.data.trending.media;
+                if (!aniListMedia || aniListMedia.length === 0) {
+                    console.log("No more data to crawl.");
+                    canCrawl = false;
+                }
                 
                 const debugTimer = new Date(Date.now());
                 if (config.crawling.debug) {
                     console.log("Fetching seasonal data...");
                 }
 
-                const data:Result[] = await this.getSeasonal(aniListMedia, type);
+                const data:Result[] = await this.fetchCrawlData(aniListMedia, type);
 
                 if (config.crawling.debug) {
                     const endTimer = new Date(Date.now());
@@ -248,11 +253,12 @@ export default class AniSync extends API {
                 await manga.insert(data);
 
                 if (config.crawling.debug) {
-                    console.log("Finished inserting shows.");
+                    console.log("Finished inserting manga.");
                 }
 
                 await this.wait(wait);
             }
+            console.log("Finished crawling!");
         }
     }
 
@@ -455,8 +461,10 @@ export default class AniSync extends API {
                                 }
                             }
                         });
+                        resolve(true);
                     } else {
                         allSeason.push(possible);
+                        resolve(true);
                     }
                 })
                 promises.push(promise);
