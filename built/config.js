@@ -110,6 +110,14 @@ exports.config = {
                 partial_amount: 1,
                 disabled: false
             },
+            Kitsu: {
+                threshold: 0.9,
+                comparison_threshold: 0.9,
+                wait: 350,
+                search_partial: false,
+                partial_amount: 1,
+                disabled: false
+            },
             AniList: {
                 SEASON: "WINTER",
                 SEASON_YEAR: 2023,

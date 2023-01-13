@@ -13,6 +13,7 @@ import AnimePahe from "./providers/anime/AnimePahe";
 import Enime from "./providers/anime/Enime";
 import Zoro from "./providers/anime/Zoro";
 import CrunchyRoll from "./providers/anime/CrunchyRoll";
+import Kitsu from "./providers/meta/Kitsu";
 
 export default class AniSync extends API {
     private stringSim:StringSimilarity = new StringSimilarity();
@@ -33,12 +34,17 @@ export default class AniSync extends API {
         const animePahe = new AnimePahe();
         const enime = new Enime();
         const zoro = new Zoro();
+        const kitsu = new Kitsu();
 
         // Loop through config to set class dictionary
         this.classDictionary = [
             {
                 name: tmdb.providerName,
                 object: tmdb
+            },
+            {
+                name: kitsu.providerName,
+                object: kitsu
             },
             {
                 name: comicK.providerName,
@@ -396,7 +402,7 @@ export default class AniSync extends API {
 
                     const possible = await this.getShow(String(aniData.id));
                     if (!possible) {
-                        const title = aniData.title.english;
+                        const title = aniData.title.english ? aniData.title.english : aniData.title.romaji;
     
                         const aggregatorData:AggregatorData[] = await this.fetchData(title, type).catch((err) => {
                             console.error(err);
@@ -555,6 +561,7 @@ export default class AniSync extends API {
     private async fetchData(query:string, type:Type["ANIME"]|Type["MANGA"]):Promise<AggregatorData[]> {
         const promises = [];
         const aggregatorData:AggregatorData[] = [];
+        const kitsu = new Kitsu();
 
         for (let i = 0; i < this.classDictionary.length; i++) {
             const provider = this.classDictionary[i].object;
@@ -562,28 +569,48 @@ export default class AniSync extends API {
 
             const promise = new Promise((resolve, reject) => {
                 if (!config.mapping.provider[name].disabled) {
-                    if (type === provider.providerType) {
-                        this.wait(config.mapping.provider[name] ? config.mapping.provider[name].wait : config.mapping.wait).then(async() => {
-                            if (name === this.crunchyroll.providerName) {
-                                if (!this.crunchyroll.hasInit) {
-                                    await this.crunchyroll.init();
-                                }
-                            }
-
-                            const parsedQuery = this.getPartialQuery(query, config.mapping.provider[name].search_partial ? config.mapping.provider[name].partial_amount : 1);
-                            
-                            provider.search(parsedQuery).then((results) => {
+                    if (name === kitsu.providerName) {
+                        this.wait(config.mapping.provider.Kitsu.wait).then(async() => {
+                            if (type === "ANIME") {
+                                const results = await kitsu.searchAnime(query);
                                 aggregatorData.push({
                                     provider_name: name,
-                                    results: results
+                                    results
                                 });
                                 resolve(aggregatorData);
-                            }).catch((err) => {
-                                reject(err);
-                            });
-                        });   
+                            } else {
+                                const results = await kitsu.searchManga(query);
+                                aggregatorData.push({
+                                    provider_name: name,
+                                    results
+                                });
+                                resolve(aggregatorData);
+                            }
+                        })
                     } else {
-                        resolve(true);
+                        if (type === provider.providerType) {
+                            this.wait(config.mapping.provider[name] ? config.mapping.provider[name].wait : config.mapping.wait).then(async() => {
+                                if (name === this.crunchyroll.providerName) {
+                                    if (!this.crunchyroll.hasInit) {
+                                        await this.crunchyroll.init();
+                                    }
+                                }
+    
+                                const parsedQuery = this.getPartialQuery(query, config.mapping.provider[name].search_partial ? config.mapping.provider[name].partial_amount : 1);
+                                
+                                provider.search(parsedQuery).then((results) => {
+                                    aggregatorData.push({
+                                        provider_name: name,
+                                        results: results
+                                    });
+                                    resolve(aggregatorData);
+                                }).catch((err) => {
+                                    reject(err);
+                                });
+                            });   
+                        } else {
+                            resolve(true);
+                        }
                     }
                 } else {
                     resolve(true);
@@ -596,9 +623,11 @@ export default class AniSync extends API {
     }
 
     private getPartialQuery(query:string, partialAmount:number):string {
+        query = query ? query : "";
+        if (partialAmount === 1) return query;
         const split:string[] = query.split(" ");
         const splitLength = split.length;
-        const maxIndex:number = Math.floor(splitLength * partialAmount);
+        const maxIndex:number = Math.round(splitLength * partialAmount);
         let newQuery = "";
         for (let j = 0; j < maxIndex; j++) {
             const word = query.split(" ")[j];

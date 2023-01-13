@@ -14,6 +14,7 @@ const AnimePahe_1 = require("./providers/anime/AnimePahe");
 const Enime_1 = require("./providers/anime/Enime");
 const Zoro_1 = require("./providers/anime/Zoro");
 const CrunchyRoll_1 = require("./providers/anime/CrunchyRoll");
+const Kitsu_1 = require("./providers/meta/Kitsu");
 class AniSync extends API_1.default {
     constructor() {
         super(API_1.ProviderType.NONE);
@@ -29,11 +30,16 @@ class AniSync extends API_1.default {
         const animePahe = new AnimePahe_1.default();
         const enime = new Enime_1.default();
         const zoro = new Zoro_1.default();
+        const kitsu = new Kitsu_1.default();
         // Loop through config to set class dictionary
         this.classDictionary = [
             {
                 name: tmdb.providerName,
                 object: tmdb
+            },
+            {
+                name: kitsu.providerName,
+                object: kitsu
             },
             {
                 name: comicK.providerName,
@@ -335,7 +341,7 @@ class AniSync extends API_1.default {
                     const aniData = season[i];
                     const possible = await this.getShow(String(aniData.id));
                     if (!possible) {
-                        const title = aniData.title.english;
+                        const title = aniData.title.english ? aniData.title.english : aniData.title.romaji;
                         const aggregatorData = await this.fetchData(title, type).catch((err) => {
                             console.error(err);
                             return [];
@@ -482,32 +488,55 @@ class AniSync extends API_1.default {
     async fetchData(query, type) {
         const promises = [];
         const aggregatorData = [];
+        const kitsu = new Kitsu_1.default();
         for (let i = 0; i < this.classDictionary.length; i++) {
             const provider = this.classDictionary[i].object;
             const name = this.classDictionary[i].name;
             const promise = new Promise((resolve, reject) => {
                 if (!config_1.config.mapping.provider[name].disabled) {
-                    if (type === provider.providerType) {
-                        this.wait(config_1.config.mapping.provider[name] ? config_1.config.mapping.provider[name].wait : config_1.config.mapping.wait).then(async () => {
-                            if (name === this.crunchyroll.providerName) {
-                                if (!this.crunchyroll.hasInit) {
-                                    await this.crunchyroll.init();
-                                }
-                            }
-                            const parsedQuery = this.getPartialQuery(query, config_1.config.mapping.provider[name].search_partial ? config_1.config.mapping.provider[name].partial_amount : 1);
-                            provider.search(parsedQuery).then((results) => {
+                    if (name === kitsu.providerName) {
+                        this.wait(config_1.config.mapping.provider.Kitsu.wait).then(async () => {
+                            if (type === "ANIME") {
+                                const results = await kitsu.searchAnime(query);
                                 aggregatorData.push({
                                     provider_name: name,
-                                    results: results
+                                    results
                                 });
                                 resolve(aggregatorData);
-                            }).catch((err) => {
-                                reject(err);
-                            });
+                            }
+                            else {
+                                const results = await kitsu.searchManga(query);
+                                aggregatorData.push({
+                                    provider_name: name,
+                                    results
+                                });
+                                resolve(aggregatorData);
+                            }
                         });
                     }
                     else {
-                        resolve(true);
+                        if (type === provider.providerType) {
+                            this.wait(config_1.config.mapping.provider[name] ? config_1.config.mapping.provider[name].wait : config_1.config.mapping.wait).then(async () => {
+                                if (name === this.crunchyroll.providerName) {
+                                    if (!this.crunchyroll.hasInit) {
+                                        await this.crunchyroll.init();
+                                    }
+                                }
+                                const parsedQuery = this.getPartialQuery(query, config_1.config.mapping.provider[name].search_partial ? config_1.config.mapping.provider[name].partial_amount : 1);
+                                provider.search(parsedQuery).then((results) => {
+                                    aggregatorData.push({
+                                        provider_name: name,
+                                        results: results
+                                    });
+                                    resolve(aggregatorData);
+                                }).catch((err) => {
+                                    reject(err);
+                                });
+                            });
+                        }
+                        else {
+                            resolve(true);
+                        }
                     }
                 }
                 else {
@@ -520,9 +549,12 @@ class AniSync extends API_1.default {
         return aggregatorData;
     }
     getPartialQuery(query, partialAmount) {
+        query = query ? query : "";
+        if (partialAmount === 1)
+            return query;
         const split = query.split(" ");
         const splitLength = split.length;
-        const maxIndex = Math.floor(splitLength * partialAmount);
+        const maxIndex = Math.round(splitLength * partialAmount);
         let newQuery = "";
         for (let j = 0; j < maxIndex; j++) {
             const word = query.split(" ")[j];

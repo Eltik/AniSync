@@ -329,27 +329,27 @@ class AniList extends API_1.default {
             query: `
             query($season: MediaSeason, $seasonYear: Int, $nextSeason: MediaSeason, $nextYear: Int) {
                 trending: Page(page: ${page}, perPage: ${perPage}) {
-                    media(sort: TRENDING_DESC, type: ANIME, isAdult: false) {
+                    media(sort: TRENDING_DESC, type: ${type}, isAdult: false) {
                         ...media
                     }
                 }
                 season: Page(page: ${page}, perPage: ${perPage}) {
-                    media(season: $season, seasonYear: $seasonYear, sort: POPULARITY_DESC, type: ANIME, isAdult: false) {
+                    media(season: $season, seasonYear: $seasonYear, sort: POPULARITY_DESC, type: ${type}, isAdult: false) {
                         ...media
                     }
                 }
                 nextSeason: Page(page: ${page}, perPage: ${perPage}) {
-                    media(season: $nextSeason, seasonYear: $nextYear, sort: POPULARITY_DESC, type: ANIME, isAdult: false) {
+                    media(season: $nextSeason, seasonYear: $nextYear, sort: POPULARITY_DESC, type: ${type}, isAdult: false) {
                         ...media
                     }
                 }
                 popular: Page(page: ${page}, perPage: ${perPage}) {
-                    media(sort: POPULARITY_DESC, type: ANIME, isAdult: false) {
+                    media(sort: POPULARITY_DESC, type: ${type}, isAdult: false) {
                         ...media
                     }
                 }
                 top: Page(page: ${page}, perPage: ${perPage}) {
-                    media(sort: SCORE_DESC, type: ANIME, isAdult: false) {
+                    media(sort: SCORE_DESC, type: ${type}, isAdult: false) {
                         ...media
                     }
                 }
@@ -360,7 +360,7 @@ class AniList extends API_1.default {
             }
             `,
             variables: {
-                "type": this.type,
+                "type": type,
                 "season": this.config.SEASON,
                 "seasonYear": this.config.SEASON_YEAR,
                 "nextSeason": this.config.NEXT_SEASON,
