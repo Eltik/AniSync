@@ -1,3 +1,4 @@
+import * as colors from "colors";
 import { config } from "../../config";
 import Anime, { SearchResponse } from "./Anime";
 
@@ -12,7 +13,7 @@ export default class AnimePahe extends Anime {
 
         if (!data.data) {
             if (config.crawling.debug) {
-                console.log("Unable to fetch data for " + query + ".");
+                console.log(colors.cyan("[CrunchyRoll]") + colors.red("Unable to parse data for " + query + "."));
             }
             return [];
         }

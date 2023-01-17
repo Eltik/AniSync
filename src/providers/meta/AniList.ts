@@ -310,7 +310,6 @@ export default class AniList extends API {
             });
 
             if (!req) {
-                console.log(req);
                 throw new Error("Request failed.")
             }
     

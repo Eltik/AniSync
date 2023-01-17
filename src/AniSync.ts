@@ -14,6 +14,7 @@ import Enime from "./providers/anime/Enime";
 import Zoro from "./providers/anime/Zoro";
 import CrunchyRoll from "./providers/anime/CrunchyRoll";
 import Kitsu from "./providers/meta/Kitsu";
+import * as colors from "colors";
 
 export default class AniSync extends API {
     private stringSim:StringSimilarity = new StringSimilarity();
@@ -194,38 +195,38 @@ export default class AniSync extends API {
 
             for (let i = start; i < maxPages && canCrawl; i++) {
                 if (config.crawling.debug) {
-                    console.log("Crawling page " + i + "...");
+                    console.log(colors.gray("Crawling page ") + i + colors.gray("..."));
                 }
 
                 const aniListData = await aniList.getSeasonal(i, 10, type);
 
                 const aniListMedia = aniListData.data.trending.media;
                 if (!aniListMedia || aniListMedia.length === 0) {
-                    console.log("No more data to crawl.");
+                    console.log(colors.red("No more data to crawl."));
                     canCrawl = false;
                 }
                 
                 const debugTimer = new Date(Date.now());
                 if (config.crawling.debug) {
-                    console.log("Fetching seasonal data...");
+                    console.log(colors.gray("Fetching seasonal data..."));
                 }
 
                 const data:Result[] = await this.fetchCrawlData(aniListMedia, type);
 
                 if (config.crawling.debug) {
                     const endTimer = new Date(Date.now());
-                    console.log("Finished fetching data. Request took " + (endTimer.getTime() - debugTimer.getTime()) + " milliseconds.");
+                    console.log(colors.white("Finished fetching data. Request took ") + colors.cyan(String(endTimer.getTime() - debugTimer.getTime())) + colors.white(" milliseconds."));
                 }
 
                 await anime.insert(data);
 
                 if (config.crawling.debug) {
-                    console.log("Finished inserting shows.");
+                    console.log(colors.gray("Finished inserting shows."));
                 }
 
                 await this.wait(wait);
             }
-            console.log("Finished crawling!");
+            console.log(colors.cyan("Finished crawling!"));
         } else {
             const aniList = new AniList("", type, "MANGA");
             const manga = new ComicK();
@@ -233,38 +234,38 @@ export default class AniSync extends API {
 
             for (let i = start; i < maxPages && canCrawl; i++) {
                 if (config.crawling.debug) {
-                    console.log("Crawling page " + i + "...");
+                    console.log(colors.gray("Crawling page ") + i + colors.gray("..."));
                 }
 
                 const aniListData = await aniList.getSeasonal(i, 10, type);
 
                 const aniListMedia = aniListData.data.trending.media;
                 if (!aniListMedia || aniListMedia.length === 0) {
-                    console.log("No more data to crawl.");
+                    console.log(colors.red("No more data to crawl."));
                     canCrawl = false;
                 }
                 
                 const debugTimer = new Date(Date.now());
                 if (config.crawling.debug) {
-                    console.log("Fetching seasonal data...");
+                    console.log(colors.gray("Fetching seasonal data..."));
                 }
 
                 const data:Result[] = await this.fetchCrawlData(aniListMedia, type);
 
                 if (config.crawling.debug) {
                     const endTimer = new Date(Date.now());
-                    console.log("Finished fetching data. Request took " + (endTimer.getTime() - debugTimer.getTime()) + " milliseconds.");
+                    console.log(colors.white("Finished fetching data. Request took ") + colors.cyan(String(endTimer.getTime() - debugTimer.getTime())) + colors.white(" milliseconds."));
                 }
 
                 await manga.insert(data);
 
                 if (config.crawling.debug) {
-                    console.log("Finished inserting manga.");
+                    console.log(colors.gray("Finished inserting manga."));
                 }
 
                 await this.wait(wait);
             }
-            console.log("Finished crawling!");
+            console.log(colors.cyan("Finished crawling!"));
         }
     }
 

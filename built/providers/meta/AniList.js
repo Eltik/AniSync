@@ -296,7 +296,6 @@ class AniList extends API_1.default {
                 }
             });
             if (!req) {
-                console.log(req);
                 throw new Error("Request failed.");
             }
             const data = req.json();

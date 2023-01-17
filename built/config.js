@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = void 0;
 exports.config = {
     web_server: {
+        use_http: true,
         port: 3000,
         cors: ["*"],
     },
@@ -16,11 +17,12 @@ exports.config = {
         provider: {
             // CrunchyRoll is currently experiencing some issues.
             // It is recommended to disable it for now even if
-            // You have a premium account.
+            // you have a premium account.
+            // However, it may work with an insanely high wait limit (5 seconds).
             CrunchyRoll: {
                 threshold: 0.95,
                 comparison_threshold: 0.95,
-                wait: 500,
+                wait: 5000,
                 email: "",
                 password: "",
                 locale: "en-US",

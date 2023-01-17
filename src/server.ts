@@ -1,12 +1,13 @@
 import Fastify from "fastify";
 import cors from '@fastify/cors';
-import fastifyFormbody = require("@fastify/formbody");
+import fastifyFormbody from "@fastify/formbody";
 
 import { config } from "./config";
 
 import AniSync from "./AniSync";
 import Anime from "./providers/anime/Anime";
 import Manga from "./providers/manga/Manga";
+import * as colors from "colors";
 
 const aniSync = new AniSync();
 const anime = new Anime("", "");
@@ -368,7 +369,7 @@ fastify.post("/info", async(req, res) => {
 Promise.all(fastifyPlugins).then(() => {
     fastify.listen({ port: config.web_server.port }, (err, address) => {
         if (err) throw err;
-        console.log(`Listening to ${address}.`);
+        console.log(colors.cyan(`Listening to ${address}.`));
         // Server is now listening on ${address}
     })
 })

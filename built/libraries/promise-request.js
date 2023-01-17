@@ -3,9 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = require("axios");
 const node_stream_1 = require("node:stream");
 const node_util_1 = require("node:util");
+const config_1 = require("../config");
 class PromiseRequest {
     constructor(url, options) {
-        this.url = url;
+        this.url = config_1.config.web_server.use_http ? ("http" + (url.split("https")[1])) : url;
         this.options = options;
     }
     async request() {
@@ -22,6 +23,12 @@ class PromiseRequest {
                         options = {
                             ...options,
                             data: this.options.body
+                        };
+                    }
+                    if (options.responseType != undefined) {
+                        options = {
+                            ...options,
+                            responseType: this.options.responseType
                         };
                     }
                     (0, axios_1.default)(this.url, options).then(async (response) => {
@@ -59,12 +66,12 @@ class PromiseRequest {
                         };
                         resolve(res);
                     }).catch((err) => {
-                        console.error(err);
+                        reject(err);
                     });
                 }
             }
             catch (e) {
-                console.error(e);
+                console.error(e.message);
             }
         });
     }

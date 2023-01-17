@@ -5,6 +5,7 @@ const API_1 = require("../../API");
 const sqlite3_1 = require("sqlite3");
 const fs_1 = require("fs");
 const config_1 = require("../../config");
+const colors = require("colors");
 class Manga extends API_1.default {
     constructor(baseUrl, providerName) {
         super(API_1.ProviderType.MANGA);
@@ -34,7 +35,9 @@ class Manga extends API_1.default {
                     const stmt = db.prepare("INSERT INTO manga(id, anilist, connectors) VALUES ($id, $anilist, $connectors)");
                     stmt.run({ $id: result.id, $anilist: JSON.stringify(result.anilist), $connectors: JSON.stringify(result.connectors) });
                     stmt.finalize();
-                    console.log("Inserted " + result.anilist.title.english);
+                    if (config_1.config.crawling.debug) {
+                        console.log(colors.white("Inserted ") + colors.cyan(result.anilist.title.romaji) + colors.white(" into database."));
+                    }
                 }
             }
             return true;
@@ -69,6 +72,12 @@ class Manga extends API_1.default {
         const output = (0, path_1.join)(__dirname, "../../../output.json");
         (0, fs_1.createWriteStream)(output).write(JSON.stringify(all, null, 4));
         return output;
+    }
+    async clear() {
+        const db = this.db;
+        const stmt = db.prepare("DELETE FROM manga");
+        stmt.run();
+        stmt.finalize();
     }
     async getAll() {
         const db = this.db;

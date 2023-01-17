@@ -4,6 +4,7 @@ import { Database } from "sqlite3";
 import { Result } from "../../AniSync";
 import { createWriteStream } from "fs";
 import { config } from "../../config";
+import * as colors from "colors";
 
 export default class Anime extends API {
     public baseUrl:string = undefined;
@@ -40,7 +41,10 @@ export default class Anime extends API {
                     const stmt = db.prepare("INSERT INTO anime(id, anilist, connectors) VALUES ($id, $anilist, $connectors)");
                     stmt.run({ $id: result.id, $anilist: JSON.stringify(result.anilist), $connectors: JSON.stringify(result.connectors) });
                     stmt.finalize();
-                    console.log("Inserted " + result.anilist.title.english);
+
+                    if (config.crawling.debug) {
+                        console.log(colors.white("Inserted ") + colors.cyan(result.anilist.title.romaji) + colors.gray(" into database."));
+                    }
                 }
             }
             return true;
@@ -75,6 +79,13 @@ export default class Anime extends API {
 
         createWriteStream(output).write(JSON.stringify(all, null, 4));
         return output;
+    }
+
+    public async clear(): Promise<void> {
+        const db = this.db;
+        const stmt = db.prepare("DELETE FROM anime");
+        stmt.run();
+        stmt.finalize();
     }
 
     private async getAll(): Promise<Result[]> {

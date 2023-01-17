@@ -2,11 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const fastify_1 = require("fastify");
 const cors_1 = require("@fastify/cors");
-const fastifyFormbody = require("@fastify/formbody");
+const formbody_1 = require("@fastify/formbody");
 const config_1 = require("./config");
 const AniSync_1 = require("./AniSync");
 const Anime_1 = require("./providers/anime/Anime");
 const Manga_1 = require("./providers/manga/Manga");
+const colors = require("colors");
 const aniSync = new AniSync_1.default();
 const anime = new Anime_1.default("", "");
 const manga = new Manga_1.default("", "");
@@ -23,7 +24,7 @@ const corsPlugin = new Promise((resolve, reject) => {
     });
 });
 const formBody = new Promise((resolve, reject) => {
-    fastify.register(fastifyFormbody).then(() => {
+    fastify.register(formbody_1.default).then(() => {
         resolve(true);
     });
 });
@@ -343,7 +344,7 @@ Promise.all(fastifyPlugins).then(() => {
     fastify.listen({ port: config_1.config.web_server.port }, (err, address) => {
         if (err)
             throw err;
-        console.log(`Listening to ${address}.`);
+        console.log(colors.cyan(`Listening to ${address}.`));
         // Server is now listening on ${address}
     });
 });

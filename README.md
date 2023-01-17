@@ -1,49 +1,128 @@
 # AniSync
 Mapping sites to AniList and back.<br />
-Inspired by MalSync, this project is made for taking search queries from popular tracking sites such as [AniList](https://anilist.co) and matching them with sites such as [Zoro.To](https://zoro.to/), [CrunchyRoll](https://crunchyroll.com/), and more.
+Inspired by MalSync, this project is made for taking search queries from popular tracking sites such as [AniList](https://anilist.co) and matching them with sites such as [Zoro.To](https://zoro.to/), [CrunchyRoll](https://crunchyroll.com/), and more.<br />
 
 ## How it Works
 The concept of AniSync is relatively simple. Using a string similarity algorithm ([Dice's Coefficient](https://en.wikipedia.org/wiki/S%C3%B8rensen%E2%80%93Dice_coefficient), courtesy of the NPM package [string-similarity](https://www.npmjs.com/package/string-similarity)), AniSync sends a search request first to AniList and then to other anime streaming sites. Looping through each result, a function is run to check the similarity between the native, romaji, and english title of the show:
 ```typescript
-public async search(query:string, type:Type["ANIME"]|Type["MANGA"]) {
-  ...
-  const aniListData = [];
-  const zoroToData = [];
-  zoroToData.map((show) => {
-    const data = this.compareAnime(show, aniListData);
-    // If there is a result, it will return an object
-  });
+// Returns Promise<Result[]>
+public async search(query, type) {
+    // AniList search result data
+    const aniData:Media[] = [];
+    ...
+    
+    // Data searched on aggregators like Zoro, GogoAnime, etc.
+    const aggregatorData:AggregatorData[] = await this.fetchData(query, type);
+
+    // An array of search data that is filtered based on whether
+    // the result matches the threshold.
+    const comparison:Search[] = [];
+    
+    aggregatorData.map((result, index) => {
+        const provider = result.provider_name;
+        const results = result.results;
+
+        for (let i = 0; i < results.length; i++) {
+            // Compares each result.
+            const data = this.compare(results[i], aniData, config.mapping.provider[provider]?.threshold, config.mapping.provider[provider]?.comparison_threshold);
+            if (data != undefined) {
+                comparison.push({
+                    provider,
+                    data
+                });
+            }
+        }
+    });
+
+    // Convert search data into a better format
+    const result = this.formatData(comparison);
+    return result;
 }
 ```
 If the comparison succeeds, it will return this:
-```javascript
-{
-  provider: "Zoro",
-  data {
-    anime: {
-      url: "https://zoro.to/one-piece-100?ref=search",
-      id: "/one-piece-100?ref=search",
-      img: "https://img.zorores.com/_r/300x400/100/54/90/5490cb32786d4f7fef0f40d7266df532/5490cb32786d4f7fef0f40d7266df532.jpg",
-      title: "One Piece",
-      romaji?: "ONE PIECE",
-      native?: undefined
-      // Some sites like Zoro don't provide the native (and sometimes romaji) title, so they may be left undefined.
-    },
-    media: {
-      // AniList data. There's a lot, but it's pretty self-explanatory.
-      id: 21,
-      idMal: 21,
-      siteUrl: "https://anilist.co/anime/21/ONE-PIECE/",
-      title: { english?: "ONE PIECE", romaji?: "ONE PIECE", native?: "ONE PIECE" }
-      ...
+```json
+[
+    {
+        "id": 21,
+        "anilist": {
+            "id": 21,
+            "idMal": 21,
+            "title": {
+                "romaji": "ONE PIECE",
+                "english": "ONE PIECE",
+                "native": "ONE PIECE"
+            },
+        },
+        "connectors": [
+            {
+                "provider": "AnimePahe",
+                "data": {
+                    "id": "c9bf6e84-c3e0-01b8-2bd7-c2fbfc7431a1",
+                    "title": "One Piece",
+                    "img": "https://i.animepahe.com/posters/355e6e3127aa31f0d806114169b52c4fb6da4b87df7f9c1809b9e3de97b8aac5.jpg",
+                    "url": "https://animepahe.com/anime/c9bf6e84-c3e0-01b8-2bd7-c2fbfc7431a1"
+                },
+                "comparison": 1
+            },
+                        {
+                "provider": "Kitsu",
+                "data": {
+                    "id": "12",
+                    "romaji": "One Piece",
+                    "native": "ONE PIECE",
+                    "img": "https://media.kitsu.io/anime/poster_images/12/original.png",
+                    "url": "https://kitsu.io/api/edge/anime/12"
+                },
+                "comparison": 1
+            },
+            {
+                "provider": "GogoAnime",
+                "data": {
+                    "url": "https://www1.gogoanime.bid/category/one-piece",
+                    "id": "/category/one-piece",
+                    "img": "https://gogocdn.net/images/anime/One-piece.jpg",
+                    "romaji": "One Piece"
+                },
+                "comparison": 1
+            },
+                        {
+                "provider": "AnimeFox",
+                "data": {
+                    "url": "https://animefox.tv/anime/one-piece",
+                    "id": "/anime/one-piece",
+                    "img": "TV Series",
+                    "romaji": "One Piece"
+                },
+                "comparison": 1
+            }
+        ]
     }
-  }
-}
+]
 ```
-To avoid insane amount of requests to each site, data will likely need to be stored in a database or JSON file to be "cached." This feature is still in development, so stay tuned for more.
+To avoid insane amount of requests to each site, data is stored in a local SQLite database which is searched first before sending data to other sites. There is a CLI (see below) for exporting and managing the database.
 
 ## Crawling
-Unfortunately, due to rate limits some functions such as fetching seasonal data can take ages (up to 18-20 seconds!). To get around this, a crawler has been added to AniSync. Just create an `AniSync` object and run `AniSync#crawl()`. All data will get stored in a database, and any search or fetch queries will be sent to that database instead of fetching new data (see documentation below). If you need the data as a JSON file, run `AniSync#export()` and an `output.json` file will be created. Note that since AniSync fetches almost all possible AniList queries, the file will be very large. You can configure the crawler in the `config.ts` file.
+Unfortunately, due to rate limits some functions such as fetching seasonal data can take ages (up to 18-20 seconds!). To get around this, a crawler has been added to AniSync. Just create an `AniSync` object and run `AniSync#crawl()` or use the CLI. All data will get stored in a database, and any search or fetch queries will be sent to that database instead of fetching new data (see documentation below). If you need the data as a JSON file, run `AniSync#export()` and an `output.json` file will be created. Note that since AniSync fetches almost all possible AniList queries, the file will be very large. You can configure the crawler in the `config.ts` file.
+
+## CLI
+A CLI has been added for quick features such as searching, exporting, crawling, etc. Run the command below to access the command line and follow the directions prompted.
+```
+npm run cli
+```
+Or:
+```
+node ./built/cli/cli.js
+```
+
+## Web Server
+A very basic web server has been added if you want to test or have an example of how to use AniSync as an API. To run the server, run the command below and go to `localhost:3000` in your browser.
+```
+npm run start
+```
+Or:
+```
+node ./built/server.js
+```
 
 ## Documentation
 This project is meant to be a scalable database like MALSync, meaning you can create your own database of anime with direct streaming links to other sites. As of now, when you search for shows or get data from AniList, AniSync will <b>first search the created database</b> and <i>then</i> on streaming sites. This means that if you were to query trending shows on AniList, if there are <b>any shows on that list</b> that are stored in the database, <b>no requests will be made to streaming sites</b>. For example, if Attack on Titan, Demon Slayer, and Blue Lock are currently trending, but only Blue Lock is stored in the database, no requests will be made to find Attack on Titan and Demon Slayer, and Blue Lock will be returned. However, if you search specifically for Attack on Titan, Blue Lock won't be found and Attack on Titan will be stored. Now, with that out of the way, here is the documentation.
@@ -66,6 +145,30 @@ This will clean the build folder and re-install the required modules. Cleaning t
 ### Configuration
 The `config.ts` file is a basic config file that changes how AniSync works. The mapping section contains the functions of mapping anime to AniList results. Each provider can have it's own value specified, but if it doens't exist it defaults to the `config.mapping.#` value rather than the `config.mapping.provider.[provider].#` value. The crawling section are the options used when crawling through AniList.
 
+Web Server:
+<table>
+    <tr>
+        <th>Field</th>
+        <th>Description</th>
+        <th>Default Value</th>
+    </tr>
+    <tr>
+        <td>use_http</td>
+        <td>Whether to use http only requests (ex. http://graphql.anilist.co).</td>
+        <td>false</td>
+    </tr>
+    <tr>
+        <td>port</td>
+        <td>The port of the web server.</td>
+        <td>3000</td>
+    </tr>
+    <tr>
+        <td>cors</td>
+        <td>An array of acceptable cors sites.</td>
+        <td>["*"]</td>
+    </tr>
+</table>
+
 Mapping:
 <table>
     <tr>
@@ -75,12 +178,12 @@ Mapping:
     </tr>
     <tr>
         <td>threshold</td>
-        <td>The string comparison threshold at which to match a result. For example, GoSick vs GoSicko will return a threshold of about 0.98.</td>
+        <td>The string comparison threshold at which to match a search result.</td>
         <td>0.8</td>
     </tr>
     <tr>
         <td>comparison_threshold</td>
-        <td>If there are multiple names for a show (the romaji and native), the amount of successful threshold tests will be divided by the amount of tries. For example, if the name GoSick does not match My Hero Academia, the comparison threshold would be 0/1.</td>
+        <td>The string comparison threshold for matching the final result.</td>
         <td>0.8</td>
     </tr>
     <tr>
@@ -89,39 +192,18 @@ Mapping:
         <td>200</td>
     </tr>
     <tr>
-        <td>check_genres*</td>
-        <td>Whether to map genres/check them.</td>
+        <td>search_partial</td>
+        <td>Whether to break-up a search by spaces or not.</td>
         <td>false</td>
     </tr>
-</table>
-
-CrunchyRoll Options
-
-<table>
     <tr>
-        <th>Field</th>
-        <th>Description</th>
-        <th>Default Value</th>
-    </tr>
-    <tr>
-        <td>email</td>
-        <td>Email to sign-in to CrunchyRoll.</td>
-        <td>Empty String</td>
-    </tr>
-    <tr>
-        <td>password</td>
-        <td>Password to sign-in to CrunchyRoll.</td>
-        <td>Empty String</td>
-    </tr>
-    <tr>
-        <td>locale</td>
-        <td>CrunchyRoll is funky and needs a locale to use. Must be a valid CrunchyRoll locale like en-US.</td>
-        <td>en-US</td>
+        <td>partial_amount</td>
+        <td>The amount to divide a search by.</td>
+        <td>1</td>
     </tr>
 </table>
 
 AniList Options
-
 <table>
     <tr>
         <th>Field</th>
@@ -140,7 +222,7 @@ AniList Options
     </tr>
     <tr>
         <td>NEXT_SEASON</td>
-        <td>Next season's name (Spring/Winter).</td>
+        <td>Next season's name.</td>
         <td>Depends.</td>
     </tr>
     <tr>
@@ -164,28 +246,32 @@ Crawling:
     </tr>
     <tr>
         <td>anime#wait</td>
-        <td>How long to wait in milliseconds between each page. Not the same as mapping wait limit.</td>
+        <td>How long to wait in milliseconds between each page.</td>
         <td>1000</td>
     </tr>
     <tr>
         <td>anime#max_pages</td>
         <td>Max amount of AniList pages to loop through.</td>
-        <td>5</td>
+        <td>2</td>
+    </tr>
+        <tr>
+        <td>anime#start</td>
+        <td>Which page to start crawling from.</td>
+        <td>0</td>
     </tr>
 </table>
-
-*Unfinished
 
 ### Searching
 It is recommended to use AniSync's search function over other functions. It is faster and captures more data than fetching seasonal data or using multiple crawler instances. How it works is by first searching on AniList, then searching on aggregators and matching each result together. For example, if a search request contains the query `GoSick`, a request will be made to AniList. AniList might return `Gundam`, `GoSick`, and `Goblin Slayer`. A search will then be made to all aggregators. If CrunchyRoll only returns `GoSick` and `Goblin Slayer`, its ID's will be matched to each AniList response like this:
 ```json
 {
     "id": 12345,
-    "idMal": 12345,
-    "title": {
-        "english": "GoSick",
-        "romaji": "...",
-        "native": "...",
+    "anilist": {
+        "title": {
+            "english": "GoSick",
+            "romaji": "...",
+            "native": "...",
+        },
     },
     ...
     {
@@ -221,7 +307,7 @@ await aniSync.search("My Hero Acadamia season 2", "ANIME");
 ```
 
 ### Fetching Trending Data
-This is the slowest function due to how it works (but it returns the most shows, so it's used for the `crawl()` function). Since there is no good way to map data from AniList, searching for each individual show on a provider is the best solution. How this function works is by first fetching seasonal data from AniList, then loop through the each show returned and search on all aggregators the English name of the show. For example, if Blue Lock is trending, a query will be submitted to each aggregator with the name, "Blue Lock." To fetch seasonal data, an `AniSync` object is required. Then just run `getTrending()`, `getPopular()`, etc. with a type as a parameter (`"ANIME"`, or `"MANGA"`).
+This is the slowest function due to how it works. Since there is no good way to map data from AniList, searching for each individual show on a provider is the best solution. How this function works is by first fetching seasonal data from AniList, then loop through the each show returned and search on all aggregators the English name of the show. For example, if Blue Lock is trending, a query will be submitted to each aggregator with the name, "Blue Lock." To fetch seasonal data, an `AniSync` object is required. Then just run `getTrending()`, `getPopular()`, etc. with a type as a parameter (`"ANIME"`, or `"MANGA"`).
 ```javascript
 const aniSync = new AniSync();
 
@@ -339,6 +425,11 @@ interface Mapping {
     native?: string;
     genres?: string[];
 }
+
+interface Provider {
+    name: string;
+    object: any;
+}
 ```
 
 ## Contributing
@@ -354,38 +445,26 @@ export default class FourAnime extends Anime {
   }
 }
 ```
-Then, just add the connector to the `fetchData()` function in `AniSync.ts`:
+Then, just add the connector to the `classDictionary` variable in `AniSync.ts`:
 ```typescript
-public async fetchData(...): Promise<AggregatorData[]> {
-  ...
-  if (type === "ANIME") {
-    const zoro = new ZoroTo();
-    const fourAnime = new FourAnime();
-    ...
-    const zoroPromise = new Promise((resolve, reject) => {
-        zoro.search(query).then((results) => {
-            aggregatorData.push({
-                provider_name: zoro.providerName,
-                results: results
-            });
-            resolve(aggregatorData);
-        }).catch((err) => {
-            reject(err);
-        });
-    })
-    const fourPromise = new Promise((resolve, reject) => {
-        fourAnime.search(query).then((results) => {
-            aggregatorData.push({
-                provider_name: fourAnime.providerName,
-                results: results
-            });
-            resolve(aggregatorData);
-        }).catch((err) => {
-            reject(err);
-        });
-    })
-    ...
-  } else ...
+export default class AniSync extends API {
+    constructor() {
+        super(...);
+
+        const fourAnime = new FourAnime();
+        ...
+        this.classDictionary = [
+            {
+                name: tmdb.providerName,
+                object: tmdb
+            },
+            ...
+            {
+                name: fourAnime.providerName,
+                object: fourAnime
+            }
+        ]
+    }
 }
 ```
 That's it! Feedback would be appreciated...

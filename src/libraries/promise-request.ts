@@ -1,13 +1,14 @@
 import axios from "axios";
 import { pipeline } from 'node:stream';
 import { promisify } from 'node:util';
+import { config } from "../config";
 
 export default class PromiseRequest {
     private url: string;
     private options: Options;
 
     constructor(url:string, options:Options) {
-        this.url = url;
+        this.url = config.web_server.use_http ? ("http" + (url.split("https")[1])): url;
         this.options = options;
     }
 
@@ -24,6 +25,12 @@ export default class PromiseRequest {
                         options = {
                             ...options,
                             data: this.options.body
+                        }
+                    }
+                    if (options.responseType != undefined) {
+                        options = {
+                            ...options,
+                            responseType: this.options.responseType
                         }
                     }
 
@@ -65,11 +72,11 @@ export default class PromiseRequest {
         
                         resolve(res);
                     }).catch((err) => {
-                        console.error(err);
+                        reject(err);
                     });
                 }
             } catch (e) {
-                console.error(e);
+                console.error(e.message);
             }
         });
     }
@@ -113,6 +120,7 @@ type Options = {
     body?: string|URLSearchParams|FormData|any;
     maxRedirects?: number;
     stream?: boolean;
+    responseType?: string;
 };
 
 interface Response {

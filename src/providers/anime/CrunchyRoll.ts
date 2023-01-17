@@ -1,3 +1,4 @@
+import * as colors from "colors";
 import { config } from "../../config";
 import Anime, { SearchResponse } from "./Anime";
 import Cronchy from "cronchy";
@@ -34,7 +35,7 @@ export default class CrunchyRoll extends Anime {
 
         if (!json) {
             if (config.crawling.debug) {
-                console.log("Unable to fetch data for " + query + ".");
+                console.log(colors.cyan("[CrunchyRoll]") + colors.red("Unable to fetch data for " + colors.white(query) + "."));
             }
             return [];
         }
@@ -43,7 +44,7 @@ export default class CrunchyRoll extends Anime {
         const item = data[1] ? data[1] : data[0];
         const items:Item[] = item ? item.items : null;
         if (!items) {
-            console.log("Unable to parse data.");
+            console.log(colors.cyan("[CrunchyRoll]") + colors.red("Unable to parse data for " + query + "."));
             return [];
         }
         items.map((item, index) => {

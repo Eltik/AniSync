@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const colors = require("colors");
 const config_1 = require("../../config");
 const Anime_1 = require("./Anime");
 const cronchy_1 = require("cronchy");
@@ -29,7 +30,7 @@ class CrunchyRoll extends Anime_1.default {
         });
         if (!json) {
             if (config_1.config.crawling.debug) {
-                console.log("Unable to fetch data for " + query + ".");
+                console.log(colors.cyan("[CrunchyRoll]") + colors.red("Unable to fetch data for " + colors.white(query) + "."));
             }
             return [];
         }
@@ -37,7 +38,7 @@ class CrunchyRoll extends Anime_1.default {
         const item = data[1] ? data[1] : data[0];
         const items = item ? item.items : null;
         if (!items) {
-            console.log("Unable to parse data.");
+            console.log(colors.cyan("[CrunchyRoll]") + colors.red("Unable to parse data for " + query + "."));
             return [];
         }
         items.map((item, index) => {

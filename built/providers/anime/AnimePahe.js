@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const colors = require("colors");
 const config_1 = require("../../config");
 const Anime_1 = require("./Anime");
 class AnimePahe extends Anime_1.default {
@@ -11,7 +12,7 @@ class AnimePahe extends Anime_1.default {
         const data = req.json();
         if (!data.data) {
             if (config_1.config.crawling.debug) {
-                console.log("Unable to fetch data for " + query + ".");
+                console.log(colors.cyan("[CrunchyRoll]") + colors.red("Unable to parse data for " + query + "."));
             }
             return [];
         }
