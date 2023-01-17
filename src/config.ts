@@ -1,6 +1,6 @@
 export var config = {
     web_server: {
-        use_http: true,
+        use_http: false,
         port: 3000,
         cors: ["*"],
     },

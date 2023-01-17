@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.config = void 0;
 exports.config = {
     web_server: {
-        use_http: true,
+        use_http: false,
         port: 3000,
         cors: ["*"],
     },
