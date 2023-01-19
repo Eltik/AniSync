@@ -73,6 +73,10 @@ class Anime extends API_1.default {
         (0, fs_1.createWriteStream)(output).write(JSON.stringify(all, null, 4));
         return output;
     }
+    async getTotal() {
+        const total = await this.getAll();
+        return total.length;
+    }
     async clear() {
         const db = this.db;
         const stmt = db.prepare("DELETE FROM anime");

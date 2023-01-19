@@ -67,6 +67,10 @@ class Manga extends API_1.default {
             });
         });
     }
+    async getTotal() {
+        const total = await this.getAll();
+        return total.length;
+    }
     async export() {
         const all = await this.getAll();
         const output = (0, path_1.join)(__dirname, "../../../output.json");

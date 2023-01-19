@@ -73,6 +73,11 @@ export default class Manga extends API {
         });
     }
 
+    public async getTotal(): Promise<number> {
+        const total = await this.getAll();
+        return total.length;
+    }
+
     public async export(): Promise<String> {
         const all = await this.getAll();
         const output = join(__dirname, "../../../output.json");

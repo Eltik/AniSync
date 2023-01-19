@@ -42,6 +42,18 @@ fastify.get("/", async(req, res) => {
     return { hello: "world" };
 })
 
+fastify.get("/stats", async(req, res) => {
+    res.type("application/json").code(200);
+    return {
+        anime: {
+            total: await anime.getTotal()
+        },
+        manga: {
+            total: await manga.getTotal()
+        }
+    }
+})
+
 fastify.get("/popular/:type", async(req, res) => {
     const type = req.params["type"];
 

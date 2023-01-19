@@ -81,6 +81,11 @@ export default class Anime extends API {
         return output;
     }
 
+    public async getTotal(): Promise<number> {
+        const total = await this.getAll();
+        return total.length;
+    }
+
     public async clear(): Promise<void> {
         const db = this.db;
         const stmt = db.prepare("DELETE FROM anime");
