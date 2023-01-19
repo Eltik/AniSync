@@ -11,7 +11,6 @@ exports.config = {
         threshold: 0.8,
         comparison_threshold: 0.8,
         wait: 200,
-        check_genres: false,
         search_partial: false,
         partial_amount: 1,
         provider: {

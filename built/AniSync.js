@@ -17,7 +17,7 @@ const CrunchyRoll_1 = require("./providers/anime/CrunchyRoll");
 const Kitsu_1 = require("./providers/meta/Kitsu");
 const colors = require("colors");
 class AniSync extends API_1.default {
-    constructor() {
+    constructor(opts) {
         super(API_1.ProviderType.NONE);
         this.stringSim = new StringSimilarity_1.default();
         this.classDictionary = [];
@@ -159,6 +159,65 @@ class AniSync extends API_1.default {
                 }
             });
             const result = this.formatData(comparison);
+            return result;
+        }
+        else {
+            throw new Error("Invalid type. Valid types include ANIME and MANGA.");
+        }
+    }
+    // Same as the search function, but rather searches for genres specifically.
+    async searchGenres(type, includedGenres, excludedGenres) {
+        const promises = [];
+        if (type === "ANIME") {
+            const aniData = [null];
+            // Most likely will have to change TV to MOVIE, OVA, etc.
+            const aniList = new AniList_1.default("", type, AniList_1.Format.TV);
+            const anime = new Zoro_1.default();
+            const aniListPromise = new Promise((resolve, reject) => {
+                aniList.searchGenres(includedGenres, excludedGenres).then((result) => {
+                    const data = result.data.Page.media;
+                    aniData.push(...data);
+                    resolve(aniData);
+                });
+            });
+            promises.push(aniListPromise);
+            await Promise.all(promises);
+            // Search AniList first, then search the other providers.
+            const possibleData = await this.searchAnimeData(aniData);
+            if (possibleData.length > 0) {
+                return possibleData;
+            }
+            const result = await this.fetchCrawlData(aniData, type).catch((err) => {
+                console.error(err);
+                return [];
+            });
+            await anime.insert(result);
+            return result;
+        }
+        else if (type === "MANGA") {
+            const aniData = [null];
+            // Most likely will have to change MANGA to ONE_SHOT as well.
+            const aniList = new AniList_1.default("", type, AniList_1.Format.MANGA);
+            const manga = new ComicK_1.default();
+            const aniListPromise = new Promise((resolve, reject) => {
+                aniList.searchGenres(includedGenres, excludedGenres).then((result) => {
+                    const data = result.data.Page.media;
+                    aniData.push(...data);
+                    resolve(aniData);
+                });
+            });
+            promises.push(aniListPromise);
+            await Promise.all(promises);
+            // Search AniList first, then search the other providers.
+            const possibleData = await this.searchMangaData(aniData);
+            if (possibleData.length > 0) {
+                return possibleData;
+            }
+            const result = await this.fetchCrawlData(aniData, type).catch((err) => {
+                console.error(err);
+                return [];
+            });
+            await manga.insert(result);
             return result;
         }
         else {
@@ -340,6 +399,10 @@ class AniSync extends API_1.default {
             for (let i = 0; i < season.length; i++) {
                 const promise = new Promise(async (resolve, reject) => {
                     const aniData = season[i];
+                    if (!aniData) {
+                        resolve(false);
+                        return;
+                    }
                     const possible = await this.getShow(String(aniData.id));
                     if (!possible) {
                         const title = aniData.title.english ? aniData.title.english : aniData.title.romaji;
@@ -381,6 +444,10 @@ class AniSync extends API_1.default {
             for (let i = 0; i < season.length; i++) {
                 const promise = new Promise(async (resolve, reject) => {
                     const aniData = season[i];
+                    if (!aniData) {
+                        resolve(false);
+                        return;
+                    }
                     const possible = await this.getManga(String(aniData.id));
                     if (!possible) {
                         const title = aniData.title.english;

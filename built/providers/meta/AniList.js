@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Sort = exports.Format = void 0;
+exports.Genres = exports.Sort = exports.Format = void 0;
 const config_1 = require("../../config");
 const API_1 = require("../../API");
 class AniList extends API_1.default {
@@ -53,13 +53,19 @@ class AniList extends API_1.default {
     averageScore
     popularity
     favourites
-    hashtag
     countryOfOrigin
     isLicensed
-    nextAiringEpisode {
-        airingAt
-        timeUntilAiring
-        episode
+    airingSchedule {
+        edges {
+            id
+            node{
+                id
+                airingAt
+                timeUntilAiring
+                episode
+                mediaId
+            }
+        }
     }
     relations {
         edges {
@@ -190,6 +196,60 @@ class AniList extends API_1.default {
                 type: type,
                 format: format,
                 sort: sort
+            }
+        };
+        try {
+            const req = await this.fetch(this.api, {
+                body: JSON.stringify(aniListArgs),
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            });
+            const data = req.json();
+            if (!data || !data.data || !data.data.Page.pageInfo || !data.data.Page.media) {
+                throw new Error(req.text());
+            }
+            return data;
+        }
+        catch (e) {
+            throw new Error(e.message);
+        }
+    }
+    async searchGenres(included, excluded, page, perPage, type, format, sort) {
+        included = included ? included : [];
+        excluded = excluded ? excluded : [];
+        page = page ? page : 0;
+        perPage = perPage ? perPage : 18;
+        type = type ? type : this.type;
+        format = format ? format : this.format;
+        sort = sort ? sort : Sort.POPULARITY_DESC;
+        this.format = format;
+        const aniListArgs = {
+            query: `
+            query($page: Int, $perPage: Int, $type: MediaType, $format: [MediaFormat], $genres: [String], $excludedGenres: [String], $sort: [MediaSort]) {
+                Page(page: $page, perPage: $perPage) {
+                    pageInfo {
+                        total
+                        currentPage
+                        lastPage
+                        hasNextPage
+                        perPage
+                    }
+                    media(type: $type, format_in: $format, genre_in: $genres, genre_not_in: $excludedGenres, sort: $sort) {
+                        ${this.query}
+                    }
+                }
+            }
+            `,
+            variables: {
+                page: page,
+                perPage: perPage,
+                type: type,
+                format: format,
+                sort: sort,
+                genres: included,
+                excludedGenres: excluded
             }
         };
         try {
@@ -421,5 +481,26 @@ var Sort;
     Sort["UPDATED_AT"] = "UPDATED_AT";
     Sort["UPDATED_AT_DESC"] = "UPDATED_AT_DESC";
 })(Sort = exports.Sort || (exports.Sort = {}));
+var Genres;
+(function (Genres) {
+    Genres["ACTION"] = "Action";
+    Genres["ADVENTURE"] = "Adventure";
+    Genres["COMEDY"] = "Comedy";
+    Genres["DRAMA"] = "Drama";
+    Genres["ECCHI"] = "Ecchi";
+    Genres["FANTASY"] = "Fantasy";
+    Genres["HORROR"] = "Horror";
+    Genres["MAHOU_SHOUJO"] = "Mahou Shoujo";
+    Genres["MECHA"] = "Mecha";
+    Genres["MUSIC"] = "Music";
+    Genres["MYSTERY"] = "Mystery";
+    Genres["PSYCHOLOGICAL"] = "Psychological";
+    Genres["ROMANCE"] = "Romance";
+    Genres["SCI_FI"] = "Sci-Fi";
+    Genres["SLICE_OF_LIFE"] = "Slice of Life";
+    Genres["SPORTS"] = "Sports";
+    Genres["SUPERNATURAL"] = "Supernatural";
+    Genres["THRILLER"] = "Thriller";
+})(Genres = exports.Genres || (exports.Genres = {}));
 ;
 //# sourceMappingURL=AniList.js.map

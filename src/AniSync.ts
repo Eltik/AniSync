@@ -1,7 +1,7 @@
 import API, { ProviderType } from "./API";
 import StringSimilarity from "./libraries/StringSimilarity";
 import { config } from "./config";
-import AniList, { Format, Media, Type } from "./providers/meta/AniList";
+import AniList, { Format, Genres, Media, Type } from "./providers/meta/AniList";
 import { SearchResponse } from "./providers/anime/Anime";
 import TMDB from "./providers/meta/TMDB";
 import ComicK from "./providers/manga/ComicK";
@@ -21,7 +21,7 @@ export default class AniSync extends API {
     private crunchyroll:CrunchyRoll;
     public classDictionary:Provider[] = [];
 
-    constructor() {
+    constructor(opts?:Options) {
         super(ProviderType.NONE);
 
         this.crunchyroll = new CrunchyRoll();
@@ -177,6 +177,77 @@ export default class AniSync extends API {
             });
 
             const result = this.formatData(comparison);
+            return result;
+        } else {
+            throw new Error("Invalid type. Valid types include ANIME and MANGA.");
+        }
+    }
+
+    // Same as the search function, but rather searches for genres specifically.
+    public async searchGenres(type:Type["ANIME"]|Type["MANGA"], includedGenres?:Genres[], excludedGenres?:Genres[]): Promise<Result[]> {
+        const promises = [];
+
+        if (type === "ANIME") {
+            const aniData:Media[] = [null];
+
+            // Most likely will have to change TV to MOVIE, OVA, etc.
+            const aniList = new AniList("", type, Format.TV);
+            const anime = new Zoro();
+            
+            const aniListPromise = new Promise((resolve, reject) => {
+                aniList.searchGenres(includedGenres, excludedGenres).then((result) => {
+                    const data = result.data.Page.media;
+                    aniData.push(...data);
+                    resolve(aniData);
+                });
+            });
+            promises.push(aniListPromise);
+            await Promise.all(promises);
+
+            // Search AniList first, then search the other providers.
+            const possibleData = await this.searchAnimeData(aniData);
+            if (possibleData.length > 0) {
+                return possibleData;
+            }
+            
+            const result:Result[] = await this.fetchCrawlData(aniData, type).catch((err) => {
+                console.error(err);
+                return [];
+            });
+
+            await anime.insert(result);
+
+            return result;
+        } else if (type === "MANGA") {
+            const aniData:Media[] = [null];
+
+            // Most likely will have to change MANGA to ONE_SHOT as well.
+            const aniList = new AniList("", type, Format.MANGA);
+            const manga = new ComicK();
+            
+            const aniListPromise = new Promise((resolve, reject) => {
+                aniList.searchGenres(includedGenres, excludedGenres).then((result) => {
+                    const data = result.data.Page.media;
+                    aniData.push(...data);
+                    resolve(aniData);
+                });
+            });
+            promises.push(aniListPromise);
+            await Promise.all(promises);
+
+            // Search AniList first, then search the other providers.
+            const possibleData = await this.searchMangaData(aniData);
+            if (possibleData.length > 0) {
+                return possibleData;
+            }
+            
+            const result:Result[] = await this.fetchCrawlData(aniData, type).catch((err) => {
+                console.error(err);
+                return [];
+            });
+
+            await manga.insert(result);
+
             return result;
         } else {
             throw new Error("Invalid type. Valid types include ANIME and MANGA.");
@@ -400,6 +471,10 @@ export default class AniSync extends API {
             for (let i = 0; i < season.length; i++) {
                 const promise = new Promise(async(resolve, reject) => {
                     const aniData = season[i];
+                    if (!aniData) {
+                        resolve(false);
+                        return;
+                    }
 
                     const possible = await this.getShow(String(aniData.id));
                     if (!possible) {
@@ -444,6 +519,10 @@ export default class AniSync extends API {
             for (let i = 0; i < season.length; i++) {
                 const promise = new Promise(async(resolve, reject) => {
                     const aniData = season[i];
+                    if (!aniData) {
+                        resolve(false);
+                        return;
+                    }
 
                     const possible = await this.getManga(String(aniData.id));
                     if (!possible) {
@@ -851,6 +930,25 @@ interface Mapping {
 interface Provider {
     name: string;
     object: any;
+}
+
+interface Options {
+    mapping?: {
+        threshold?: number,
+        comparison_threshold?: number,
+        wait?: number,
+        search_partial?: boolean,
+        partial_amount?: number
+    },
+    crawling?: {
+        database_path?: string,
+        debug?: boolean,
+        anime?: {
+            wait?: number,
+            max_pages?: number,
+            start?: number
+        }
+    }
 }
 
 export type { Result, Provider };
