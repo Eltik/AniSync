@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Sort = exports.Format = void 0;
 const config_1 = require("../../config");
 const API_1 = require("../../API");
 class AniList extends API_1.default {
@@ -141,7 +142,7 @@ class AniList extends API_1.default {
         this.id = this.parseURL(id);
         this.isMal = isMal;
         this.type = type ? type : "ANIME";
-        this.format = format ? format : "TV";
+        this.format = format ? format : Format.TV;
     }
     parseURL(id) {
         id = id ? id : this.id;
@@ -160,7 +161,7 @@ class AniList extends API_1.default {
         perPage = perPage ? perPage : 18;
         type = type ? type : this.type;
         format = format ? format : this.format;
-        sort = sort ? sort : "POPULARITY_DESC";
+        sort = sort ? sort : Sort.POPULARITY_DESC;
         this.format = format;
         if (!this.type || !this.format) {
             throw new Error("No format/type provided.");
@@ -386,5 +387,39 @@ class AniList extends API_1.default {
     }
 }
 exports.default = AniList;
+var Format;
+(function (Format) {
+    Format["TV"] = "TV";
+    Format["TV_SHORT"] = "TV_SHORT";
+    Format["MOVIE"] = "MOVIE";
+    Format["SPECIAL"] = "SPECIAL";
+    Format["OVA"] = "OVA";
+    Format["ONA"] = "ONA";
+    Format["MUSIC"] = "MUSIC";
+    Format["MANGA"] = "MANGA";
+    Format["NOVEL"] = "NOVEL";
+    Format["ONE_SHOT"] = "ONE_SHOT";
+})(Format = exports.Format || (exports.Format = {}));
+var Sort;
+(function (Sort) {
+    Sort["ID"] = "ID";
+    Sort["ID_DESC"] = "ID_DESC";
+    Sort["TITLE_ROMAJI"] = "TITLE_ROMAJI";
+    Sort["TITLE_ROMAJI_DESC"] = "TITLE_ROMAJI_DESC";
+    Sort["TYPE"] = "TYPE";
+    Sort["FORMAT"] = "FORMAT";
+    Sort["FORMAT_DESC"] = "FORMAT_DESC";
+    Sort["SCORE"] = "SCORE";
+    Sort["SCORE_DESC"] = "SCORE_DESC";
+    Sort["POPULARITY"] = "POPULARITY";
+    Sort["POPULARITY_DESC"] = "POPULARITY_DESC";
+    Sort["TRENDING"] = "TRENDING";
+    Sort["TRENDING_DESC"] = "TRENDING_DESC";
+    Sort["CHAPTERS"] = "CHAPTERS";
+    Sort["CHAPTERS_DESC"] = "CHAPTERS_DESC";
+    Sort["VOLUMES"] = "VOLUMES";
+    Sort["UPDATED_AT"] = "UPDATED_AT";
+    Sort["UPDATED_AT_DESC"] = "UPDATED_AT_DESC";
+})(Sort = exports.Sort || (exports.Sort = {}));
 ;
 //# sourceMappingURL=AniList.js.map

@@ -23,7 +23,7 @@ export default class CrunchyRoll extends Anime {
         this.hasInit = true;
         setInterval(() => {
             this.cronchy.login();
-        }, 30000)
+        }, 25000)
         return this.cronchy;
     }
 

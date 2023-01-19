@@ -1,7 +1,7 @@
 import API, { ProviderType } from "./API";
 import StringSimilarity from "./libraries/StringSimilarity";
 import { config } from "./config";
-import AniList, { Media, Type } from "./providers/meta/AniList";
+import AniList, { Format, Media, Type } from "./providers/meta/AniList";
 import { SearchResponse } from "./providers/anime/Anime";
 import TMDB from "./providers/meta/TMDB";
 import ComicK from "./providers/manga/ComicK";
@@ -94,7 +94,7 @@ export default class AniSync extends API {
             const aniData:Media[] = [null];
 
             // Most likely will have to change TV to MOVIE, OVA, etc.
-            const aniList = new AniList("", type, "TV");
+            const aniList = new AniList("", type, Format.TV);
             
             const aniListPromise = new Promise((resolve, reject) => {
                 aniList.search(query).then((result) => {
@@ -138,7 +138,7 @@ export default class AniSync extends API {
             const aniData:Media[] = [null];
 
             // Most likely will have to change MANGA to ONE_SHOT as well.
-            const aniList = new AniList("", type, "MANGA");
+            const aniList = new AniList("", type, Format.MANGA);
             
             const aniListPromise = new Promise((resolve, reject) => {
                 aniList.search(query).then((result) => {
@@ -190,7 +190,7 @@ export default class AniSync extends API {
 
         if (type === "ANIME") {
             let canCrawl = true;
-            const aniList = new AniList("", type, "TV");
+            const aniList = new AniList("", type, Format.TV);
             const anime = new Zoro();
 
             for (let i = start; i < maxPages && canCrawl; i++) {
@@ -228,7 +228,7 @@ export default class AniSync extends API {
             }
             console.log(colors.cyan("Finished crawling!"));
         } else {
-            const aniList = new AniList("", type, "MANGA");
+            const aniList = new AniList("", type, Format.MANGA);
             const manga = new ComicK();
             let canCrawl = true;
 
@@ -272,7 +272,7 @@ export default class AniSync extends API {
     public async getTrending(type:Type["ANIME"]|Type["MANGA"]):Promise<Result[]> {
         if (type === "ANIME") {
             // Most likely will have to change TV to MOVIE, OVA, etc.
-            const aniList = new AniList("", type, "TV");
+            const aniList = new AniList("", type, Format.TV);
             
             const data = await aniList.getSeasonal();
             const trending:Media[] = data.data.trending.media;
@@ -281,7 +281,7 @@ export default class AniSync extends API {
             return trendingData;
         } else {
             // Most likely will have to change TV to MOVIE, OVA, etc.
-            const aniList = new AniList("", type, "MANGA");
+            const aniList = new AniList("", type, Format.MANGA);
             
             const data = await aniList.getSeasonal();
             const trending:Media[] = data.data.trending.media;
@@ -294,7 +294,7 @@ export default class AniSync extends API {
     public async getSeason(type:Type["ANIME"]|Type["MANGA"]):Promise<Result[]> {
         if (type === "ANIME") {
             // Most likely will have to change TV to MOVIE, OVA, etc.
-            const aniList = new AniList("", type, "TV");
+            const aniList = new AniList("", type, Format.TV);
             
             const data = await aniList.getSeasonal();
             const season:Media[] = data.data.season.media;
@@ -303,7 +303,7 @@ export default class AniSync extends API {
             return seasonData;
         } else {
             // Most likely will have to change TV to MOVIE, OVA, etc.
-            const aniList = new AniList("", type, "MANGA");
+            const aniList = new AniList("", type, Format.MANGA);
             
             const data = await aniList.getSeasonal();
             const season:Media[] = data.data.season.media;
@@ -316,7 +316,7 @@ export default class AniSync extends API {
     public async getPopular(type:Type["ANIME"]|Type["MANGA"]):Promise<Result[]> {
         if (type === "ANIME") {
             // Most likely will have to change TV to MOVIE, OVA, etc.
-            const aniList = new AniList("", type, "TV");
+            const aniList = new AniList("", type, Format.TV);
             
             const data = await aniList.getSeasonal();
             const popular:Media[] = data.data.popular.media;
@@ -325,7 +325,7 @@ export default class AniSync extends API {
             return popularData;
         } else {
             // Most likely will have to change TV to MOVIE, OVA, etc.
-            const aniList = new AniList("", type, "MANGA");
+            const aniList = new AniList("", type, Format.MANGA);
             
             const data = await aniList.getSeasonal();
             const popular:Media[] = data.data.popular.media;
@@ -338,7 +338,7 @@ export default class AniSync extends API {
     public async getTop(type:Type["ANIME"]|Type["MANGA"]):Promise<Result[]> {
         if (type === "ANIME") {
             // Most likely will have to change TV to MOVIE, OVA, etc.
-            const aniList = new AniList("", type, "TV");
+            const aniList = new AniList("", type, Format.TV);
             
             const data = await aniList.getSeasonal();
             const top:Media[] = data.data.top.media;
@@ -347,7 +347,7 @@ export default class AniSync extends API {
             return topData;
         } else {
             // Most likely will have to change TV to MOVIE, OVA, etc.
-            const aniList = new AniList("", type, "MANGA");
+            const aniList = new AniList("", type, Format.MANGA);
             
             const data = await aniList.getSeasonal();
             const top:Media[] = data.data.top.media;
@@ -361,7 +361,7 @@ export default class AniSync extends API {
         // WILL MOST LIKELY HAVE NO RESULTS
         if (type === "ANIME") {
             // Most likely will have to change TV to MOVIE, OVA, etc.
-            const aniList = new AniList("", type, "TV");
+            const aniList = new AniList("", type, Format.TV);
             
             const data = await aniList.getSeasonal();
             const nextSeason:Media[] = data.data.nextSeason.media;
@@ -370,7 +370,7 @@ export default class AniSync extends API {
             return nextData;
         } else {
             // Most likely will have to change TV to MOVIE, OVA, etc.
-            const aniList = new AniList("", type, "MANGA");
+            const aniList = new AniList("", type, Format.MANGA);
             
             const data = await aniList.getSeasonal();
             const nextSeason:Media[] = data.data.nextSeason.media;

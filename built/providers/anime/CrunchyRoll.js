@@ -20,7 +20,7 @@ class CrunchyRoll extends Anime_1.default {
         this.hasInit = true;
         setInterval(() => {
             this.cronchy.login();
-        }, 30000);
+        }, 25000);
         return this.cronchy;
     }
     async search(query) {

@@ -5,7 +5,7 @@ export default class AniList extends API {
     private api:string = "https://graphql.anilist.co";
     public id:string = undefined;
     public type:Type["ANIME"]|Type["MANGA"] = undefined;
-    private format:Format["TV"]|Format["TV_SHORT"]|Format["MOVIE"]|Format["SPECIAL"]|Format["OVA"]|Format["ONA"]|Format["MUSIC"]|Format["MANGA"]|Format["NOVEL"]|Format["ONE_SHOT"] = undefined;
+    private format:Format = undefined;
     public isMal:boolean = false;
     private config = config.mapping.provider.AniList;
 
@@ -137,12 +137,12 @@ export default class AniList extends API {
     }
     `;
 
-    constructor(id?:string, type?:Type["ANIME"]|Type["MANGA"], format?:Format["TV"]|Format["TV_SHORT"]|Format["MOVIE"]|Format["SPECIAL"]|Format["OVA"]|Format["ONA"]|Format["MUSIC"]|Format["MANGA"]|Format["NOVEL"]|Format["ONE_SHOT"], isMal?:boolean) {
+    constructor(id?:string, type?:Type["ANIME"]|Type["MANGA"], format?:Format, isMal?:boolean) {
         super(ProviderType.META);
         this.id = this.parseURL(id);
         this.isMal = isMal;
         this.type = type ? type : "ANIME";
-        this.format = format ? format : "TV";
+        this.format = format ? format : Format.TV;
     }
 
     public parseURL(id?:any):string {
@@ -157,12 +157,12 @@ export default class AniList extends API {
         }
     }
 
-    public async search(query:string, page?:number, perPage?:number, type?:Type["ANIME"]|Type["MANGA"], format?:Format["TV"]|Format["TV_SHORT"]|Format["MOVIE"]|Format["SPECIAL"]|Format["OVA"]|Format["ONA"]|Format["MUSIC"]|Format["MANGA"]|Format["NOVEL"]|Format["ONE_SHOT"], sort?:Sort["CHAPTERS"]|Sort["CHAPTERS_DESC"]|Sort["FORMAT"]|Sort["FORMAT_DESC"]|Sort["ID"]|Sort["ID_DESC"]|Sort["POPULARITY"]|Sort["POPULARITY_DESC"]|Sort["SCORE"]|Sort["SCORE_DESC"]|Sort["TITLE_ROMAJI"]|Sort["TITLE_ROMAJI_DESC"]|Sort["TRENDING"]|Sort["TRENDING_DESC"]|Sort["TYPE"]|Sort["UPDATED_AT"]|Sort["UPDATED_AT_DESC"]|Sort["VOLUMES"]): Promise<SearchResponse> {
+    public async search(query:string, page?:number, perPage?:number, type?:Type["ANIME"]|Type["MANGA"], format?:Format, sort?:Sort): Promise<SearchResponse> {
         page = page ? page : 0;
         perPage = perPage ? perPage : 18;
         type = type ? type : this.type;
         format = format ? format : this.format;
-        sort = sort ? sort : "POPULARITY_DESC";
+        sort = sort ? sort : Sort.POPULARITY_DESC;
         this.format = format;
         if (!this.type || !this.format) {
             throw new Error("No format/type provided.");
@@ -412,38 +412,38 @@ interface Type {
     MANGA: "MANGA"
 }
 
-interface Format {
-    TV: "TV",
-    TV_SHORT: "TV_SHORT",
-    MOVIE: "MOVIE",
-    SPECIAL: "SPECIAL",
-    OVA: "OVA",
-    ONA: "ONA",
-    MUSIC: "MUSIC",
-    MANGA: "MANGA",
-    NOVEL: "NOVEL",
-    ONE_SHOT: "ONE_SHOT"
+export enum Format {
+    TV = "TV",
+    TV_SHORT = "TV_SHORT",
+    MOVIE = "MOVIE",
+    SPECIAL = "SPECIAL",
+    OVA = "OVA",
+    ONA = "ONA",
+    MUSIC = "MUSIC",
+    MANGA = "MANGA",
+    NOVEL = "NOVEL",
+    ONE_SHOT = "ONE_SHOT"
 }
 
-interface Sort {
-    ID: "ID",
-    ID_DESC: "ID_DESC",
-    TITLE_ROMAJI: "TITLE_ROMAJI",
-    TITLE_ROMAJI_DESC: "TITLE_ROMAJI_DESC",
-    TYPE: "TYPE",
-    FORMAT: "FORMAT",
-    FORMAT_DESC: "FORMAT_DESC",
-    SCORE: "SCORE",
-    SCORE_DESC: "SCORE_DESC",
-    POPULARITY: "POPULARITY",
-    POPULARITY_DESC: "POPULARITY_DESC",
-    TRENDING: "TRENDING",
-    TRENDING_DESC: "TRENDING_DESC",
-    CHAPTERS: "CHAPTERS",
-    CHAPTERS_DESC: "CHAPTERS_DESC",
-    VOLUMES: "VOLUMES",
-    UPDATED_AT: "UPDATED_AT",
-    UPDATED_AT_DESC: "UPDATED_AT_DESC"
+export enum Sort {
+    ID = "ID",
+    ID_DESC = "ID_DESC",
+    TITLE_ROMAJI = "TITLE_ROMAJI",
+    TITLE_ROMAJI_DESC = "TITLE_ROMAJI_DESC",
+    TYPE = "TYPE",
+    FORMAT = "FORMAT",
+    FORMAT_DESC = "FORMAT_DESC",
+    SCORE = "SCORE",
+    SCORE_DESC = "SCORE_DESC",
+    POPULARITY = "POPULARITY",
+    POPULARITY_DESC = "POPULARITY_DESC",
+    TRENDING = "TRENDING",
+    TRENDING_DESC = "TRENDING_DESC",
+    CHAPTERS = "CHAPTERS",
+    CHAPTERS_DESC = "CHAPTERS_DESC",
+    VOLUMES = "VOLUMES",
+    UPDATED_AT = "UPDATED_AT",
+    UPDATED_AT_DESC = "UPDATED_AT_DESC"
 }
 
 interface AniListResponse {
@@ -475,7 +475,7 @@ interface Media {
     season:"WINTER"|"SPRING"|"SUMMER"|"FALL";
     seasonYear:number;
     type:Type["ANIME"]|Type["MANGA"];
-    format:Format["MANGA"]|Format["MOVIE"]|Format["MUSIC"]|Format["NOVEL"]|Format["ONA"]|Format["ONE_SHOT"]|Format["OVA"]|Format["SPECIAL"]|Format["TV"]|Format["TV_SHORT"];
+    format:Format;
     status:"FINISHED"|"RELEASING"|"NOT_YET_RELEASED"|"CANCELLED";
     episodes?:number;
     duration?:number;
@@ -506,7 +506,7 @@ interface Media {
                 title: {
                     userPreferred:string;
                 };
-                format:Format["MANGA"]|Format["MOVIE"]|Format["MUSIC"]|Format["NOVEL"]|Format["ONA"]|Format["ONE_SHOT"]|Format["OVA"]|Format["SPECIAL"]|Format["TV"]|Format["TV_SHORT"];
+                format:Format;
                 type:Type["ANIME"]|Type["MANGA"];
                 status:string;
                 bannerImage:string;
@@ -617,4 +617,4 @@ interface SeasonalResponse {
     }
 }
 
-export type { Format, Type, Media, SearchResponse, SeasonalResponse };
+export type { Type, Media, SearchResponse, SeasonalResponse };
