@@ -57,13 +57,10 @@ class AniList extends API_1.default {
     isLicensed
     airingSchedule {
         edges {
-            id
-            node{
-                id
+            node {
                 airingAt
                 timeUntilAiring
                 episode
-                mediaId
             }
         }
     }
@@ -133,16 +130,6 @@ class AniList extends API_1.default {
     tags {
         id
         name
-    }
-    stats {
-        statusDistribution {
-            status
-            amount
-        }
-        scoreDistribution {
-            score
-            amount
-        }
     }
     `;
         this.id = this.parseURL(id);

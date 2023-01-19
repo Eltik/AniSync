@@ -54,13 +54,10 @@ export default class AniList extends API {
     isLicensed
     airingSchedule {
         edges {
-            id
-            node{
-                id
+            node {
                 airingAt
                 timeUntilAiring
                 episode
-                mediaId
             }
         }
     }
@@ -130,16 +127,6 @@ export default class AniList extends API {
     tags {
         id
         name
-    }
-    stats {
-        statusDistribution {
-            status
-            amount
-        }
-        scoreDistribution {
-            score
-            amount
-        }
     }
     `;
 
@@ -574,14 +561,17 @@ interface Media {
     averageScore:number;
     popularity:number;
     favourites:number;
-    hashtag?:string;
     countryOfOrigin:string;
     isLicensed:boolean;
-    nextAiringEpisode: {
-        airingAt:number;
-        timeUntilAiring:number;
-        episode:number;
-    };
+    airingSchedule: {
+        edges: {
+            node: {
+                airingAt?:any;
+                timeUntilAiring?:any
+                episode?:any;
+            }
+        }
+    }
     relations: {
         edges: {
             id:number;
@@ -648,16 +638,6 @@ interface Media {
     tags: {
         id:number;
         name:string;
-    };
-    stats: {
-        statusDistribution: {
-            status:"CURRENT"|"PLANNING"|"COMPLETED"|"DROPPED"|"PAUSED"|"REPEATING";
-            amount:number;
-        };
-        scoreDistribution: {
-            score:number;
-            amount:number;
-        };
     };
 };
 

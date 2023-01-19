@@ -32,7 +32,7 @@ fastifyPlugins.push(corsPlugin);
 fastifyPlugins.push(formBody);
 fastify.get("/", async (req, res) => {
     res.type("application/json").code(200);
-    return { hello: "world" };
+    return "Welcome to AniSync.";
 });
 fastify.get("/stats", async (req, res) => {
     res.type("application/json").code(200);

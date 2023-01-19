@@ -35,7 +35,7 @@ exports.config = {
                 wait: 200,
                 search_partial: true,
                 partial_amount: 0.95,
-                disabled: true
+                disabled: false
             },
             // Gogo only provides romaji titles.
             GogoAnime: {
@@ -87,8 +87,8 @@ exports.config = {
             },
             // Relatively accurate.
             MangaDex: {
-                threshold: 0.8,
-                comparison_threshold: 0.8,
+                threshold: 0.65,
+                comparison_threshold: 0.65,
                 wait: 200,
                 search_partial: false,
                 partial_amount: 1,
@@ -135,7 +135,7 @@ exports.config = {
         debug: true,
         anime: {
             wait: 1000,
-            max_pages: 2,
+            max_pages: 10,
             start: 0
         }
     }

@@ -244,7 +244,7 @@ class AniSync extends API_1.default {
                 }
                 const debugTimer = new Date(Date.now());
                 if (config_1.config.crawling.debug) {
-                    console.log(colors.gray("Fetching seasonal data..."));
+                    console.log(colors.gray("Fetched seasonal data..."));
                 }
                 const data = await this.fetchCrawlData(aniListMedia, type);
                 if (config_1.config.crawling.debug) {
@@ -275,7 +275,7 @@ class AniSync extends API_1.default {
                 }
                 const debugTimer = new Date(Date.now());
                 if (config_1.config.crawling.debug) {
-                    console.log(colors.gray("Fetching seasonal data..."));
+                    console.log(colors.gray("Fetched seasonal data..."));
                 }
                 const data = await this.fetchCrawlData(aniListMedia, type);
                 if (config_1.config.crawling.debug) {
