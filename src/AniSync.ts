@@ -254,30 +254,56 @@ export default class AniSync extends API {
         }
     }
 
-    public async crawl(type:Type["ANIME"]|Type["MANGA"], start?:number, maxPages?:number, wait?:number) {
-        maxPages = maxPages ? maxPages : config.crawling.anime.max_pages;
-        wait = wait ? wait : config.crawling.anime.wait;
-        start = start ? start : config.crawling.anime.start;
+    public async crawl(type:Type["ANIME"]|Type["MANGA"], start?:number, maxPages?:number, wait?:number, idsPerPage?:number) {
+        maxPages = maxPages ? maxPages : config.crawling.data.max_pages;
+        wait = wait ? wait : config.crawling.data.wait;
+        start = start ? start : config.crawling.data.start;
+        idsPerPage = idsPerPage ? idsPerPage : config.crawling.data.ids_per_page;
 
         if (type === "ANIME") {
             let canCrawl = true;
-            const aniList = new AniList("", type, Format.TV);
             const anime = new Zoro();
 
+            const ids = await this.getAnimeIDs();
+            const pages = Math.ceil(ids.length / idsPerPage);
+            if (pages < maxPages) {
+                maxPages = pages;
+            }
+
             for (let i = start; i < maxPages && canCrawl; i++) {
+                const debugTimer = new Date(Date.now());
                 if (config.crawling.debug) {
                     console.log(colors.gray("Crawling page ") + i + colors.gray("..."));
                 }
 
-                const aniListData = await aniList.getSeasonal(i, 10, type);
+                const aniListMedia = [];
 
-                const aniListMedia = aniListData.data.trending.media;
+                for (let j = 0; j < idsPerPage; j++) {
+                    const id = ids[i * idsPerPage + j];
+                    if (id) {
+                        const aniList = new AniList(id, type, Format.TV, false);
+                        const aniListData = await aniList.getInfo().catch((err) => {
+                            return null;
+                        });
+                        if (!aniListData) {
+                            console.log(colors.red("Can't get " + id + "."));
+                        } else {
+                            const data = aniListData.data.Media;
+                            if (!data) {
+                                console.log(colors.red("No more data to crawl."));
+                                canCrawl = false;
+                            }
+                            aniListMedia.push(data);
+                        }
+                    }
+                    await this.wait(config.mapping.provider.AniList.wait)
+                }
+
                 if (!aniListMedia || aniListMedia.length === 0) {
                     console.log(colors.red("No more data to crawl."));
                     canCrawl = false;
                 }
                 
-                const debugTimer = new Date(Date.now());
                 if (config.crawling.debug) {
                     console.log(colors.gray("Fetched seasonal data..."));
                 }
@@ -299,24 +325,49 @@ export default class AniSync extends API {
             }
             console.log(colors.cyan("Finished crawling!"));
         } else {
-            const aniList = new AniList("", type, Format.MANGA);
             const manga = new ComicK();
             let canCrawl = true;
 
+            const ids = await this.getAnimeIDs();
+            const pages = Math.ceil(ids.length / idsPerPage);
+            if (pages < maxPages) {
+                maxPages = pages;
+            }
+
             for (let i = start; i < maxPages && canCrawl; i++) {
+                const debugTimer = new Date(Date.now());
                 if (config.crawling.debug) {
                     console.log(colors.gray("Crawling page ") + i + colors.gray("..."));
                 }
 
-                const aniListData = await aniList.getSeasonal(i, 10, type);
+                const aniListMedia = [];
 
-                const aniListMedia = aniListData.data.trending.media;
+                for (let j = 0; j < idsPerPage; j++) {
+                    const id = ids[i * idsPerPage + j];
+                    if (id) {
+                        const aniList = new AniList(id, type, Format.MANGA, false);
+                        const aniListData = await aniList.getInfo().catch((err) => {
+                            return null;
+                        });
+                        if (!aniListData) {
+                            console.log(colors.red("Can't get " + id + "."));
+                        } else {
+                            const data = aniListData.data.Media;
+                            if (!data) {
+                                console.log(colors.red("No more data to crawl."));
+                                canCrawl = false;
+                            }
+                            aniListMedia.push(data);
+                        }
+                    }
+                    await this.wait(config.mapping.provider.AniList.wait)
+                }
+
                 if (!aniListMedia || aniListMedia.length === 0) {
                     console.log(colors.red("No more data to crawl."));
                     canCrawl = false;
                 }
-                
-                const debugTimer = new Date(Date.now());
+            
                 if (config.crawling.debug) {
                     console.log(colors.gray("Fetched seasonal data..."));
                 }
@@ -338,6 +389,38 @@ export default class AniSync extends API {
             }
             console.log(colors.cyan("Finished crawling!"));
         }
+    }
+
+    private async getAnimeIDs(): Promise<string[]> {
+        const req1 = await this.fetch("https://anilist.co/sitemap/anime-0.xml");
+        const data1 = await req1.text();
+        const req2 = await this.fetch("https://anilist.co/sitemap/anime-1.xml");
+        const data2 = await req2.text();
+
+        const ids1 = data1.match(/anime\/([0-9]+)/g).map((id) => {
+            return id.replace("anime/", "");
+        });
+
+        const ids2 = data2.match(/anime\/([0-9]+)/g).map((id) => {
+            return id.replace("anime/", "");
+        });
+        return ids1.concat(ids2);
+    }
+
+    private async getMangaIDs(): Promise<string[]> {
+        const req1 = await this.fetch("https://anilist.co/sitemap/manga-0.xml");
+        const data1 = await req1.text();
+        const req2 = await this.fetch("https://anilist.co/sitemap/manga-1.xml");
+        const data2 = await req2.text();
+
+        const ids1 = data1.match(/manga\/([0-9]+)/g).map((id) => {
+            return id.replace("manga/", "");
+        });
+
+        const ids2 = data2.match(/manga\/([0-9]+)/g).map((id) => {
+            return id.replace("manga/", "");
+        });
+        return ids1.concat(ids2);
     }
 
     public async getTrending(type:Type["ANIME"]|Type["MANGA"]):Promise<Result[]> {

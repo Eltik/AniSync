@@ -13,7 +13,7 @@ export default class AnimePahe extends Anime {
 
         if (!data.data) {
             if (config.crawling.debug) {
-                console.log(colors.cyan("[CrunchyRoll]") + colors.red("Unable to parse data for " + query + "."));
+                console.log(colors.cyan("[AnimePahe] ") + colors.red("Unable to parse data for " + query + "."));
             }
             return [];
         }

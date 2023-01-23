@@ -121,7 +121,8 @@ export var config = {
                 SEASON_YEAR: 2023,
                 NEXT_SEASON: "SPRING",
                 NEXT_YEAR: 2023,
-                disabled: false
+                disabled: false,
+                wait: 350
             }
         },
     },
@@ -130,9 +131,10 @@ export var config = {
         // ../Documents/Coding/AniSync/db.db
         database_path: "/Users/eltik/Documents/Coding/AniSync/db.db",
         debug: true,
-        anime: {
+        data: {
             wait: 1000,
             max_pages: 10,
+            ids_per_page: 10, // How many IDs to crawl through per-page
             start: 0
         }
     }

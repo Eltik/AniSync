@@ -12,7 +12,7 @@ class AnimePahe extends Anime_1.default {
         const data = req.json();
         if (!data.data) {
             if (config_1.config.crawling.debug) {
-                console.log(colors.cyan("[CrunchyRoll]") + colors.red("Unable to parse data for " + query + "."));
+                console.log(colors.cyan("[AnimePahe] ") + colors.red("Unable to parse data for " + query + "."));
             }
             return [];
         }
