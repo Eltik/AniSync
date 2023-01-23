@@ -28,6 +28,8 @@ export default class TMDB extends Meta {
                             img: `${result.poster_path}`,
                             url: `https://www.themoviedb.org/tv/${result.id}`,
                             native: result.original_name,
+                            format: result.media_type,
+                            year: result.first_air_date.split("-")[0]
                         });
                     } else if (result.media_type === "movie") {
                         results.push({
@@ -36,6 +38,8 @@ export default class TMDB extends Meta {
                             img: `${result.poster_path}`,
                             url: `https://www.themoviedb.org/movie/${result.id}`,
                             native: result.original_name,
+                            format: result.media_type,
+                            year: result.first_air_date.split("-")[0]
                         });
                     }
                 });

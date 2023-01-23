@@ -15,11 +15,13 @@ class Zoro extends Anime_1.default {
             const jName = $(element).find('div.film-detail h3.film-name a.dynamic-name').attr("data-jname").trim().replace(/\\n/g, '');
             const id = $(element).find('div:nth-child(1) > a').last().attr('href');
             const url = this.baseUrl + id;
+            const format = $(element).find('div.film-detail div.fd-infor span:nth-child(1)').text().trim().replace(/\\n/g, '');
             results.push({
                 url,
                 id,
                 title,
-                romaji: jName
+                romaji: jName,
+                format: format
             });
         });
         return results;

@@ -768,6 +768,12 @@ export default class AniSync extends API {
         result2.romaji = result2.romaji != undefined ? result2.romaji.toLowerCase() : undefined;
         result2.native = result2.native != undefined ? result2.native.toLowerCase() : undefined;
 
+        result1.format = result1.format != undefined ? result1.format.toLowerCase() : undefined;
+        result2.format = result2.format != undefined ? result2.format.toLowerCase() : undefined;
+
+        result1.year = result1.year != undefined && result1.year != "null" ? result1.year.toLowerCase() : undefined;
+        result2.year = result2.year != undefined && result2.year != "null" ? result2.year.toLowerCase() : undefined;
+
         // Check title
         if (result1.title != undefined && result2.title != undefined) {
             tries++;
@@ -792,6 +798,22 @@ export default class AniSync extends API {
                 amount++;
             }
         }
+
+        if (result1.year != undefined && result2.year != undefined) {
+            tries++;
+            const stringComparison = this.stringSim.compareTwoStrings(result1.year, result2.year);
+            if (result1.year === result2.year || stringComparison > threshold) {
+                amount++;
+            }
+        }
+
+        if (result1.format != undefined && result2.format != undefined) {
+            tries++;
+            const stringComparison = this.stringSim.compareTwoStrings(result1.format, result2.format);
+            if (result1.format === result2.format || stringComparison > threshold) {
+                amount++;
+            }
+        }
         return amount / tries;
     }
 
@@ -810,12 +832,16 @@ export default class AniSync extends API {
             const map1:Mapping = {
                 title: anime.title,
                 romaji: anime.romaji,
-                native: anime.native
+                native: anime.native,
+                year: anime.year,
+                format: anime.format
             };
             const map2:Mapping = {
                 title: media.title.english,
                 romaji: media.title.romaji,
-                native: media.title.native
+                native: media.title.native,
+                year: String(media.seasonYear),
+                format: media.format
             }
 
             const comparison = this.checkItem(map1, map2, threshold);
@@ -924,7 +950,8 @@ interface Mapping {
     title?: string;
     romaji?: string;
     native?: string;
-    genres?: string[];
+    year?:string;
+    format?:string;
 }
 
 interface Provider {

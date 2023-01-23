@@ -18,7 +18,7 @@ export default class Enime extends Anime {
 
         if (!data.data) {
             if (config.crawling.debug) {
-                console.log(colors.cyan("[CrunchyRoll]") + colors.red("Unable to parse data for " + query + "."));
+                console.log(colors.cyan("[Enime]") + colors.red("Unable to parse data for " + query + "."));
             }
             return [];
         }
@@ -28,6 +28,8 @@ export default class Enime extends Anime {
             romaji: item.title.romaji,
             native: item.title.native,
             img: item.coverImage,
+            year: String(item.year),
+            format: item.format,
         }));
     }
 }

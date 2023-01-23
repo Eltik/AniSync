@@ -15,12 +15,12 @@ class AnimeFox extends Anime_1.default {
             // Title is generally just the romaji name, or the same as the jname
             //const title = $(element).find("a.dynamic-name").attr('title')!;
             const jName = $(element).find("a.dynamic-name").attr("data-jname");
-            const img = $(element).find("div.fd-infor > span:nth-child(1)").text();
+            const format = $(element).find("div.fd-infor > span:nth-child(1)").text().split(" ")[0];
             const url = this.baseUrl + id;
             results.push({
                 url,
                 id,
-                img,
+                format,
                 romaji: jName
             });
         });

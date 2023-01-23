@@ -33,6 +33,8 @@ export default class Kitsu extends Meta {
                         title: result.attributes.titles.en_us,
                         romaji: result.attributes.titles.en_jp,
                         native: result.attributes.titles.ja_jp,
+                        year: result.attributes.startDate?.split('-')[0], // Kitsu year returns in YYYY-MM-DD format
+                        format: result.attributes.subtype,
                         img: result.attributes.posterImage.original,
                         url: result.links.self,
                     });
@@ -71,6 +73,8 @@ export default class Kitsu extends Meta {
                         title: result.attributes.titles.en,
                         romaji: result.attributes.titles.en_jp,
                         native: result.attributes.titles.ja_jp,
+                        year: result.attributes.startDate?.split('-')[0], // Kitsu year returns in YYYY-MM-DD format
+                        format: result.attributes.subtype,
                         img: result.attributes.posterImage.original,
                         url: result.links.self,
                     });

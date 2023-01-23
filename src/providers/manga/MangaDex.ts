@@ -71,7 +71,8 @@ export default class MangaDex extends Manga {
                 id: id,
                 img: img,
                 romaji: romaji,
-                native: native
+                native: native,
+                year: String(attributes.year)
             })
         }
         return results;

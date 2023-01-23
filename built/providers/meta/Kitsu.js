@@ -29,6 +29,8 @@ class Kitsu extends Meta_1.default {
                         title: result.attributes.titles.en_us,
                         romaji: result.attributes.titles.en_jp,
                         native: result.attributes.titles.ja_jp,
+                        year: result.attributes.startDate?.split('-')[0],
+                        format: result.attributes.subtype,
                         img: result.attributes.posterImage.original,
                         url: result.links.self,
                     });
@@ -66,6 +68,8 @@ class Kitsu extends Meta_1.default {
                         title: result.attributes.titles.en,
                         romaji: result.attributes.titles.en_jp,
                         native: result.attributes.titles.ja_jp,
+                        year: result.attributes.startDate?.split('-')[0],
+                        format: result.attributes.subtype,
                         img: result.attributes.posterImage.original,
                         url: result.links.self,
                     });

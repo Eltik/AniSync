@@ -15,11 +15,13 @@ class GogoAnime extends Anime_1.default {
             const img = $(element).find('div > a > img').attr('src');
             const id = "/category/" + $(element).find('p.name > a').attr('href')?.split('/')[2];
             const url = this.baseUrl + id;
+            const year = $(element).find("p.released").text().trim().replace(/\\n/g, '')?.split("Released: ")[1];
             results.push({
                 url,
                 id,
                 img,
                 romaji: title,
+                year: year
             });
         });
         return results;

@@ -62,7 +62,8 @@ class MangaDex extends Manga_1.default {
                 id: id,
                 img: img,
                 romaji: romaji,
-                native: native
+                native: native,
+                year: String(attributes.year)
             });
         }
         return results;

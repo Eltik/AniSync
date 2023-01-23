@@ -123,6 +123,8 @@ interface SearchResponse {
     title?: string;
     romaji?: string;
     native?: string;
+    year?: string;
+    format?: string;
 }
 
 export type { SearchResponse };

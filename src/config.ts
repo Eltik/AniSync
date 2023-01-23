@@ -28,7 +28,7 @@ export var config = {
             },
             Zoro: {
                 threshold: 0.65,
-                comparison_threshold: 0.4,
+                comparison_threshold: 0.9,
                 wait: 200,
                 search_partial: true,
                 partial_amount: 0.95,

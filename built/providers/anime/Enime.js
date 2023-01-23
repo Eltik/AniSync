@@ -15,7 +15,7 @@ class Enime extends Anime_1.default {
         const data = req.json();
         if (!data.data) {
             if (config_1.config.crawling.debug) {
-                console.log(colors.cyan("[CrunchyRoll]") + colors.red("Unable to parse data for " + query + "."));
+                console.log(colors.cyan("[Enime]") + colors.red("Unable to parse data for " + query + "."));
             }
             return [];
         }
@@ -25,6 +25,8 @@ class Enime extends Anime_1.default {
             romaji: item.title.romaji,
             native: item.title.native,
             img: item.coverImage,
+            year: String(item.year),
+            format: item.format,
         }));
     }
 }
