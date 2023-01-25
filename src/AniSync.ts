@@ -328,7 +328,7 @@ export default class AniSync extends API {
             const manga = new ComicK();
             let canCrawl = true;
 
-            const ids = await this.getAnimeIDs();
+            const ids = await this.getMangaIDs();
             const pages = Math.ceil(ids.length / idsPerPage);
             if (pages < maxPages) {
                 maxPages = pages;
