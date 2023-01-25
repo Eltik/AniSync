@@ -573,23 +573,7 @@ interface Media {
         }
     }
     relations: {
-        edges: {
-            id:number;
-            relationType:string;
-            node: {
-                id:number;
-                title: {
-                    userPreferred:string;
-                };
-                format:Format;
-                type:Type["ANIME"]|Type["MANGA"];
-                status:string;
-                bannerImage:string;
-                coverImage: {
-                    large:string;
-                }
-            };
-        };
+        edges: [RelationsNode]
     };
     characterPreview: {
         edges: {
@@ -645,6 +629,24 @@ interface Title {
     english?: string;
     romaji?: string;
     native?: string;
+}
+
+interface RelationsNode {
+    id:number;
+    relationType:string;
+    node: {
+        id:number;
+        title: {
+            userPreferred:string;
+        };
+        format:Format;
+        type:Type["ANIME"]|Type["MANGA"];
+        status:string;
+        bannerImage:string;
+        coverImage: {
+            large:string;
+        }
+    };
 }
 
 interface SearchResponse {

@@ -545,6 +545,41 @@ export default class AniSync extends API {
         return possible;
     }
 
+    public async getRelations(id:string) {
+        const anime = new Zoro();
+        const manga = new ComicK();
+        const info = await this.get(id);
+        if (!info) {
+            return null;
+        }
+        const results = [];
+
+        const relations = info.anilist.relations;
+        for (let i = 0; i < relations.edges.length; i++) {
+            const relation = relations.edges[i];
+            if (relation.node.type === "ANIME") {
+                const possible = await anime.get(String(relation.node.id));
+                if (possible != undefined) {
+                    results.push({
+                        data: possible,
+                        type: "ANIME",
+                        relationType: relation.relationType,
+                    })
+                }
+            } else if (relation.node.type === "MANGA") {
+                const possible = await manga.get(String(relation.node.id));
+                if (possible != undefined) {
+                    results.push({
+                        data: possible,
+                        type: "MANGA",
+                        relationType: relation.relationType,
+                    })
+                }
+            }
+        }
+        return results;
+    }
+
     private async fetchCrawlData(season:Media[], type:Type["ANIME"]|Type["MANGA"]):Promise<Result[]> {
         if (type === "ANIME") {
             const seasonData:Search[] = [];
