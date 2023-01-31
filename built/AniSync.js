@@ -17,6 +17,7 @@ const CrunchyRoll_1 = require("./providers/anime/CrunchyRoll");
 const Kitsu_1 = require("./providers/meta/Kitsu");
 const colors = require("colors");
 const MangaSee_1 = require("./providers/manga/MangaSee");
+const MangaPark_1 = require("./providers/manga/MangaPark");
 class AniSync extends API_1.default {
     constructor(opts) {
         super(API_1.ProviderType.NONE);
@@ -28,6 +29,7 @@ class AniSync extends API_1.default {
         const mangadex = new MangaDex_1.default();
         const mangakakalot = new Mangakakalot_1.default();
         const mangaSee = new MangaSee_1.default();
+        const mangaPark = new MangaPark_1.default();
         const gogoAnime = new GogoAnime_1.default();
         const animeFox = new AnimeFox_1.default();
         const animePahe = new AnimePahe_1.default();
@@ -59,6 +61,10 @@ class AniSync extends API_1.default {
             {
                 name: mangaSee.providerName,
                 object: mangaSee
+            },
+            {
+                name: mangaPark.providerName,
+                object: mangaPark
             },
             {
                 name: gogoAnime.providerName,
