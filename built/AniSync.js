@@ -790,6 +790,8 @@ class AniSync extends API_1.default {
     checkItem(result1, result2, threshold) {
         let amount = 0;
         let tries = 0;
+        const initialResult1 = result1;
+        const initialResult2 = result2;
         result1.title = result1.title != undefined ? result1.title.toLowerCase() : undefined;
         result1.romaji = result1.romaji != undefined ? result1.romaji.toLowerCase() : undefined;
         result1.native = result1.native != undefined ? result1.native.toLowerCase() : undefined;
@@ -801,6 +803,15 @@ class AniSync extends API_1.default {
         result1.year = result1.year != undefined && result1.year != "null" ? result1.year.toLowerCase() : undefined;
         result2.year = result2.year != undefined && result2.year != "null" ? result2.year.toLowerCase() : undefined;
         // Check title
+        if (result1.romaji != undefined && result2.title != undefined) {
+            // Sometimes the provider's title is the same as the romaji title
+            // Romaji is a more accurate title in general
+            if (result2.title === result1.romaji) {
+                result2.title = result1.romaji;
+                tries++;
+                amount++;
+            }
+        }
         if (result1.title != undefined && result2.title != undefined) {
             tries++;
             const stringComparison = this.stringSim.compareTwoStrings(result1.title, result2.title);
@@ -808,6 +819,7 @@ class AniSync extends API_1.default {
                 amount++;
             }
         }
+        // Check romaji
         if (result1.romaji != undefined && result2.romaji != undefined) {
             tries++;
             const stringComparison = this.stringSim.compareTwoStrings(result1.romaji, result2.romaji);
@@ -815,16 +827,11 @@ class AniSync extends API_1.default {
                 amount++;
             }
         }
+        // Check native
         if (result1.native != undefined && result2.native != undefined) {
             tries++;
             const stringComparison = this.stringSim.compareTwoStrings(result1.native, result2.native);
             if (result1.native === result2.native || stringComparison > threshold) {
-                amount++;
-            }
-        }
-        if (result1.title != undefined && result2.romaji != undefined) {
-            const stringComparison = this.stringSim.compareTwoStrings(result1.title, result2.romaji);
-            if (result1.title === result2.romaji || stringComparison > threshold) {
                 amount++;
             }
         }

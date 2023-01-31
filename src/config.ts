@@ -27,8 +27,8 @@ export var config = {
                 disabled: true
             },
             Zoro: {
-                threshold: 0.8,
-                comparison_threshold: 0.9,
+                threshold: 0.86,
+                comparison_threshold: 0.8,
                 wait: 200,
                 search_partial: true,
                 partial_amount: 0.95,
@@ -46,7 +46,7 @@ export var config = {
             // AnimeFox as well. AnimeFox is essentially Zoro but
             // with GogoAnime sources/data.
             AnimeFox: {
-                threshold: 0.65,
+                threshold: 0.79,
                 comparison_threshold: 0.8,
                 wait: 200,
                 search_partial: true,
@@ -54,8 +54,8 @@ export var config = {
                 disabled: false
             },
             AnimePahe: {
-                threshold: 0.8,
-                comparison_threshold: 0.8,
+                threshold: 0.95,
+                comparison_threshold: 0.85,
                 wait: 200,
                 search_partial: true,
                 partial_amount: 0.75,
