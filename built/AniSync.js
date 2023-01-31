@@ -16,6 +16,7 @@ const Zoro_1 = require("./providers/anime/Zoro");
 const CrunchyRoll_1 = require("./providers/anime/CrunchyRoll");
 const Kitsu_1 = require("./providers/meta/Kitsu");
 const colors = require("colors");
+const MangaSee_1 = require("./providers/manga/MangaSee");
 class AniSync extends API_1.default {
     constructor(opts) {
         super(API_1.ProviderType.NONE);
@@ -26,6 +27,7 @@ class AniSync extends API_1.default {
         const comicK = new ComicK_1.default();
         const mangadex = new MangaDex_1.default();
         const mangakakalot = new Mangakakalot_1.default();
+        const mangaSee = new MangaSee_1.default();
         const gogoAnime = new GogoAnime_1.default();
         const animeFox = new AnimeFox_1.default();
         const animePahe = new AnimePahe_1.default();
@@ -53,6 +55,10 @@ class AniSync extends API_1.default {
             {
                 name: mangakakalot.providerName,
                 object: mangakakalot
+            },
+            {
+                name: mangaSee.providerName,
+                object: mangaSee
             },
             {
                 name: gogoAnime.providerName,
@@ -287,7 +293,7 @@ class AniSync extends API_1.default {
         else {
             const manga = new ComicK_1.default();
             let canCrawl = true;
-            const ids = await this.getAnimeIDs();
+            const ids = await this.getMangaIDs();
             const pages = Math.ceil(ids.length / idsPerPage);
             if (pages < maxPages) {
                 maxPages = pages;
@@ -465,6 +471,40 @@ class AniSync extends API_1.default {
             possible = await manga.get(id);
         }
         return possible;
+    }
+    async getRelations(id) {
+        const anime = new Zoro_1.default();
+        const manga = new ComicK_1.default();
+        const info = await this.get(id);
+        if (!info) {
+            return null;
+        }
+        const results = [];
+        const relations = info.anilist.relations;
+        for (let i = 0; i < relations.edges.length; i++) {
+            const relation = relations.edges[i];
+            if (relation.node.type === "ANIME") {
+                const possible = await anime.get(String(relation.node.id));
+                if (possible != undefined) {
+                    results.push({
+                        data: possible,
+                        type: "ANIME",
+                        relationType: relation.relationType,
+                    });
+                }
+            }
+            else if (relation.node.type === "MANGA") {
+                const possible = await manga.get(String(relation.node.id));
+                if (possible != undefined) {
+                    results.push({
+                        data: possible,
+                        type: "MANGA",
+                        relationType: relation.relationType,
+                    });
+                }
+            }
+        }
+        return results;
     }
     async fetchCrawlData(season, type) {
         if (type === "ANIME") {
