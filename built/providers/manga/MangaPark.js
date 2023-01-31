@@ -7,7 +7,7 @@ class MangaPark extends Manga_1.default {
         super("https://v2.mangapark.net", "MangaPark");
     }
     async search(query) {
-        const url = `${this.baseUrl}/search?q=${query}`;
+        const url = `${this.baseUrl}/search?q=${encodeURIComponent(query)}`;
         try {
             const data = await this.fetch(url);
             const $ = (0, cheerio_1.load)(data.text());

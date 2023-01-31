@@ -8,7 +8,7 @@ export default class MangaPark extends Manga {
     }
 
     public async search(query: string): Promise<SearchResponse[]> {
-        const url = `${this.baseUrl}/search?q=${query}`;
+        const url = `${this.baseUrl}/search?q=${encodeURIComponent(query)}`;
         try {
             const data = await this.fetch(url);
             const $ = load(data.text());

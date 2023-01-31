@@ -571,7 +571,7 @@ class AniSync extends API_1.default {
                     }
                     const possible = await this.getManga(String(aniData.id));
                     if (!possible) {
-                        const title = aniData.title.english;
+                        const title = aniData.title.english && aniData.title.english.length > 0 ? aniData.title.english : aniData.title.romaji;
                         const aggregatorData = await this.fetchData(title, type).catch((err) => {
                             console.error(err);
                             return [];
@@ -822,6 +822,13 @@ class AniSync extends API_1.default {
                 amount++;
             }
         }
+        if (result1.title != undefined && result2.romaji != undefined) {
+            const stringComparison = this.stringSim.compareTwoStrings(result1.title, result2.romaji);
+            if (result1.title === result2.romaji || stringComparison > threshold) {
+                amount++;
+            }
+        }
+        // Check year
         if (result1.year != undefined && result2.year != undefined) {
             tries++;
             const stringComparison = this.stringSim.compareTwoStrings(result1.year, result2.year);
@@ -829,6 +836,7 @@ class AniSync extends API_1.default {
                 amount++;
             }
         }
+        // Check format
         if (result1.format != undefined && result2.format != undefined) {
             tries++;
             const stringComparison = this.stringSim.compareTwoStrings(result1.format, result2.format);

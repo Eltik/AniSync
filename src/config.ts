@@ -27,7 +27,7 @@ export var config = {
                 disabled: true
             },
             Zoro: {
-                threshold: 0.65,
+                threshold: 0.8,
                 comparison_threshold: 0.9,
                 wait: 200,
                 search_partial: true,
@@ -36,8 +36,8 @@ export var config = {
             },
             // Gogo only provides romaji titles.
             GogoAnime: {
-                threshold: 0.6,
-                comparison_threshold: 0.5,
+                threshold: 0.8,
+                comparison_threshold: 0.8,
                 wait: 200,
                 search_partial: true,
                 partial_amount: 0.75,
@@ -47,15 +47,15 @@ export var config = {
             // with GogoAnime sources/data.
             AnimeFox: {
                 threshold: 0.65,
-                comparison_threshold: 0.5,
+                comparison_threshold: 0.8,
                 wait: 200,
                 search_partial: true,
                 partial_amount: 0.85,
                 disabled: false
             },
             AnimePahe: {
-                threshold: 0.6,
-                comparison_threshold: 0.65,
+                threshold: 0.8,
+                comparison_threshold: 0.8,
                 wait: 200,
                 search_partial: true,
                 partial_amount: 0.75,
@@ -93,6 +93,22 @@ export var config = {
             },
             Mangakakalot: {
                 threshold: 0.8,
+                comparison_threshold: 0.8,
+                wait: 200,
+                search_partial: false,
+                partial_amount: 1,
+                disabled: false
+            },
+            MangaPark: {
+                threshold: 0.85,
+                comparison_threshold: 0.8,
+                wait: 200,
+                search_partial: false,
+                partial_amount: 1,
+                disabled: false
+            },
+            MangaSee: {
+                threshold: 0.85,
                 comparison_threshold: 0.8,
                 wait: 200,
                 search_partial: false,
