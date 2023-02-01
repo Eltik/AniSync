@@ -21,6 +21,10 @@ export default class Sync extends API {
         // Class dictionary of all providers. Used for looping through and searching.
         this.classDictionary = [
             {
+                name: "Zoro",
+                object: new Zoro(),
+            },
+            {
                 name: "AnimeFox",
                 object: new AnimeFox(),
             },
@@ -65,8 +69,8 @@ export default class Sync extends API {
      * @param type Type of media to search for.
      * @returns Promise<SearchResponse[]>
      */
-    public async search(query:string, type:Type): Promise<SearchResponse[]> {
-        const results = [];
+    public async search(query:string, type:Type): Promise<any[]> {
+        const results:SearchResponse[] = [];
 
         const promises = [];
         for (let i = 0; i < this.classDictionary.length; i++) {
@@ -110,7 +114,39 @@ export default class Sync extends API {
                 await this.wait(200); // AniList timeout. Needs to be reworked.
             }
         }
-        return results;
+        let data = this.formatSearch(results);
+        return data;
+    }
+
+    private formatSearch(results:SearchResponse[]) {
+        const formatted:FormattedResponse[] = [];
+
+        for (let i = 0; i < results.length; i++) {
+            const item:any = results[i];
+            let hasPushed = false;
+            for (let j = 0; j < formatted.length; j++) {
+                if (formatted[j].data.id === item.data.id) {
+                    hasPushed = true;
+                    formatted[j].connectors.push(
+                        {
+                            id: item.id,
+                            similarity: item.similarity
+                        }
+                    );
+                }
+            }
+            if (!hasPushed) {
+                item.connectors = [item.id];
+                item.id = item.data.id;
+                const temp = {
+                    id: item.id,
+                    data: item.data,
+                    connectors: item.connectors,
+                };
+                formatted.push(temp);
+            }
+        }
+        return formatted;
     }
 
     /**
@@ -187,6 +223,12 @@ interface Result {
 interface Provider {
     name: string;
     object: any;
+}
+
+interface FormattedResponse {
+    id: string;
+    data: Media;
+    connectors: any[];
 }
 
 interface SearchResponse {
