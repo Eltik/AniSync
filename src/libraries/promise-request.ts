@@ -1,14 +1,13 @@
 import axios from "axios";
 import { pipeline } from 'node:stream';
 import { promisify } from 'node:util';
-import { config } from "../config";
 
 export default class PromiseRequest {
     private url: string;
     private options: Options;
 
     constructor(url:string, options:Options) {
-        this.url = config.web_server.use_http ? ("http" + (url.split("https")[1])): url;
+        this.url = url;
         this.options = options;
     }
 

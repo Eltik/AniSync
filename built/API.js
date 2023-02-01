@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProviderType = void 0;
 const promise_request_1 = require("./libraries/promise-request");
-const cheerio_1 = require("cheerio");
 class API {
     constructor(type) {
         this.userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36';
@@ -18,26 +17,6 @@ class API {
         });
         const data = await request.request();
         return data;
-    }
-    async fetchDOM(url, selector, options) {
-        const request = new promise_request_1.default(url, {
-            ...options,
-            headers: {
-                ...options?.headers,
-                'User-Agent': this.userAgent
-            }
-        });
-        const data = await request.request();
-        if (!data.text()) {
-            throw new Error("Couldn't fetch data.");
-        }
-        const $ = (0, cheerio_1.load)(data.text());
-        const result = $(selector);
-        const dom = {
-            Response: data,
-            Cheerio: result
-        };
-        return dom;
     }
     async stream(url, stream, options) {
         const request = new promise_request_1.default(url, {

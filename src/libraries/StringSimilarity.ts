@@ -69,3 +69,8 @@ interface StringResult {
     bestMatch: {target: string, rating: number},
     bestMatchIndex: number
 }
+
+export function compareTwoStrings(first, second):number {
+    const stringSim = new StringSimilarity();
+    return stringSim.compareTwoStrings(first, second);
+}

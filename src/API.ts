@@ -1,5 +1,4 @@
 import PromiseRequest, { Options, Response } from "./libraries/promise-request";
-import { Cheerio, load } from "cheerio";
 import { ReadStream, WriteStream } from "fs";
 
 export default class API {
@@ -20,30 +19,6 @@ export default class API {
         });
         const data = await request.request();
         return data;
-    }
-
-    public async fetchDOM(url:string, selector:string, options?:Options): Promise<DOM> {
-        const request = new PromiseRequest(url, {
-            ...options,
-            headers: {
-                ...options?.headers,
-                'User-Agent': this.userAgent
-            }
-        });
-        
-        const data = await request.request();
-
-        if (!data.text()) {
-            throw new Error("Couldn't fetch data.");
-        }
-
-        const $ = load(data.text());
-        const result = $(selector);
-        const dom:DOM = {
-            Response: data,
-            Cheerio: result
-        };
-        return dom;
     }
 
     public async stream(url:string, stream:ReadableStream|WritableStream|ReadStream|WriteStream, options?:Options) {
@@ -100,11 +75,6 @@ export default class API {
     }
 }
 
-interface DOM {
-    Response:Response;
-    Cheerio:Cheerio<any>;
-}
-
 export enum ProviderType {
     ANIME = "ANIME",
     MANGA = "MANGA",
@@ -112,12 +82,3 @@ export enum ProviderType {
     META = "META",
     NONE = "NONE"
 }
-
-// Base tables are below.
-// CREATE TABLE anime(id int(7) NOT NULL, anilist longtext not null, connectors longtext not null);
-// CREATE TABLE manga(id int(7) NOT NULL, anilist longtext not null, connectors longtext not null);
-
-// Cached table can store episodes or chapters.
-// CREATE TABLE cached(id int(7) NOT NULL, data longtext not null);
-
-export type { DOM };

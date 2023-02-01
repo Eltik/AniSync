@@ -3,10 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = require("axios");
 const node_stream_1 = require("node:stream");
 const node_util_1 = require("node:util");
-const config_1 = require("../config");
 class PromiseRequest {
     constructor(url, options) {
-        this.url = config_1.config.web_server.use_http ? ("http" + (url.split("https")[1])) : url;
+        this.url = url;
         this.options = options;
     }
     async request() {
