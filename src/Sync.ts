@@ -12,6 +12,8 @@ import Mangakakalot from "./manga/Mangakakalot";
 import MangaPark from "./manga/MangaPark";
 import MangaSee from "./manga/MangaSee";
 import DB from "./DB";
+import * as config from "./config.json";
+import * as colors from "colors";
 
 export default class Sync extends API {
     private aniList = new AniList();
@@ -228,7 +230,6 @@ export default class Sync extends API {
      * @returns Promise<any>
      */
     public async crawl(type:Type, maxIds?:number): Promise<FormattedResponse[]> {
-        maxIds = maxIds ? maxIds : 1;
 
         const results = [];
 
@@ -241,15 +242,38 @@ export default class Sync extends API {
             throw new Error("Unknown type.");
         }
 
-        for (let i = 0; i < ids.length && maxIds; i++) {
+        maxIds = maxIds ? maxIds : ids.length;
+
+        for (let i = 0; i < ids.length || maxIds; i++) {
             const possible = await this.db.get(ids[i], type);
             if (!possible) {
-                const data = await this.aniList.getMedia(ids[i]);
-                const search = await this.search(data.title.userPreferred, type);
-                if (search.length > 0) {
-                    results.push(search);
-                }   
+                const start = new Date(Date.now());
+
+                const data = await this.aniList.getMedia(ids[i]).catch((err) => {
+                    if (config.debug) {
+                        console.log(colors.red("Error fetching ID: ") + colors.white(ids[i] + ""));
+                    }
+                    return null;
+                });
+                if (data) {
+                    const result = await this.get(ids[i]).catch((err) => {
+                        if (config.debug) {
+                            console.log(colors.red("Error fetching ID from providers: ") + colors.white(ids[i] + ""));
+                        }
+                        return null;
+                    });
+                    if (result) {
+                        results.push(result);
+                        this.db.insert([result], type);
+                    }
+                }
+                const end = new Date(Date.now());
+                console.log(colors.gray("Finished fetching data. Request(s) took ") + colors.cyan(String(end.getTime() - start.getTime())) + colors.gray(" milliseconds."));
             }
+        }
+
+        if (config.debug) {
+            console.log(colors.green("Crawling finished."));
         }
         return results;
     }
