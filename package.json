@@ -25,17 +25,9 @@
     },
     "homepage": "https://github.com/Eltik/AniSync#readme",
     "dependencies": {
-        "@fastify/cors": "^8.2.0",
-        "@fastify/formbody": "^7.4.0",
         "axios": "^1.2.2",
         "cheerio": "^1.0.0-rc.12",
         "colors": "^1.4.0",
-        "commander": "^10.0.0",
-        "cronchy": "^0.0.7",
-        "fastify": "^4.11.0",
-        "gradient-string": "^2.0.2",
-        "inquirer": "^8.2.5",
-        "node-fetch": "^2.6.7",
         "sqlite3": "^5.1.4"
     }
 }

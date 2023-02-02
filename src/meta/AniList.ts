@@ -1,8 +1,12 @@
 import { ProviderType } from "../API";
 import Provider from "../Provider";
+import { Options, Response } from "../libraries/promise-request";
 
 export default class AniList extends Provider {
     private api:string = "https://graphql.anilist.co";
+
+    public requests:number = 0;
+    public rateLimit:number = 30; // How many requests per minute
     public id:string = undefined;
     public type:Type = undefined;
 
@@ -159,7 +163,7 @@ export default class AniList extends Provider {
                 perPage: perPage
             }
         }
-        const req = await this.fetch(this.api, {
+        const req = await this.request(this.api, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -167,20 +171,20 @@ export default class AniList extends Provider {
             },
             body: JSON.stringify(aniListArgs)
         });
-        const data = await req.json();
+        const data = req.json();
         return data.data.Page.media;
     }
 
-    public async toMal(id:string): Promise<Number> {
+    public async getMedia(id:string): Promise<Media> {
         const query = `query ($id: Int) {
-            Media (id: $id, type: MANGA) {
-                idMal
+            Media (id: $id) {
+                ${this.query}
             }
         }`;
         const variables = {
             id: parseInt(id)
         };
-        const req = await this.fetch(this.api, {
+        const req = await this.request(this.api, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -191,14 +195,14 @@ export default class AniList extends Provider {
                 variables
             })
         });
-        const data = await req.json();
-        return data.data.Media.idMal;
+        const data = req.json();
+        return data.data.Media;
     }
 
     public async getAnimeIDs(): Promise<string[]> {
-        const req1 = await this.fetch("https://anilist.co/sitemap/anime-0.xml");
+        const req1 = await this.request("https://anilist.co/sitemap/anime-0.xml");
         const data1 = await req1.text();
-        const req2 = await this.fetch("https://anilist.co/sitemap/anime-1.xml");
+        const req2 = await this.request("https://anilist.co/sitemap/anime-1.xml");
         const data2 = await req2.text();
 
         const ids1 = data1.match(/anime\/([0-9]+)/g).map((id) => {
@@ -226,11 +230,47 @@ export default class AniList extends Provider {
         });
         return ids1.concat(ids2);
     }
+
+    /**
+     * @description Custom request function for handling AniList rate limit.
+     */
+    private async request(url:string, options?:Options): Promise<Response> {
+        const promises = [];
+        if (this.requests > this.rateLimit) {
+            const promise = new Promise((resolve, reject) => {
+                const interval = setInterval(() => {
+                    // If the requests are below the rate limit, then resolve.
+                    if (this.requests < this.rateLimit) {
+                        clearInterval(interval);
+                        resolve(true);
+                    }
+                }, 250);
+            });
+            promises.push(promise);
+        } else {
+            // Increment the requests if below rate limit.
+            this.requests++;
+            setTimeout(() => {
+                // After a minute, decrement the requests.
+                this.requests--;
+            }, 60000);
+        }
+        // Await until the requests are below the rate limit.
+        await Promise.all(promises);
+        // Send request normally once applicable.
+        const response:Response = await this.fetch(url, options);
+        return response;
+    }
 }
 
 export async function search(query:string, type:Type, page?:number, perPage?:number): Promise<Media[]> {
     const self = new AniList();
     return await self.search(query, type, page, perPage);
+}
+
+export async function getMedia(id:string): Promise<Media> {
+    const self = new AniList();
+    return await self.getMedia(id);
 }
 
 export async function getAnimeIDs(): Promise<string[]> {
@@ -408,6 +448,7 @@ interface Title {
     english?: string;
     romaji?: string;
     native?: string;
+    userPreferred?: string;
 }
 
 interface RelationsNode {
