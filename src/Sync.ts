@@ -133,6 +133,54 @@ export default class Sync extends API {
     }
 
     /**
+     * 
+     * @param id AniList ID of the media to get
+     * @returns 
+     */
+    public async get(id:string): Promise<FormattedResponse> {
+        const aniList = await this.aniList.getMedia(id);
+        if (!aniList) {
+            return null;
+        }
+        const results:SearchResponse[] = [];
+
+        const promises = [];
+        for (let i = 0; i < this.classDictionary.length; i++) {
+            const provider:any = this.classDictionary[i];
+            if (provider.object.providerType === aniList.type) {
+                promises.push(provider.object.search(aniList.title.userPreferred));
+            }
+        }
+        const resultsArray = await Promise.all(promises);
+        for (let i = 0; i < resultsArray.length; i++) {
+            let best: any = null;
+            for (let j = 0; j < resultsArray[i].length; j++) {
+                const title = resultsArray[i][j].title;
+
+                const sim = this.similarity(title, aniList.title.userPreferred);
+                const tempBest = {
+                    index: j,
+                    similarity: sim,
+                    aniList: aniList,
+                };
+
+                if (!best || sim.value > best.similarity.value) {
+                    best = tempBest;
+                }
+            }
+            if (best) {
+                const retEl = resultsArray[i][best.index];
+                results.push({
+                    id: retEl.url,
+                    data: best.aniList,
+                    similarity: best.similarity,
+                });
+            }
+        }
+        return this.formatSearch(results)[0];
+    }
+
+    /**
      * @description Formats search responses so that all connectors are assigned to one AniList media object.
      * @param results Search results
      * @returns FormattedResponse[]
@@ -248,6 +296,14 @@ export default class Sync extends API {
         resTitle = resTitle.trim();
         resTitle = resTitle.substring(0, 99); // truncate
         return resTitle;
+    }
+
+    /**
+     * @description Exports the database to a JSON file.
+     * @param type Type of media to export
+     */
+    public async export(type:Type): Promise<void> {
+        await this.db.export(type);
     }
 }
 

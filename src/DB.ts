@@ -4,6 +4,8 @@ import { Type } from "./meta/AniList";
 import { Database } from "sqlite3";
 import * as colors from "colors";
 import API, { ProviderType } from "./API";
+import { createWriteStream } from "fs";
+import { join } from "path";
 
 export default class DB extends API {
     private db = new Database(config.database_path);
@@ -119,5 +121,10 @@ export default class DB extends API {
                 }
             });
         });
+    }
+
+    public async export(type:Type): Promise<void> {
+        const all = await this.getAll(type);
+        createWriteStream(join(config.export_path, type + ".json")).write(JSON.stringify(all, null, 4));
     }
 }

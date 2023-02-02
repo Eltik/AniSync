@@ -1,4 +1,5 @@
 {
     "debug": true,
-    "database_path": "/Users/eltik/Documents/Coding/AniSync/db.db"
+    "database_path": "/Users/eltik/Documents/Coding/AniSync/db.db",
+    "export_path": "/Users/eltik/Documents/Coding/AniSync"
 }
