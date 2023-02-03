@@ -35,21 +35,25 @@ export default class MangaDex extends Provider {
             const attributes:MangaAttributes = manga.attributes;
             const relationships:Array<MangaRelationship>|null = manga.relationships;
 
-            const title = attributes.title["en"];
+            const title = attributes.title["en"] ?? attributes.title["ja"] ?? attributes.title["ja-ro"] ?? attributes.title["ko"];
             let romaji = undefined;
             let native = undefined;
             let korean = undefined;
+            let en = undefined;
             
             attributes.altTitles.map((element, index) => {
-                const title = element;
-                if (title["ja-ro"] != undefined) {
-                    romaji = title["ja-ro"];
+                const temp = element;
+                if (temp["ja-ro"] != undefined) {
+                    romaji = temp["ja-ro"];
                 }
-                if (title["ja"] != undefined) {
-                    native = title["ja"];
+                if (temp["ja"] != undefined) {
+                    native = temp["ja"];
                 }
-                if (title["ko"] != undefined) {
-                    korean = title["ko"];
+                if (temp["ko"] != undefined) {
+                    korean = temp["ko"];
+                }
+                if (temp["en"] != undefined) {
+                    en = temp["en"];
                 }
             })
 
@@ -68,7 +72,7 @@ export default class MangaDex extends Provider {
 
             results.push({
                 url: url,
-                title: title ?? romaji ?? native,
+                title: title ?? romaji ?? native ?? en,
             })
         }
         return results;
