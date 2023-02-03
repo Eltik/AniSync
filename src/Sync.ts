@@ -1,5 +1,5 @@
 import API, { ProviderType } from "./API";
-import AniList, { Type, Media } from "./meta/AniList";
+import AniList, { Type, Media, Format } from "./meta/AniList";
 import { compareTwoStrings } from "./libraries/StringSimilarity";
 import AnimeFox from "./anime/AnimeFox";
 import GogoAnime from "./anime/GogoAnime";
@@ -75,63 +75,145 @@ export default class Sync extends API {
     }
 
     /**
-     * @description Searches for media on all providers and maps the results to AniList.
+     * @description Searches on AniList and on providers and finds the best results possible.
      * @param query Media to search for.
      * @param type Type of media to search for.
-     * @returns Promise<SearchResponse[]>
+     * @returns Promise<FormattedResponse[]>
      */
     public async search(query:string, type:Type): Promise<FormattedResponse[]> {
+        let result:FormattedResponse[] = [];
+        // Searches first on the database for a result
         const possible = await this.db.search(query, type);
         if (!possible || possible.length === 0) {
-            const results:SearchResponse[] = [];
-
-            const promises = [];
-            for (let i = 0; i < this.classDictionary.length; i++) {
-                const provider:any = this.classDictionary[i];
-                if (provider.object.providerType === type) {
-                    promises.push(provider.object.search(query));
-                }
+            if (config.debug) {
+                console.log(colors.yellow("No results found in database. Searching providers..."));
+                console.log(colors.gray("Searching for ") + colors.blue(query) + colors.gray(" of type ") + colors.blue(type) + colors.gray("..."));
             }
-            const resultsArray = await Promise.all(promises);
-            
-            for (let i = 0; i < resultsArray.length; i++) {
-                for (let j = 0; j < resultsArray[i].length; j++) {
-                    const aniSearch = await this.aniList.search(this.sanitizeTitle(resultsArray[i][j].title), type);
-                
-                    let best: any = null;
-    
-                    aniSearch.map(async (result:any) => {
-                        const title = result.title.userPreferred;
-                        const altTitles:any[] = Object.values(result.title).concat(result.synonyms);
-                        const aniList = result;
-        
-                        const sim = this.similarity(title, resultsArray[i][j].title, altTitles);
-                        const tempBest = {
-                            index: j,
-                            similarity: sim,
-                            aniList: aniList,
-                        };
-        
-                        if (!best || sim.value > best.similarity.value) {
-                            best = tempBest;
-                        }
-                    });
-                    if (best) {
-                        const retEl = resultsArray[i][best.index];
-                        results.push({
-                            id: retEl.url,
-                            data: best.aniList,
-                            similarity: best.similarity,
-                        });
-                    }
-                }
+            // Search on AniList first
+            const aniSearch = await this.aniSearch(query, type);
+            if (config.debug) {
+                console.log(colors.gray("Received ") + colors.blue("AniList") + colors.gray(" response."));
             }
-            let data = this.formatSearch(results);
-            await this.db.insert(data, type);
-            return data;
+            const aniList = this.searchCompare(result, aniSearch);
+            // Then search on providers
+            const pageSearch = await this.pageSearch(query, type);
+            if (config.debug) {
+                console.log(colors.gray("Received ") + colors.blue("Provider") + colors.gray(" response."));
+            }
+            // Find the best results possible
+            const pageList = this.searchCompare(aniList, pageSearch, 0.5);
+            await this.db.insert(pageList, type);
+            return pageList;
         } else {
             return possible;
         }
+    }
+
+    /**
+     * @description Searches for media on AniList and maps the results to providers.
+     * @param query Media to search for.
+     * @param type Type of media to search for.
+     * @returns Promise<FormattedResponse[]>
+     */
+    public async aniSearch(query:string, type:Type): Promise<FormattedResponse[]> {
+        const results:SearchResponse[] = [];
+
+        const aniList = await this.aniList.search(query, type);
+
+        const promises = [];
+        for (let i = 0; i < this.classDictionary.length; i++) {
+            const provider:any = this.classDictionary[i];
+            if (provider.object.providerType === type) {
+                promises.push(provider.object.search(query));
+            }
+        }
+
+        const resultsArray = await Promise.all(promises);
+        for (let i = 0; i < resultsArray.length; i++) {
+            for (let j = 0; j < resultsArray[i].length; j++) {
+                let best: any = null;
+    
+                aniList.map(async (result:any) => {
+                    const title = result.title.userPreferred;
+                    const altTitles:any[] = Object.values(result.title).concat(result.synonyms);
+                    const aniList = result;
+    
+                    const sim = this.similarity(title, resultsArray[i][j].title, altTitles);
+                    const tempBest = {
+                        index: j,
+                        similarity: sim,
+                        aniList: aniList,
+                    };
+    
+                    if (!best || sim.value > best.similarity.value) {
+                        best = tempBest;
+                    }
+                });
+                if (best) {
+                    const retEl = resultsArray[i][best.index];
+                    results.push({
+                        id: retEl.url,
+                        data: best.aniList,
+                        similarity: best.similarity,
+                    });
+                }
+            }
+        }
+        return this.formatSearch(results);
+    }
+
+    /**
+     * @description Searches for media on all providers and maps the results to AniList.
+     * @param query Media to search for.
+     * @param type Type of media to search for.
+     * @returns Promise<FormattedResponse[]>
+     */
+    public async pageSearch(query:string, type:Type): Promise<FormattedResponse[]> {
+        const results:SearchResponse[] = [];
+
+        const promises = [];
+        for (let i = 0; i < this.classDictionary.length; i++) {
+            const provider:any = this.classDictionary[i];
+            if (provider.object.providerType === type) {
+                promises.push(provider.object.search(query));
+            }
+        }
+        const resultsArray = await Promise.all(promises);
+        
+        for (let i = 0; i < resultsArray.length; i++) {
+            for (let j = 0; j < resultsArray[i].length; j++) {
+                const aniSearch = await this.aniList.search(this.sanitizeTitle(resultsArray[i][j].title), type);
+            
+                let best: any = null;
+
+                aniSearch.map(async (result:any) => {
+                    const title = result.title.userPreferred;
+                    const altTitles:any[] = Object.values(result.title).concat(result.synonyms);
+                    const aniList = result;
+    
+                    const sim = this.similarity(title, resultsArray[i][j].title, altTitles);
+                    const tempBest = {
+                        index: j,
+                        similarity: sim,
+                        aniList: aniList,
+                    };
+    
+                    if (!best || sim.value > best.similarity.value) {
+                        best = tempBest;
+                    }
+                });
+                if (best) {
+                    const retEl = resultsArray[i][best.index];
+                    results.push({
+                        id: retEl.url,
+                        data: best.aniList,
+                        similarity: best.similarity,
+                    });
+                }
+            }
+        }
+        let data = this.formatSearch(results);
+        return data;
     }
 
     /**
@@ -144,42 +226,19 @@ export default class Sync extends API {
         if (!aniList) {
             return null;
         }
-        const results:SearchResponse[] = [];
-
-        const promises = [];
-        for (let i = 0; i < this.classDictionary.length; i++) {
-            const provider:any = this.classDictionary[i];
-            if (provider.object.providerType === aniList.type) {
-                promises.push(provider.object.search(aniList.title.userPreferred));
-            }
-        }
-        const resultsArray = await Promise.all(promises);
-        for (let i = 0; i < resultsArray.length; i++) {
-            let best: any = null;
-            for (let j = 0; j < resultsArray[i].length; j++) {
-                const title = resultsArray[i][j].title;
-
-                const sim = this.similarity(title, aniList.title.userPreferred);
-                const tempBest = {
-                    index: j,
-                    similarity: sim,
-                    aniList: aniList,
-                };
-
-                if (!best || sim.value > best.similarity.value) {
-                    best = tempBest;
+        const possible = await this.db.get(id, aniList.type);
+        if (!possible) {
+            let result:FormattedResponse = null;
+            const results = await this.search(aniList.title.userPreferred, aniList.type);
+            for (let i = 0; i < results.length; i++) {
+                if (results[i].id === id) {
+                    result = results[i];
                 }
             }
-            if (best) {
-                const retEl = resultsArray[i][best.index];
-                results.push({
-                    id: retEl.url,
-                    data: best.aniList,
-                    similarity: best.similarity,
-                });
-            }
+            return result;
+        } else {
+            return possible;
         }
-        return this.formatSearch(results)[0];
     }
 
     /**
@@ -245,6 +304,9 @@ export default class Sync extends API {
         maxIds = maxIds ? maxIds : ids.length;
 
         for (let i = 0; i < ids.length || maxIds; i++) {
+            if (i >= maxIds) {
+                break;
+            }
             const possible = await this.db.get(ids[i], type);
             if (!possible) {
                 const start = new Date(Date.now());
@@ -267,8 +329,11 @@ export default class Sync extends API {
                         this.db.insert([result], type);
                     }
                 }
-                const end = new Date(Date.now());
-                console.log(colors.gray("Finished fetching data. Request(s) took ") + colors.cyan(String(end.getTime() - start.getTime())) + colors.gray(" milliseconds."));
+                if (config.debug) {
+                    const end = new Date(Date.now());
+                    console.log(colors.gray("Finished fetching data. Request(s) took ") + colors.cyan(String(end.getTime() - start.getTime())) + colors.gray(" milliseconds."));
+                    console.log(colors.green("Fetched ID ") + colors.blue("#" + (i + 1) + "/" + maxIds));
+                }
             }
         }
 
@@ -320,6 +385,47 @@ export default class Sync extends API {
         resTitle = resTitle.trim();
         resTitle = resTitle.substring(0, 99); // truncate
         return resTitle;
+    }
+
+    /**
+     * @description Compares two responses and replaces results that have a better response
+     * @param curVal Original response
+     * @param newVal New response to compare
+     * @param threshold Optional minimum threshold required
+     * @returns FormattedResponse[]
+     */
+    private searchCompare(curVal:FormattedResponse[], newVal:FormattedResponse[], threshold = 0):FormattedResponse[] {
+        const res = [];
+        if (curVal.length > 0 && newVal.length > 0) {
+            for (let i = 0; i < curVal.length; i++) {
+                for (let j = 0; j < newVal.length; j++) {
+                    if (curVal[i].id === newVal[j].id) {
+                        // Can compare now
+                        const connectors = [];
+                        for (let k = 0; k < curVal[i].connectors.length; k++) {
+                            for (let l = 0; l < newVal[j].connectors.length; l++) {
+                                if (curVal[i].connectors[k].id === newVal[j].connectors[l].id) {
+                                    // Compare similarity
+                                    if (newVal[j].connectors[l].similarity < threshold || curVal[i].connectors[k].similarity.value >= newVal[j].connectors[l].similarity.value) {
+                                        connectors.push(curVal[i].connectors[k]);
+                                    } else {
+                                        connectors.push(newVal[j].connectors[l]);
+                                    }
+                                }
+                            }
+                        }
+                        res.push({
+                            id: curVal[i].id,
+                            data: curVal[i].data,
+                            connectors,
+                        });
+                    }
+                }
+            }
+            return res;
+        }
+        if (curVal.length > 0) return curVal;
+        return newVal;
     }
 
     /**

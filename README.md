@@ -3,67 +3,44 @@ Mapping sites to AniList and back.<br />
 Inspired by MalSync, this project is made for taking search queries from popular tracking sites such as [AniList](https://anilist.co) and matching them with sites such as [Zoro.To](https://zoro.to/), [AnimeFox](https://animefox.tv/), and more.<br />
 
 ## How it Works
-The concept of AniSync is relatively simple. Using a string similarity algorithm ([Dice's Coefficient](https://en.wikipedia.org/wiki/S%C3%B8rensen%E2%80%93Dice_coefficient), courtesy of the NPM package [string-similarity](https://www.npmjs.com/package/string-similarity)), AniSync first sends a request to all providers. Then looping through each result, the title is then "sanitized" and a request with that title is sent to AniList. AniSync will then compare each title and find the best result that matches the provider's result and map it to AniList.
-If the comparison succeeds, it will return this:
-```json
-[
-    {
-        "id": 21,
-        "data": {
-            "id": 21,
-            "idMal": 21,
-            "title": {
-                "romaji": "ONE PIECE",
-                "english": "ONE PIECE",
-                "native": "ONE PIECE"
-            },
-            ...
-        },
-        "connectors": [
-            {
-                "provider": "AnimePahe",
-                "data": {
-                    "id": "c9bf6e84-c3e0-01b8-2bd7-c2fbfc7431a1",
-                    "title": "One Piece",
-                    "img": "https://i.animepahe.com/posters/355e6e3127aa31f0d806114169b52c4fb6da4b87df7f9c1809b9e3de97b8aac5.jpg",
-                    "url": "https://animepahe.com/anime/c9bf6e84-c3e0-01b8-2bd7-c2fbfc7431a1"
-                },
-                "comparison": 1
-            },
-                        {
-                "provider": "Kitsu",
-                "data": {
-                    "id": "12",
-                    "romaji": "One Piece",
-                    "native": "ONE PIECE",
-                    "img": "https://media.kitsu.io/anime/poster_images/12/original.png",
-                    "url": "https://kitsu.io/api/edge/anime/12"
-                },
-                "comparison": 1
-            },
-            {
-                "provider": "GogoAnime",
-                "data": {
-                    "url": "https://www1.gogoanime.bid/category/one-piece",
-                    "id": "/category/one-piece",
-                    "img": "https://gogocdn.net/images/anime/One-piece.jpg",
-                    "romaji": "One Piece"
-                },
-                "comparison": 1
-            },
-                        {
-                "provider": "AnimeFox",
-                "data": {
-                    "url": "https://animefox.tv/anime/one-piece",
-                    "id": "/anime/one-piece",
-                    "img": "TV Series",
-                    "romaji": "One Piece"
-                },
-                "comparison": 1
+The concept of AniSync is relatively simple. Using a string similarity algorithm ([Dice's Coefficient](https://en.wikipedia.org/wiki/S%C3%B8rensen%E2%80%93Dice_coefficient), courtesy of the NPM package [string-similarity](https://www.npmjs.com/package/string-similarity)), AniSync first sends a request to AniList and then to all providers. Then, a comparison will be started between the title of the AniList result and the provider's result. AniSync will then try and find the best result and return it. This process is ran twice: once for sending a request to AniList and once for sending a request to the providers. This is done to ensure that the best result is returned. If you are confused, take a look at the `search()` function in the `Sync.ts` file.
+```typescript
+export default class Sync extends API {
+    /**
+     * @description Searches on AniList and on providers and finds the best results possible.
+     * @param query Media to search for.
+     * @param type Type of media to search for.
+     * @returns Promise<FormattedResponse[]>
+     */
+    public async search(query:string, type:Type): Promise<FormattedResponse[]> {
+        let result:FormattedResponse[] = [];
+        // Searches first on the database for a result
+        const possible = await this.db.search(query, type);
+        if (!possible || possible.length === 0) {
+            if (config.debug) {
+                console.log(colors.yellow("No results found in database. Searching providers..."));
+                console.log(colors.gray("Searching for ") + colors.blue(query) + colors.gray(" of type ") + colors.blue(type) + colors.gray("..."));
             }
-        ]
+            // Search on AniList first
+            const aniSearch = await this.aniSearch(query, type);
+            if (config.debug) {
+                console.log(colors.gray("Received ") + colors.blue("AniList") + colors.gray(" response."));
+            }
+            const aniList = this.searchCompare(result, aniSearch);
+            // Then search on providers
+            const pageSearch = await this.pageSearch(query, type);
+            if (config.debug) {
+                console.log(colors.gray("Received ") + colors.blue("Provider") + colors.gray(" response."));
+            }
+            // Find the best results possible
+            const pageList = this.searchCompare(aniList, pageSearch, 0.5);
+            await this.db.insert(pageList, type);
+            return pageList;
+        } else {
+            return possible;
+        }
     }
-]
+}
 ```
 
 ## Contributing
@@ -150,7 +127,7 @@ That's it! Feedback would be appreciated...
         <td>N/A</td>
     </tr>
     <tr>
-        <td>TVDB</td>
+        <td>TVDB*</td>
         <td><a href="https://thetvdb.com/">Link</a></td>
         <td>Meta</td>
     </tr>
