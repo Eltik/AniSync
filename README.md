@@ -43,6 +43,63 @@ export default class Sync extends API {
 }
 ```
 
+## Installation
+For convienience sake, I'll be mentioning a full-depth guide on how to install AniSync and crawl on Linux. It is recommended that if you are setting up an API using AniSync you use a Linux server on [Digital Ocean](https://digitalocean.com) or via a VPS from a hosting company like [ForestRacks](https://forestracks.com/). Anyways:
+1. Install [NodeJS](https://nodejs.org) and [NPM](https://npmjs.com) on your server. You can do this via the following commands:
+```bash
+# Installs NodeJS
+sudo apt-add-repository -r ppa:chris-lea/node.js
+sudo apt update -q
+curl -fsSL https://deb.nodesource.com/setup_14.x | sudo -E bash - &&\
+sudo apt-get install -y nodejs
+
+# Installs NPM
+sudo apt install npm
+```
+2. Install the dependencies for AniSync:
+```bash
+# SQLite3
+sudo apt install sqlite3
+```
+3. Clone the repository:
+```bash
+# Clones the repository
+git clone https://github.com/Eltik/AniSync
+
+# Enters the directory
+cd AniSync
+```
+4. If necessary, pull:
+```
+git pull
+```
+5. Install the dependencies:
+```bash
+npm install
+```
+6. Build the project:
+```bash
+npm run build
+```
+7. Init the database:
+```bash
+# Creates the database
+sqlite3 db.db
+.exit
+
+# Creates all the tables necessary
+npm run init
+```
+
+You can now crawl through the providers. To do so, run the following command:
+```bash
+# Crawls through anime
+npm run crawl:anime
+
+# Crawls through manga
+npm run crawl:manga
+```
+
 ## Contributing
 Contribution would very much be appreciated. If you have any suggestions or requests, create a [pull request](https://github.com/Eltik/AniSync/pulls) or [issue](https://github.com/Eltik/AniSync/issues). Adding other "connectors" or sites such as [TVDB](https://thetvdb.com/), [MyAnimeList](https://myanimelist.net/), [4anime](https://4anime.gg/), etc. is super easy. The only thing required would be to create a new file under `/[anime/manga]` and add the `search()` function:
 ```typescript

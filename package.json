@@ -11,6 +11,7 @@
         "test": "node ./test.js",
         "build": "tsc --build",
         "clean": "tsc --build --clean",
+        "init": "node ./scripts/init.js",
         "crawl:manga": "node ./scripts/crawl_manga.js",
         "crawl:anime": "node ./scripts/crawl_anime.js"
     },
