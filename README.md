@@ -99,6 +99,27 @@ npm run crawl:anime
 # Crawls through manga
 npm run crawl:manga
 ```
+If you want the process to run infinitely install `screen` and run `screen npm run crawl:anime`.
+```bash
+# Installs screen
+sudo apt install screen
+
+# Runs the crawler in a screen
+screen npm run crawl:anime
+screen npm run crawl:manga
+
+# To get a list of instances
+screen -ls
+
+# To reattach to a screen
+screen -r [id]
+
+# To detach from a screen
+ctrl + a + d
+
+# To kill a screen
+screen -X -S [id] quit
+```
 
 ## Contributing
 Contribution would very much be appreciated. If you have any suggestions or requests, create a [pull request](https://github.com/Eltik/AniSync/pulls) or [issue](https://github.com/Eltik/AniSync/issues). Adding other "connectors" or sites such as [TVDB](https://thetvdb.com/), [MyAnimeList](https://myanimelist.net/), [4anime](https://4anime.gg/), etc. is super easy. The only thing required would be to create a new file under `/[anime/manga]` and add the `search()` function:
