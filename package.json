@@ -11,8 +11,8 @@
         "test": "node ./test.js",
         "build": "tsc --build",
         "clean": "tsc --build --clean",
-        "cli": "node ./built/cli/cli.js",
-        "start": "node ./built/server.js"
+        "crawl:manga": "node ./scripts/crawl_manga.js",
+        "crawl:anime": "node ./scripts/crawl_anime.js"
     },
     "repository": {
         "type": "git",

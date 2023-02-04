@@ -326,7 +326,6 @@ export default class Sync extends API {
                     });
                     if (result) {
                         results.push(result);
-                        this.db.insert([result], type);
                     }
                 }
                 if (config.debug) {
