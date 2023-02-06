@@ -16,6 +16,8 @@ import * as config from "./config.json";
 import * as colors from "colors";
 import AnimeThemes from "./meta/AnimeThemes";
 import TMDB from "./meta/TMDB";
+import KitsuAnime from "./meta/KitsuAnime";
+import KitsuManga from "./meta/KitsuManga";
 
 export default class Sync extends API {
     private aniList = new AniList();
@@ -77,6 +79,14 @@ export default class Sync extends API {
             {
                 name: "TMDB",
                 object: new TMDB(),
+            },
+            {
+                name: "KitsuAnime",
+                object: new KitsuAnime(),
+            },
+            {
+                name: "KitsuManga",
+                object: new KitsuManga(),
             }
         ]
     }
