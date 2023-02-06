@@ -18,6 +18,7 @@ import AnimeThemes from "./meta/AnimeThemes";
 import TMDB from "./meta/TMDB";
 import KitsuAnime from "./meta/KitsuAnime";
 import KitsuManga from "./meta/KitsuManga";
+import LiveChart from "./meta/LiveChart";
 
 export default class Sync extends API {
     private aniList = new AniList();
@@ -87,6 +88,10 @@ export default class Sync extends API {
             {
                 name: "KitsuManga",
                 object: new KitsuManga(),
+            },
+            {
+                name: "LiveChart",
+                object: new LiveChart(),
             }
         ]
     }
