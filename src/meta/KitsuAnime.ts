@@ -48,8 +48,14 @@ export default class KitsuAnime extends Provider {
                     if (result.attributes.titles.ko_kr) {
                         altTitles.push(result.attributes.titles.ko_kr);
                     }
+                    if (result.attributes.titles.en_cn) {
+                        altTitles.push(result.attributes.titles.en_cn);
+                    }
+                    if (result.attributes.titles.zh_cn) {
+                        altTitles.push(result.attributes.titles.zh_cn);
+                    }
                     results.push({
-                        title: result.attributes.titles.en_us || result.attributes.titles.en_jp || result.attributes.titles.ja_jp || result.attributes.titles.en || result.attributes.titles.en_kr || result.attributes.titles.ko_kr,
+                        title: result.attributes.titles.en_us || result.attributes.titles.en_jp || result.attributes.titles.ja_jp || result.attributes.titles.en || result.attributes.titles.en_kr || result.attributes.titles.ko_kr || result.attributes.titles.en_cn || result.attributes.titles.zh_cn || result.attributes.canonicalTitle || result.attributes.slug,
                         altTitles: altTitles,
                         url: result.links.self,
                     });
@@ -173,6 +179,8 @@ interface Attributes {
         ja_jp: string;
         en_kr: string;
         ko_kr: string;
+        en_cn: string;
+        zh_cn: string;
     };
     canonicalTitle: string;
     abbreviatedTitles: string[];

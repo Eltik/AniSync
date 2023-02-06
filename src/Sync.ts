@@ -89,10 +89,10 @@ export default class Sync extends API {
                 name: "KitsuManga",
                 object: new KitsuManga(),
             },
-            {
-                name: "LiveChart",
-                object: new LiveChart(),
-            }
+            //{
+                //name: "LiveChart",
+                //object: new LiveChart(),
+            //}
         ]
     }
 
@@ -168,6 +168,11 @@ export default class Sync extends API {
                     const title = result.title.userPreferred || result.title.romaji || result.title.english || result.title.native;
                     const altTitles:any[] = Object.values(result.title).concat(result.synonyms);
                     const aniList = result;
+
+                    if (!resultsArray[i][j].title) {
+                        console.log(resultsArray[i][j]);
+                        throw new Error("Unable to fetch.");
+                    }
     
                     const sim = this.similarity(title, resultsArray[i][j].title, altTitles);
                     const tempBest = {
