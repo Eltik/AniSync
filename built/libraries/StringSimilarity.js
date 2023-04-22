@@ -1,7 +1,7 @@
 "use strict";
 // From npm package string-similarity
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.compareTwoStrings = void 0;
+exports.findBestMatch = exports.compareTwoStrings = void 0;
 class StringSimilarity {
     compareTwoStrings(first, second) {
         first = first.replace(/\s+/g, '');
@@ -66,4 +66,9 @@ function compareTwoStrings(first, second) {
     return stringSim.compareTwoStrings(first, second);
 }
 exports.compareTwoStrings = compareTwoStrings;
+function findBestMatch(mainString, targetStrings) {
+    const stringSim = new StringSimilarity();
+    return stringSim.findBestMatch(mainString, targetStrings);
+}
+exports.findBestMatch = findBestMatch;
 //# sourceMappingURL=StringSimilarity.js.map

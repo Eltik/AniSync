@@ -1,5 +1,0 @@
-{
-    "debug": true,
-    "database_path": "/root/AniSync/db.db",
-    "export_path": "/root/AniSync"
-}

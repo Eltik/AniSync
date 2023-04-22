@@ -1,10 +1,15 @@
-import Provider from "../Provider";
-import { ProviderType } from "../API";
-import { Result } from "../Sync";
+import Provider from "../types/Provider";
+import { ProviderType } from "../types/API";
+import { Result } from "../Core";
+import { Format } from "../meta/AniList";
 
 export default class AnimePahe extends Provider {
     constructor() {
-        super("https://animepahe.com", ProviderType.ANIME);
+        super("https://animepahe.ru", ProviderType.ANIME, [Format.MOVIE, Format.ONA, Format.OVA, Format.SPECIAL, Format.TV, Format.TV_SHORT], "AnimePahe");
+        this.altURLs = [
+            "https://animepahe.com",
+            "https://animepahe.org",
+        ]
     }
 
     public async search(query:string): Promise<Array<Result>> {

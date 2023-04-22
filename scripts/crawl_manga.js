@@ -1,3 +1,3 @@
-const Sync = require("../built/Sync").default;
-let aniSync = new Sync();
-aniSync.crawl("ANIME").then(console.log);
+const AniSync = require("../built/AniSync").default;
+let aniSync = new AniSync();
+aniSync.crawl("MANGA").then(console.log);

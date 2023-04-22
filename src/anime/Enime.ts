@@ -1,12 +1,13 @@
-import Provider from "../Provider";
-import { ProviderType } from "../API";
-import { Result } from "../Sync";
+import Provider from "../types/Provider";
+import { ProviderType } from "../types/API";
+import { Result } from "../Core";
+import { Format } from "../meta/AniList";
 
 export default class Enime extends Provider {
     private api = 'https://api.enime.moe';
 
     constructor() {
-        super("https://enime.moe", ProviderType.ANIME);
+        super("https://enime.moe", ProviderType.ANIME, [Format.MOVIE, Format.ONA, Format.OVA, Format.SPECIAL, Format.TV, Format.TV_SHORT], "Enime");
     }
 
     public async search(query:string): Promise<Array<Result>> {
@@ -21,7 +22,7 @@ export default class Enime extends Provider {
         }
         return data.data.map((item:any) => ({
             url: `${this.api}/anime/${item.id}`,
-            title: item.title.english ?? item.title.romaji ?? item.title.native,
+            title: item?.title.english ?? item?.title.romaji ?? item?.title.native,
         }));
     }
 }

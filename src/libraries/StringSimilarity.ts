@@ -74,3 +74,8 @@ export function compareTwoStrings(first, second):number {
     const stringSim = new StringSimilarity();
     return stringSim.compareTwoStrings(first, second);
 }
+
+export function findBestMatch(mainString, targetStrings):StringResult {
+    const stringSim = new StringSimilarity();
+    return stringSim.findBestMatch(mainString, targetStrings);
+}

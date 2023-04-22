@@ -1,11 +1,14 @@
 import { load } from "cheerio";
-import Provider from "../Provider";
-import { ProviderType } from "../API";
-import { Result } from "../Sync";
+import Provider from "../types/Provider";
+import { ProviderType } from "../types/API";
+import { Result } from "../Core";
+import { Format } from "../meta/AniList";
 
 export default class Zoro extends Provider {
+    private api:string = `${this.baseURL}/ajax/v2`;
+
     constructor() {
-        super("https://zoro.to", ProviderType.ANIME);
+        super("https://zoro.to", ProviderType.ANIME, [Format.MOVIE, Format.ONA, Format.OVA, Format.SPECIAL, Format.TV, Format.TV_SHORT], "Zoro");
     }
 
     public async search(query:string): Promise<Array<Result>> {

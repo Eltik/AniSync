@@ -1,19 +1,20 @@
-import { ProviderType } from "../API";
-import Provider from "../Provider";
-import { Result } from "../Sync";
+import { ProviderType } from "../types/API";
+import Provider from "../types/Provider";
+import { Result } from "../Core";
+import { Format } from "./AniList";
 
 export default class KitsuAnime extends Provider {
     private api = 'https://kitsu.io/api/edge';
 
     constructor() {
-        super("https://kitsu.io", ProviderType.ANIME);
+        super("https://kitsu.io", ProviderType.ANIME, [Format.MOVIE, Format.ONA, Format.OVA, Format.SPECIAL, Format.TV, Format.TV_SHORT], "KitsuAnime");
+        this.rateLimit = 250;
     }
 
     public async search(query:string): Promise<Array<Result>> {
         const results:Result[] = [];
 
         const searchUrl = `/anime?filter[text]=${encodeURIComponent(query)}`;
-
         try {
             const req = await this.fetch(this.api + searchUrl, {
                 headers: {

@@ -1,19 +1,20 @@
 // https://api.animethemes.moe/image?filter[facet]=Grill&sort=random&page[size]=1
 import { load } from "cheerio";
-import { ProviderType } from "../API";
-import Provider from "../Provider";
-import { Result } from "../Sync";
+import { ProviderType } from "../types/API";
+import Provider from "../types/Provider";
+import { Result } from "../Core";
+import { Format } from "./AniList";
 
 export default class AnimeThemes extends Provider {
     private graphql:string = "https://animethemes.moe/api/graphql";
     private api:string = "https://api.animethemes.moe";
 
     constructor() {
-        super("https://animethemes.moe", ProviderType.ANIME);
+        super("https://animethemes.moe", ProviderType.ANIME, [Format.MOVIE, Format.ONA, Format.OVA, Format.SPECIAL, Format.TV, Format.TV_SHORT], "AnimeThemes");
+        this.rateLimit = 500;
     }
 
     public async search(query:string): Promise<Array<Result>> {
-        // https://api.animethemes.moe/search?page%5Blimit%5D=4&fields%5Bsearch%5D=anime%2Canimethemes%2Cartists%2Cseries%2Cstudios&q=kubo+won%27t+let+me+be+invisible&include%5Banime%5D=animethemes.animethemeentries.videos%2Canimethemes.song%2Cimages&include%5Banimetheme%5D=animethemeentries.videos%2Canime.images%2Csong.artists&include%5Bartist%5D=images%2Csongs&fields%5Banime%5D=name%2Cslug%2Cyear%2Cseason&fields%5Banimetheme%5D=type%2Csequence%2Cslug%2Cgroup%2Cid&fields%5Banimethemeentry%5D=version%2Cepisodes%2Cspoiler%2Cnsfw&fields%5Bvideo%5D=tags%2Cresolution%2Cnc%2Csubbed%2Clyrics%2Cuncen%2Csource%2Coverlap&fields%5Bimage%5D=facet%2Clink&fields%5Bsong%5D=title&fields%5Bartist%5D=name%2Cslug%2Cas&fields%5Bseries%5D=name%2Cslug&fields%5Bstudio%5D=name%2Cslug
         const req = await this.fetch(`${this.api}/search?page%5Blimit%5D=4&fields%5Bsearch%5D=anime%2Canimethemes%2Cartists%2Cseries%2Cstudios&q=${encodeURIComponent(query)}&include%5Banime%5D=animethemes.animethemeentries.videos%2Canimethemes.song%2Cimages&include%5Banimetheme%5D=animethemeentries.videos%2Canime.images%2Csong.artists&include%5Bartist%5D=images%2Csongs&fields%5Banime%5D=name%2Cslug%2Cyear%2Cseason&fields%5Banimetheme%5D=type%2Csequence%2Cslug%2Cgroup%2Cid&fields%5Banimethemeentry%5D=version%2Cepisodes%2Cspoiler%2Cnsfw&fields%5Bvideo%5D=tags%2Cresolution%2Cnc%2Csubbed%2Clyrics%2Cuncen%2Csource%2Coverlap&fields%5Bimage%5D=facet%2Clink&fields%5Bsong%5D=title&fields%5Bartist%5D=name%2Cslug%2Cas&fields%5Bseries%5D=name%2Cslug&fields%5Bstudio%5D=name%2Cslug`);
         const data:SearchResult = req.json();
 
@@ -27,7 +28,7 @@ export default class AnimeThemes extends Provider {
         return results;
     }
 
-    public async getThemes(id:string): Promise<any> {
+    public async getThemes(id:string): Promise<Theme[]> {
         const req = await this.fetch(`${this.baseURL}${id}`);
         const $ = load(req.text());
         const props = JSON.parse($("#__NEXT_DATA__").html()).props.pageProps;
@@ -35,6 +36,22 @@ export default class AnimeThemes extends Provider {
         // Can access themes via `${this.baseURL}/anime/${slug}/${OP/ED/ED1/etc.}`
         // And also the file via "https://v.animethemes.moe/${filename}.webm"
         return themes;
+    }
+
+    public parseTheme(theme:Theme) {
+        const data = [];
+        theme.entries.map((entry) => {
+            entry.videos.map((video) => {
+                data.push(`https://v.animethemes.moe/${video.filename}.webm`);
+            })
+        })
+        return data;
+    }
+
+    public async parseThemeHTML(theme:Theme) {
+        const req = await this.fetch(`${this.baseURL}/anime/${theme.slug}/${theme.type}`);
+        const $ = load(req.text());
+        return $(`meta[property="og:video"]`).attr("content");
     }
 
     public async getArtist(query:string): Promise<ArtistResult> {
@@ -98,7 +115,11 @@ interface Theme {
         title: string;
     };
     animethemeentries?: [Entry];
-    entires?: [Entry];
+    entries?: [Entry];
+    anime?: {
+        name: string;
+        slug: string;
+    };
 }
 
 interface ImageResponse {
@@ -177,6 +198,14 @@ interface Entry {
 interface Video {
     tags: [string];
     __typename: string;
+    resolution: number;
+    nc: boolean;
+    subbed: boolean;
+    lyrics: boolean;
+    uncen: boolean;
+    source: string;
+    overlap: string;
+    filename: string;
 }
 
 interface ArtistResult {
@@ -200,3 +229,5 @@ interface Artist {
     slug: string;
     images: [Image];
 }
+
+export type { Theme };

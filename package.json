@@ -1,17 +1,25 @@
 {
     "devDependencies": {
         "@types/node": "^18.11.13",
+        "ts-node": "^10.9.1",
         "typescript": "^4.9.4"
     },
     "name": "anisync",
     "description": "Mapping sites to AniList and back.",
-    "version": "2.0.2",
+    "version": "1.0.0",
     "main": "./built/AniSync.js",
     "scripts": {
-        "test": "node ./test.js",
-        "build": "tsc --build",
+        "build": "npm run build:db && npm run build:ts",
+        "build:ts": "tsc --build",
+        "build:db": "npm run db:generate && npm run db:push && npm run db:validate",
+        "db:generate": "npx prisma generate",
+        "db:push": "npx prisma db push",
+        "db:validate": "npx prisma validate",
+        "clear": "node ./scripts/clear.js",
+        "export": "node ./scripts/export.js",
+        "init": "node ./scripts/init_db.js",
+        "import": "node ./scripts/import.js",
         "clean": "tsc --build --clean",
-        "init": "node ./scripts/init.js",
         "crawl:manga": "node ./scripts/crawl_manga.js",
         "crawl:anime": "node ./scripts/crawl_anime.js"
     },
@@ -26,9 +34,14 @@
     },
     "homepage": "https://github.com/Eltik/AniSync#readme",
     "dependencies": {
-        "axios": "^1.2.2",
+        "@prisma/client": "^4.13.0",
+        "axios": "^0.27.2",
+        "cfbypass": "^0.0.12",
         "cheerio": "^1.0.0-rc.12",
         "colors": "^1.4.0",
+        "crypto-js": "^4.1.1",
+        "dotenv": "^16.0.3",
+        "prisma": "^4.8.1",
         "sqlite3": "^5.1.4"
     }
 }

@@ -1,6 +1,7 @@
-import { ProviderType } from "../API";
-import Provider from "../Provider";
-import { Result } from "../Sync";
+import { ProviderType } from "../types/API";
+import Provider from "../types/Provider";
+import { Result } from "../Core";
+import { Format } from "../meta/AniList";
 
 export default class Mangakakalot extends Provider {
     private types = {
@@ -10,7 +11,8 @@ export default class Mangakakalot extends Provider {
     };
 
     constructor() {
-        super("https://mangakakalot.com", ProviderType.MANGA);
+        super("https://mangakakalot.com", ProviderType.MANGA, [Format.MANGA, Format.ONE_SHOT], "Mangakakalot");
+        this.rateLimit = 250;
     }
 
     public async search(query:string): Promise<Array<Result>> {
@@ -22,7 +24,7 @@ export default class Mangakakalot extends Provider {
             body: `searchword=${encodeURIComponent(this.parseQuery(query))}`
         });
         const json = data.json();
-        if (json.length > 0) {
+        if (json.length > 0 && json[0].id) {
             const results = json.map((result:SearchResult) => {
                 const uri = new URL(result.story_link);
                 return {
@@ -57,11 +59,6 @@ export default class Mangakakalot extends Provider {
 
     private parseTitle(name:string) {
         return name.replace("<span class=\"search_result_title_red\">", "").replace("</span>", "");
-    }
-
-    private parseType(id:string) {
-        const type = id.includes("manganato.com") ? id.includes("chapmanganato") ? this.types.CHAPMAGNANATO : this.types.READMANGANATO : this.types.MANGAKAKALOT;
-        return type;
     }
 }
 

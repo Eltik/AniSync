@@ -1,10 +1,12 @@
-import { ProviderType } from "../API";
-import Provider from "../Provider";
-import { Result } from "../Sync";
+import { ProviderType } from "../types/API";
+import Provider from "../types/Provider";
+import { Result } from "../Core";
+import { Format } from "../meta/AniList";
 
 export default class MangaSee extends Provider {
     constructor() {
-        super("https://mangasee123.com", ProviderType.MANGA);
+        super("https://mangasee123.com", ProviderType.MANGA, [Format.MANGA, Format.ONE_SHOT], "MangaSee");
+        this.rateLimit = 250;
     }
 
     public async search(query: string): Promise<Result[]> {

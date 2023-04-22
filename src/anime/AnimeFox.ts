@@ -1,11 +1,12 @@
 import { load } from "cheerio";
-import { ProviderType } from "../API";
-import Provider from "../Provider";
-import { Result } from "../Sync";
+import { ProviderType } from "../types/API";
+import Provider from "../types/Provider";
+import { Result } from "../Core";
+import { Format } from "../meta/AniList";
 
 export default class AnimeFox extends Provider {
     constructor() {
-        super("https://animefox.tv", ProviderType.ANIME);
+        super("https://animefox.tv", ProviderType.ANIME, [Format.MOVIE, Format.ONA, Format.OVA, Format.SPECIAL, Format.TV, Format.TV_SHORT], "AnimeFox");
     }
 
     public async search(query:string): Promise<Array<Result>> {

@@ -1,12 +1,14 @@
-import { ProviderType } from "../API";
-import Provider from "../Provider";
-import { Result } from "../Sync";
+import { ProviderType } from "../types/API";
+import Provider from "../types/Provider";
+import { Result } from "../Core";
+import { Format } from "./AniList";
 
 export default class KitsuManga extends Provider {
     private api = 'https://kitsu.io/api/edge';
 
     constructor() {
-        super("https://kitsu.io", ProviderType.MANGA);
+        super("https://kitsu.io", ProviderType.MANGA, [Format.MANGA, Format.ONE_SHOT, Format.NOVEL], "KitsuManga");
+        this.rateLimit = 250;
     }
 
     public async search(query:string): Promise<Array<Result>> {

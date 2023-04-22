@@ -1,11 +1,13 @@
 import { load } from "cheerio";
-import Provider from "../Provider";
-import { ProviderType } from "../API";
-import { Result } from "../Sync";
+import Provider from "../types/Provider";
+import { ProviderType } from "../types/API";
+import { Result } from "../Core";
+import { Format } from "../meta/AniList";
 
 export default class MangaPark extends Provider {
     constructor() {
-        super("https://v2.mangapark.net", ProviderType.MANGA);
+        super("https://v2.mangapark.net", ProviderType.MANGA, [Format.MANGA, Format.ONE_SHOT], "MangaPark");
+        this.rateLimit = 250;
     }
 
     public async search(query: string): Promise<Result[]> {
@@ -26,7 +28,7 @@ export default class MangaPark extends Provider {
         
             return results;
         } catch (err) {
-        throw new Error((err as Error).message);
+            throw new Error((err as Error).message);
         }
     }
 }

@@ -1,27 +1,32 @@
-import { ProviderType } from "../API";
-import Provider from "../Provider";
-import { Result } from "../Sync";
+import { ProviderType } from "../types/API";
+import Provider from "../types/Provider";
+import { Result } from "../Core";
+import { Format } from "../meta/AniList";
 
 export default class ComicK extends Provider {
     private api:string = "https://api.comick.app";
     private image:string = "https://meo.comick.pictures";
 
     constructor() {
-        super("https://comick.app", ProviderType.MANGA);
+        super("https://comick.app", ProviderType.MANGA, [Format.MANGA, Format.ONE_SHOT], "ComicK");
+        this.rateLimit = 250;
     }
 
     public async search(query:string): Promise<Array<Result>> {
-        const data = await this.fetch(`${this.api}/search?q=${encodeURIComponent(query)}`);
+        const data = await this.fetch(`${this.api}/v1.0/search?q=${encodeURIComponent(query)}&limit=25&page=1`);
         const json = data.json();
         const results = json.map((result:SearchResult) => {
             let cover:any = result.md_covers ? result.md_covers[0] : null;
             if (cover && cover.b2key != undefined) {
-                cover = this.image + cover.b2key;
+                cover = this.image + "/" + cover.b2key;
             }
             // There are alt titles in the md_titles array
             return {
                 url: this.baseURL + "/comic/" + result.slug,
-                title: result.title ? result.title : result.slug
+                id: result.slug,
+                title: result.title ?? result.slug,
+                altTitles: result.md_titles ? result.md_titles.map((title) => title.title) : [],
+                img: cover,
             };
         });
         return results;

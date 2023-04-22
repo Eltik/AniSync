@@ -1,11 +1,14 @@
 import { load } from "cheerio";
-import { ProviderType } from "../API";
-import Provider from "../Provider";
-import { Result } from "../Sync";
+import { ProviderType } from "../types/API";
+import Provider from "../types/Provider";
+import { Result } from "../Core";
+import { Format } from "./AniList";
 
 export default class LiveChart extends Provider {
+    // HAS A REALLY HIGH RATE LIMIT
     constructor() {
-        super("https://www.livechart.me", ProviderType.ANIME);
+        super("https://www.livechart.me", ProviderType.ANIME, [Format.MOVIE, Format.ONA, Format.OVA, Format.SPECIAL, Format.TV, Format.TV_SHORT], "LiveChart");
+        this.rateLimit = 1000;
     }
 
     public async search(query:string): Promise<Array<Result>> {

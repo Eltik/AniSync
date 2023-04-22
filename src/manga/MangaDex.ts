@@ -1,29 +1,32 @@
-import { ProviderType } from "../API";
-import Provider from "../Provider";
-import { Result } from "../Sync";
+import { ProviderType } from "../types/API";
+import Provider from "../types/Provider";
+import { Result } from "../Core";
+import { Format } from "../meta/AniList";
 
 export default class MangaDex extends Provider {
     private api:string = "https://api.mangadex.org";
     private delay:number = 250;
 
     constructor() {
-        super("https://mangadex.org", ProviderType.MANGA);
+        super("https://mangadex.org", ProviderType.MANGA, [Format.MANGA, Format.ONE_SHOT], "MangaDex");
+        this.rateLimit = 250;
     }
 
     public async search(query:string): Promise<Array<Result>> {
         let mangaList = [];
-        const results = [];
+        const results:Result[] = [];
 
         for (let page = 0; page <= 1; page += 1) {
             const uri = new URL('/manga', this.api);
             uri.searchParams.set('title', query);
             uri.searchParams.set('limit', "25");
             uri.searchParams.set('offset', String(25 * page).toString());
-            uri.searchParams.set('order[createdAt]', 'asc');
+            uri.searchParams.set('order[relevance]', 'desc');
             uri.searchParams.append('contentRating[]', 'safe');
             uri.searchParams.append('contentRating[]', 'suggestive');
             uri.searchParams.append('contentRating[]', 'erotica');
             uri.searchParams.append('contentRating[]', 'pornographic');
+            uri.searchParams.append("includes[]", "cover_art");
 
             const request = await this.fetch(uri.href);
             await this.wait(this.delay);
@@ -70,9 +73,22 @@ export default class MangaDex extends Provider {
                 }
             })
 
+            const altTitles = [];
+            if (romaji != undefined) {
+                altTitles.push(romaji);
+            }
+            if (native != undefined) {
+                altTitles.push(native);
+            }
+            if (en != undefined) {
+                altTitles.push(en);
+            }
+
             results.push({
                 url: url,
-                title: title ?? romaji ?? native ?? en,
+                title: title ?? en ?? romaji ?? native,
+                altTitles: altTitles,
+                img: img,
             })
         }
         return results;
