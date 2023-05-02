@@ -1,8 +1,11 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { Anime, Format, Genres, Manga, MediaStatus, Season, Type } from "../..";
 import InformationProvider, { AnimeInfo, MangaInfo } from ".";
-import colors from "colors";
 import { wait } from "@/src/helper";
+import { existsSync } from "fs";
+import { join } from "path";
+import { readFile, writeFile } from "fs/promises";
+import colors from "colors";
 
 export default class AniList extends InformationProvider {
     override id: string = "anilist";
@@ -19,6 +22,68 @@ export default class AniList extends InformationProvider {
     }
 
     override async search(query: string, type:Type, formats: Format[], page?:number, perPage?:number): Promise<AnimeInfo[] | MangaInfo[] | undefined> {
+        // First try manami-project
+        const possible = await this.fetchManamiProject(query, type, formats);
+        if (possible.length > 0 && type === Type.ANIME) {
+            const data = possible.map((media:any) => {
+                const sources = media.sources;
+                const aniList = sources.find((source:any) => {
+                    // Try and parse AniList link
+                    const url = new URL(source);
+                    if (url.href.includes(this.url)) {
+                        return true;
+                    }
+                });
+                const mal = sources.find((source:any) => {
+                    // Try and parse AniList link
+                    const url = new URL(source);
+                    if (url.href.includes("https://myanimelist.net")) {
+                        return true;
+                    }
+                });
+
+                if (!aniList) {
+                    return null;
+                }
+
+                return {
+                    aniListId: aniList ? aniList.split("/anime/")[1] : null,
+                    malId: mal ? mal.split("/anime/")[1] : null,
+                    title: {
+                        english: media.title,
+                        romaji: null,
+                        native: null
+                    },
+                    trailer: null,
+                    currentEpisode: (media.status === MediaStatus.FINISHED || media.status === MediaStatus.CANCELLED) ? (media.episodes ?? 0) : 0,
+                    duration: null,
+                    coverImage: media.picture ?? null,
+                    bannerImage: null,
+                    popularity: 0,
+                    synonyms: media.synonyms ?? [],
+                    totalEpisodes: media.episodes ?? 0,
+                    color: null,
+                    status: media.status,
+                    season: media.animeSeason.season as Season,
+                    genres: [],
+                    rating: null,
+                    description: null,
+                    format: media.type,
+                    year: media.animeSeason.year ?? null,
+                    type: type,
+                    countryOfOrigin: null,
+                    tags: media.tags
+                }
+            })
+
+            if (data.filter((media:any) => media !== null).length > 0) {
+                return data.filter((media:any) => media !== null);
+            }
+        }
+
+        // If not found, try AniList
+        console.log(colors.yellow("[AniList] ") + colors.blue(`${query}`) + colors.yellow(" not found in Manami Project, trying AniList..."));
+        
         const aniListArgs = {
             query: `
             query($page: Int, $perPage: Int, $search: String, $type: MediaType, $format: [MediaFormat]) {
@@ -55,7 +120,7 @@ export default class AniList extends InformationProvider {
         if (!req) {
             return undefined;
         }
-        const media = req.data.data.Page.media;
+        const media = req?.data.data.Page.media;
         
         if (type === Type.ANIME) {
             return media.map((data: Media) => {
@@ -402,6 +467,33 @@ export default class AniList extends InformationProvider {
             seasonal,
             popular,
             top
+        }
+    }
+
+    private async fetchManamiProject(query:string, type:Type, formats:Format[]) {
+        if (existsSync(join(__dirname, "./manami.json"))) {
+            const data = JSON.parse(await readFile(join(__dirname, "./manami.json"), "utf-8"));
+            if (Date.now() - data.time > 86400000) { // 1 day
+                const { data } = await axios.get("https://raw.githubusercontent.com/manami-project/anime-offline-database/master/anime-offline-database.json").then((res) => res.data);
+                data.time = Date.now();
+                await writeFile(join(__dirname, "./manami.json"), JSON.stringify(data, null, 2), "utf-8");
+                console.log(colors.yellow("Manami Project data has been cached."));
+            }
+            const results = data.filter((data:any) => {
+                return data.title.toLowerCase().includes(query.toLowerCase()) || data.synonyms.some((synonym:string) => synonym.toLowerCase() === query.toLowerCase()) && formats.includes(data.type);
+            });
+
+            return results;
+        } else {
+            const { data } = await axios.get("https://raw.githubusercontent.com/manami-project/anime-offline-database/master/anime-offline-database.json").then((res) => res.data);
+            data.time = Date.now();
+            await writeFile(join(__dirname, "./manami.json"), JSON.stringify(data, null, 2), "utf-8");
+            console.log(colors.yellow("Manami Project data has been cached."));
+            const results = data.filter((data:any) => {
+                return data.title.toLowerCase().includes(query.toLowerCase()) || data.synonyms.some((synonym:string) => synonym.toLowerCase() === query.toLowerCase()) && formats.includes(data.type);
+            });
+
+            return results;
         }
     }
 

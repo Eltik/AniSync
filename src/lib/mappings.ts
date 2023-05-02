@@ -66,40 +66,57 @@ export const map = async (query: string, type: Type, formats: Format[], aniData:
             }
         }
 
-        const promise: Promise<Result[]> = new Promise((resolve, reject) => {
-            provider.search(query).then(async(data) => {
-
-                // Sometimes providers doesn't take certain queries. This is a workaround.
-                if (data?.length === 0 && aniData.title.english) {
-                    data = await provider.search(aniData.title.english);
-                    await wait(1000);
-                }
-                if (data?.length === 0 && aniData.title.romaji) {
-                    data = await provider.search(aniData.title.romaji);
-                    await wait(1000);
-                }
-                if (data?.length === 0 && aniData.title.native) {
-                    data = await provider.search(aniData.title.native);
-                    await wait(1000);
-                }
-                if (data?.length === 0 && aniData.synonyms?.length > 0) {
-                    for (let i = 0; i < aniData.synonyms.length; i++) {
-                        data = await provider.search(aniData.synonyms[i]);
-                        if (data!.length > 0) {
-                            break;
-                        }
-                        await wait(1000);
-                    }
-                }
-                resolve(data!);
-            }).catch((err) => {
+        const promise: Promise<Result[]> = new Promise(async(resolve, reject) => {
+            let data = await provider.search(query).catch((err) => {
                 console.log(colors.red("Error fetching from provider " + colors.blue(provider.id) + ": " + colors.yellow(err.message ? err.message : err)));
                 resolve([]);
             });
+            // Sometimes providers doesn't take certain queries. This is a workaround.
+            if (data?.length === 0 && aniData.title.english) {
+                console.log(colors.gray("No results found for ") + colors.blue(query) + colors.gray(" on provider ") + colors.blue(provider.id) + colors.gray(". Trying with ") + colors.blue(aniData.title.english) + colors.gray("..."));
+                data = await provider.search(aniData.title.english).catch((err) => {
+                    console.log(colors.red("Error fetching from provider " + colors.blue(provider.id) + ": " + colors.yellow(err.message ? err.message : err)));
+                    return [];
+                });
+                await wait(250);
+            }
+            if (data?.length === 0 && aniData.title.romaji) {
+                console.log(colors.gray("No results found for ") + colors.blue(query) + colors.gray(" on provider ") + colors.blue(provider.id) + colors.gray(". Trying with ") + colors.blue(aniData.title.romaji) + colors.gray("..."));
+                data = await provider.search(aniData.title.romaji).catch((err) => {
+                    console.log(colors.red("Error fetching from provider " + colors.blue(provider.id) + ": " + colors.yellow(err.message ? err.message : err)));
+                    return [];
+                });
+                await wait(250);
+            }
+            if (data?.length === 0 && aniData.title.native) {
+                console.log(colors.gray("No results found for ") + colors.blue(query) + colors.gray(" on provider ") + colors.blue(provider.id) + colors.gray(". Trying with ") + colors.blue(aniData.title.native) + colors.gray("..."));
+                data = await provider.search(aniData.title.native).catch((err) => {
+                    console.log(colors.red("Error fetching from provider " + colors.blue(provider.id) + ": " + colors.yellow(err.message ? err.message : err)));
+                    return [];
+                });
+                await wait(250);
+            }
+            if (data?.length === 0 && aniData.synonyms?.length > 0) {
+                for (let i = 0; i < aniData.synonyms.length; i++) {
+                    console.log(colors.gray("No results found for ") + colors.blue(query) + colors.gray(" on provider ") + colors.blue(provider.id) + colors.gray(". Trying with ") + colors.blue(aniData.synonyms[i]) + colors.gray("..."));
+                    data = await provider.search(aniData.synonyms[i]).catch((err) => {
+                        console.log(colors.red("Error fetching from provider " + colors.blue(provider.id) + ": " + colors.yellow(err.message ? err.message : err)));
+                        return [];
+                    });
+                    if (data!.length > 0) {
+                        break;
+                    }
+                    await wait(250);
+                }
+            }
+            resolve(data!);
         });
         promises.push(promise);
     }
+
+    console.log(colors.gray("Waiting for all providers to finish..."));
     const resultsArray = await Promise.all(promises);
+    console.log(colors.yellow("Finished fetching from providers."));
     
     for (let i = 0; i < resultsArray.length; i++) {
         for (let j = 0; j < resultsArray[i].length; j++) {
@@ -109,26 +126,31 @@ export const map = async (query: string, type: Type, formats: Format[], aniData:
             }
         
             let best: any = null;
-            aniListResults.map(async (result) => {
-                if (result.status === "NOT_YET_RELEASED") {
-                    return;
-                }
-
-                const title = result.title.userPreferred || result.title.romaji || result.title.english || result.title.native;
-                const altTitles:any[] = Object.values(result.title).concat(result.synonyms);
-
-                const sim = similarity(title, resultsArray[i][j].title, altTitles);
-
-                const tempBest = {
-                    index: j,
-                    similarity: sim,
-                    aniList: result,
-                };
-
-                if (!best || sim.value > best.similarity.value) {
-                    best = tempBest;
-                }
-            });
+            try {
+                aniListResults.map(async (result) => {
+                    if (result.status === "NOT_YET_RELEASED") {
+                        return;
+                    }
+    
+                    const title = result.title.userPreferred || result.title.romaji || result.title.english || result.title.native;
+                    const altTitles:any[] = Object.values(result.title).concat(result.synonyms);
+    
+                    const sim = similarity(title, resultsArray[i][j].title, altTitles);
+    
+                    const tempBest = {
+                        index: j,
+                        similarity: sim,
+                        aniList: result,
+                    };
+    
+                    if (!best || sim.value > best.similarity.value) {
+                        best = tempBest;
+                    }
+                });
+            } catch (e) {
+                console.error(e);
+                console.log(aniListResults)
+            }
             if (best) {
                 const mapping = resultsArray[i][best.index];
                 mappings.push({
