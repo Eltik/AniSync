@@ -10,8 +10,8 @@ The concept of AniSync is relatively simple. Upon querying an ID or search reque
 To start, AniSync requires at least [NodeJS v16](http://nodejs.org) installed (untested). Along with that, the following are required for AniSync to run properly:
 - [PostgreSQL](https://www.postgresql.org)
 - [Python3](https://www.python.org) (for NovelUpdates)
-<br />
-You may also install [Redis](https://redis.io) if you want caching enabled. <b>Note</b>: The web server doesn't work without Redis as of the current commit. A fix will be added soon.
+------
+You may also install [Redis](https://redis.io) if you want caching enabled. **Note**: The web server doesn't work without Redis as of the current commit. A fix will be added soon.
 
 ### Cloning the Repository
 To start mapping, I recommend cloning the repository or downloading the code.
@@ -67,7 +67,6 @@ To add the `most_similar` function.
 ```
 DATABASE_URL="postgresql://postgres:password@localhost:5432"
 ```
-<br />
 That's it! Feel free to join my [Discord](https://discord.gg/F87wYBtnkC) and ask for help in the `#coding` channel if you need additional support.
 
 ### Python
