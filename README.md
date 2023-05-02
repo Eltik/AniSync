@@ -10,6 +10,7 @@ The concept of AniSync is relatively simple. Upon querying an ID or search reque
 To start, AniSync requires at least [NodeJS v16](http://nodejs.org) installed (untested). Along with that, the following are required for AniSync to run properly:
 - [PostgreSQL](https://www.postgresql.org)
 - [Python3](https://www.python.org) (for NovelUpdates)
+<br />
 You may also install [Redis](https://redis.io) if you want caching enabled. <b>Note</b>: The web server doesn't work without Redis as of the current commit. A fix will be added soon.
 
 ### Cloning the Repository
