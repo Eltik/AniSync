@@ -1,0 +1,33 @@
+export default class QueueExecutor<T extends any> {
+    id: string;
+    private intervalId;
+    private intervalN;
+    private executorFunc;
+    private callbackFunc;
+    private errorFunc;
+    private runConditionFunc;
+    private queue;
+    private metaMap;
+    private paused;
+    private activeBySwitch;
+    private active;
+    private isExecuteAfterDone;
+    private running;
+    private isSelfRunning;
+    constructor(id: string);
+    selfRunning(): QueueExecutor<T>;
+    interval(n: number): QueueExecutor<T>;
+    executor(func: (args: T, meta: any) => Promise<any>): QueueExecutor<T>;
+    callback(func: (args: T) => Promise<any> | void): QueueExecutor<T>;
+    error(func: (error: Error, args: T) => Promise<any> | void): QueueExecutor<T>;
+    add(arg: T, meta?: any): void;
+    executeAfterDone(): QueueExecutor<T>;
+    runCondition(func: () => boolean): QueueExecutor<T>;
+    deactivate(): this;
+    activate(): this;
+    activateBySwitch(): this;
+    start(): this;
+    pause(): void;
+    unpause(): void;
+    destroy(): void;
+}

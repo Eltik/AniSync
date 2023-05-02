@@ -1,8 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["orderByNulls", "clientExtensions", "postgresqlExtensions", "filteredRelationCount"]
 }
 
 datasource db {
@@ -10,50 +8,124 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+generator json {
+  provider = "prisma-json-types-generator"
+}
+
 model Anime {
-  id                Int  @id @unique
-  idMal             Int?
-  title             Json
-  coverImage        Json
-  bannerImage       String?
-  startDate         Json?
-  description       String
-  season            String?
-  seasonYear        Int?
-  type              String
-  format            String
-  status            String
-  genres            String[]
-  synonyms          String[]
-  source            String?
-  meanScore         Int?
-  averageScore      Int?
-  relations         Json
-  streamingEpisodes Json
-  trailer           Json?
-  connectors        Json
+  id                 String        @id @default(nanoid(10))
+  malId              String
+  slug               String
+  kitsuId            String?
+  coverImage         String?
+  bannerImage        String?
+  trailer            String?
+  status             AiringStatus?
+  season             AiringSeason  @default(UNKNOWN)
+  /// [AnimeTitle]
+  title              Json
+  currentEpisode     Int?
+  mappings           Json          @default("{}")
+  synonyms           String[]
+  countryOfOrigin    String?
+  description        String?
+  duration           Int?
+  color              String?
+  year               Int?
+  /// [AnimeRating]
+  rating             Json
+  /// [AnimePopularity]
+  popularity         Json
+  type               String
+  format             MediaFormat?  @default(UNKNOWN)
+  relations          Json?
+  totalEpisodes      Int?
+  genres             String[]
+  tags               String[]
+
+  averageRating      Float?
+  averagePopularity  Float?
+
+  @@map("anime")
 }
 
 model Manga {
-  id                Int  @id @unique
-  idMal             Int?
-  title             Json
-  coverImage        Json
-  bannerImage       String?
-  startDate         Json?
-  description       String
-  season            String?
-  seasonYear        Int?
-  type              String
-  format            String
-  status            String
-  genres            String[]
-  synonyms          String[]
-  source            String?
-  meanScore         Int?
-  averageScore      Int?
-  relations         Json
-  streamingEpisodes Json
-  trailer           Json?
-  connectors        Json
+  id                 String        @id @default(nanoid(10))
+  malId              String
+  slug               String
+  kitsuId            String?
+  coverImage         String?
+  bannerImage        String?
+  status             AiringStatus?
+  /// [AnimeTitle]
+  title              Json
+  mappings           Json          @default("{}")
+  synonyms           String[]
+  countryOfOrigin    String?
+  description        String?
+  duration           Int?
+  color              String?
+  /// [AnimeRating]
+  rating             Json
+  /// [AnimePopularity]
+  popularity         Json
+  type               String
+  format             MediaFormat?  @default(UNKNOWN)
+  relations          Json?
+  totalChapters      Int?
+  totalVolumes       Int?
+  genres             String[]
+  tags               String[]
+
+  averageRating      Float?
+  averagePopularity  Float?
+
+  @@map("manga")
+}
+
+enum RelationType {
+  PREQUEL
+  SEQUEL
+  PARENT
+  CHILD
+  SIDE_STORY
+  ALTERNATIVE
+  CHARACTER
+  SUMMARY
+  OTHER
+}
+
+enum AiringStatus {
+  FINISHED
+  RELEASING
+  NOT_YET_RELEASED
+  CANCELLED
+  HIATUS
+}
+
+enum AiringSeason {
+  UNKNOWN
+  SPRING
+  SUMMER
+  FALL
+  WINTER
+}
+
+enum SubType {
+  SUB
+  DUB
+}
+
+enum MediaFormat {
+  UNKNOWN
+  TV
+  TV_SHORT
+  MOVIE
+  SPECIAL
+  OVA
+  ONA
+  MUSIC
+  MANGA
+  ONE_SHOT
+  NOVEL
 }
