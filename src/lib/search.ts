@@ -11,7 +11,7 @@ export const loadSearch = async(data: { query:string, type:Type, formats:Format[
         return existing;
     }
 
-    const result = await new AniList().search(data.query, data.type, data.formats, 0, 1);
+    const result = await new AniList().search(data.query, data.type, data.formats, 0, 10);
 
     await emitter.emitAsync(Events.COMPLETED_SEARCH_LOAD, result);
 

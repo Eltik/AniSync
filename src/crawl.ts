@@ -13,6 +13,7 @@ import { loadMapping } from "./lib/mappings";
 import queues from './worker';
 import emitter, { Events } from '@/src/helper/event';
 
+// CONFIGURE THINGS HERE
 const type: Type = Type.ANIME;
 let maxIds: number = 0;
 

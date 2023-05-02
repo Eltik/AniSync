@@ -37,7 +37,7 @@ const loadSearch = async (data) => {
         await event_1.default.emitAsync(event_1.Events.COMPLETED_SEARCH_LOAD, existing);
         return existing;
     }
-    const result = await new anilist_1.default().search(data.query, data.type, data.formats, 0, 1);
+    const result = await new anilist_1.default().search(data.query, data.type, data.formats, 0, 10);
     await event_1.default.emitAsync(event_1.Events.COMPLETED_SEARCH_LOAD, result);
     return result;
 };
