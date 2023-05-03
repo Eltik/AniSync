@@ -450,7 +450,7 @@ class AniList extends _1.default {
         try {
             if ((0, fs_1.existsSync)((0, path_1.join)(__dirname, "./manami.json"))) {
                 const data = JSON.parse(await (0, promises_1.readFile)((0, path_1.join)(__dirname, "./manami.json"), "utf-8"));
-                if (Date.now() - data.time > /*86400000*/ 0) { // 1 day
+                if (Date.now() - data.time > 86400000) { // 1 day
                     const { data } = await axios_1.default.get("https://raw.githubusercontent.com/manami-project/anime-offline-database/master/anime-offline-database.json").then((res) => res.data);
                     data.time = Date.now();
                     await (0, promises_1.writeFile)((0, path_1.join)(__dirname, "./manami.json"), JSON.stringify(data, null, 2), "utf-8");
