@@ -13,7 +13,7 @@ export default class TMDB extends MetaProvider {
     override async search(query: string): Promise<Result[] | undefined> {
         const results:Result[] = [];
 
-        const page = 0;
+        const page = 1;
         const searchUrl = `/search/multi?api_key=${this.apiKey}&language=en-US&page=${page}&include_adult=false&query=${encodeURIComponent(query)}`;
 
         const { data } = await axios(this.url + searchUrl);
@@ -25,6 +25,7 @@ export default class TMDB extends MetaProvider {
                         title: result.title || result.name,
                         altTitles: [result.original_title || result.original_name, result.title || result.name],
                         img: `https://image.tmdb.org/t/p/w500${result.poster_path}`,
+                        year: result.first_air_date ? new Date(result.first_air_date).getFullYear() : 0,
                         providerId: this.id,
                     });
                 } else if (result.media_type === "movie") {
@@ -33,6 +34,7 @@ export default class TMDB extends MetaProvider {
                         title: result.title || result.name,
                         altTitles: [result.original_title || result.original_name, result.title || result.name],
                         img: `https://image.tmdb.org/t/p/w500${result.poster_path}`,
+                        year: result.first_air_date ? new Date(result.first_air_date).getFullYear() : 0,
                         providerId: this.id,
                     });
                 }

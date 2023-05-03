@@ -63,6 +63,7 @@ class MangaDex extends _1.default {
                 title: title,
                 altTitles: altTitles,
                 img: img,
+                year: attributes.year,
                 providerId: this.id,
             });
         }

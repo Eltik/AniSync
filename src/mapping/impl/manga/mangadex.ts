@@ -73,6 +73,7 @@ export default class MangaDex extends MangaProvider {
                 title: title,
                 altTitles: altTitles,
                 img: img,
+                year: attributes.year,
                 providerId: this.id,
             })
         }

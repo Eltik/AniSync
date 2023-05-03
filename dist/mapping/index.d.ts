@@ -11,6 +11,7 @@ export type Result = {
     id: string;
     title: string;
     altTitles: string[];
+    year: number;
     img: string | null;
     providerId: string;
 };

@@ -40,6 +40,7 @@ class NovelUpdates extends _1.default {
                 id: url,
                 title: title?.trim(),
                 img: img,
+                year: 0,
                 altTitles: [],
                 providerId: this.id
             });

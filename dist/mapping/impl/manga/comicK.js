@@ -23,6 +23,7 @@ class ComicK extends _1.default {
                 title: result.title ?? result.slug,
                 altTitles: result.md_titles ? result.md_titles.map((title) => title.title) : [],
                 img: cover,
+                year: result.created_at ? new Date(result.created_at).getFullYear() : 0,
                 providerId: this.id,
             });
         });

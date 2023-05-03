@@ -133,7 +133,7 @@ export default class AniList extends InformationProvider {
                     rating: data.meanScore ? data.meanScore / 10 : null,
                     description: data.description ?? null,
                     format: data.format,
-                    year: data.seasonYear ?? null,
+                    year: data.seasonYear ?? data.startDate?.year ?? null,
                     // @ts-ignore
                     type: data.type,
                     countryOfOrigin: data.countryOfOrigin ?? null,
@@ -162,6 +162,7 @@ export default class AniList extends InformationProvider {
                     rating: data.meanScore ? data.meanScore / 10 : null,
                     description: data.description ?? null,
                     format: data.format,
+                    year: data.seasonYear ?? data.startDate?.year ?? null,
                     // @ts-ignore
                     type: data.type,
                     countryOfOrigin: data.countryOfOrigin ?? null,
@@ -222,7 +223,7 @@ export default class AniList extends InformationProvider {
             rating: data.meanScore ? data.meanScore / 10 : null,
             description: data.description ?? null,
             format: data.format,
-            year: data.seasonYear ?? null,
+            year: data.seasonYear ?? data.startDate?.year ?? null,
             countryOfOrigin: data.countryOfOrigin ?? null,
             tags: data.tags.map((tag) => tag.name)
         }
@@ -275,7 +276,7 @@ export default class AniList extends InformationProvider {
             rating: data.meanScore ? data.meanScore / 10 : null,
             description: data.description ?? null,
             format: data.format,
-            year: data.seasonYear ?? null,
+            year: data.seasonYear ?? data.startDate?.year ?? null,
             // @ts-ignore
             type: data.type,
             countryOfOrigin: data.countryOfOrigin ?? null,
@@ -358,6 +359,7 @@ export default class AniList extends InformationProvider {
                 description: data.description ?? null,
                 format: data.format,
                 countryOfOrigin: data.countryOfOrigin ?? null,
+                year: data.seasonYear ?? data.startDate?.year ?? null,
                 // @ts-ignore
                 type: data.type,
                 tags: data.tags.map((tag) => tag.name)
@@ -386,6 +388,7 @@ export default class AniList extends InformationProvider {
                 description: data.description ?? null,
                 format: data.format,
                 countryOfOrigin: data.countryOfOrigin ?? null,
+                year: data.seasonYear ?? data.startDate?.year ?? null,
                 // @ts-ignore
                 type: data.type,
                 tags: data.tags.map((tag) => tag.name)
@@ -414,6 +417,7 @@ export default class AniList extends InformationProvider {
                 description: data.description ?? null,
                 format: data.format,
                 countryOfOrigin: data.countryOfOrigin ?? null,
+                year: data.seasonYear ?? data.startDate?.year ?? null,
                 // @ts-ignore
                 type: data.type,
                 tags: data.tags.map((tag) => tag.name)
@@ -442,6 +446,7 @@ export default class AniList extends InformationProvider {
                 description: data.description ?? null,
                 format: data.format,
                 countryOfOrigin: data.countryOfOrigin ?? null,
+                year: data.seasonYear ?? data.startDate?.year ?? null,
                 // @ts-ignore
                 type: data.type,
                 tags: data.tags.map((tag) => tag.name)

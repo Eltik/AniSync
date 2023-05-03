@@ -20,12 +20,14 @@ class GogoAnime extends _1.default {
         $("ul.items > li").map((i, el) => {
             const title = $(el).find("div.img a").attr("title").trim().replace(/\\n/g, "");
             const id = $(el).find("div.img a").attr("href");
+            const year = (parseInt($("p.released").text()?.split("Released: ")[1]) ?? 0);
             const img = $(el).find("div.img a img").attr("src");
             results.push({
                 id: id,
                 title: title,
                 altTitles: [],
                 img: img,
+                year: year,
                 providerId: this.id
             });
         });

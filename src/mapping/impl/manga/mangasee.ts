@@ -19,6 +19,7 @@ export default class MangaSee extends MangaProvider {
                     title: list[i].s,
                     id: `/manga/${list[i].i}`,
                     altTitles: list[i].a,
+                    year: 0,
                     img: null,
                     providerId: this.id,
                 })

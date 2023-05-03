@@ -23,10 +23,12 @@ class NineAnime extends _1.default {
         $("div.items > a.item").each((i, el) => {
             const title = $(el).find("div.name");
             const altTitles = [title.attr("data-jp")];
+            const year = (parseInt($(el).find("div.info div.meta span.dot").last()?.text()?.trim()?.split(",")[1]) ?? 0);
             results.push({
                 id: $(el).attr("href"),
                 title: title.text().trim(),
                 altTitles,
+                year,
                 img: $(el).find("img").attr("src"),
                 providerId: this.id
             });

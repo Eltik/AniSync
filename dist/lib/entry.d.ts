@@ -25,8 +25,8 @@ export declare const createEntry: (data: {
     popularity: PrismaJson.MetaSitesMetric;
     id: string;
     malId: string;
-    kitsuId: string | null;
     slug: string;
+    kitsuId: string | null;
     mappings: import("database").Prisma.JsonValue;
     type: string;
     relations: import("database").Prisma.JsonValue;
@@ -54,8 +54,8 @@ export declare const createEntry: (data: {
         popularity: PrismaJson.MetaSitesMetric;
         id: string;
         malId: string;
-        kitsuId: string | null;
         slug: string;
+        kitsuId: string | null;
         mappings: import("database").Prisma.JsonValue;
         type: string;
         relations: import("database").Prisma.JsonValue;
@@ -80,14 +80,14 @@ export declare const createEntry: (data: {
     duration: number | null;
     countryOfOrigin: string | null;
     tags: string[];
-    totalChapters: number | null;
-    totalVolumes: number | null;
     rating: PrismaJson.MetaSitesMetric;
     popularity: PrismaJson.MetaSitesMetric;
+    totalChapters: number | null;
+    totalVolumes: number | null;
     id: string;
     malId: string;
-    kitsuId: string | null;
     slug: string;
+    kitsuId: string | null;
     mappings: import("database").Prisma.JsonValue;
     type: string;
     relations: import("database").Prisma.JsonValue;

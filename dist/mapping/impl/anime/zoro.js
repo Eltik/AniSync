@@ -28,6 +28,7 @@ class Zoro extends _1.default {
                 id: id,
                 title: title,
                 altTitles: altTitles,
+                year: 0,
                 img: img,
                 providerId: this.id
             });

@@ -56,6 +56,7 @@ export default class KitsuAnime extends MetaProvider {
                     title: result.attributes.titles.en_us || result.attributes.titles.en_jp || result.attributes.titles.ja_jp || result.attributes.titles.en || result.attributes.titles.en_kr || result.attributes.titles.ko_kr || result.attributes.titles.en_cn || result.attributes.titles.zh_cn || result.attributes.canonicalTitle || result.attributes.slug,
                     altTitles: altTitles,
                     id: result.id,
+                    year: result.attributes.startDate ? new Date(result.attributes.startDate).getFullYear() : 0,
                     img: result.attributes.posterImage.original,
                     providerId: this.id,
                 });

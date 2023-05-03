@@ -57,6 +57,7 @@ class KitsuManga extends _1.default {
                     altTitles: altTitles,
                     id: result.id,
                     img: result.attributes.posterImage.original,
+                    year: result.attributes.startDate ? new Date(result.attributes.startDate).getFullYear() : 0,
                     providerId: this.id,
                 });
             });

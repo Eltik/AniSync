@@ -32,6 +32,7 @@ export default class BatoTo extends MangaProvider {
                 altTitles,
                 img,
                 title,
+                year: 0,
                 providerId: this.id,
             });
         });

@@ -28,6 +28,7 @@ class BatoTo extends _1.default {
                 altTitles,
                 img,
                 title,
+                year: 0,
                 providerId: this.id,
             });
         });

@@ -45,6 +45,7 @@ export default class NovelUpdates extends MangaProvider {
                 id: url,
                 title: title?.trim()!,
                 img: img,
+                year: 0,
                 altTitles: [],
                 providerId: this.id
             })

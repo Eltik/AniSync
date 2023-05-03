@@ -127,7 +127,7 @@ class AniList extends _1.default {
                     rating: data.meanScore ? data.meanScore / 10 : null,
                     description: data.description ?? null,
                     format: data.format,
-                    year: data.seasonYear ?? null,
+                    year: data.seasonYear ?? data.startDate?.year ?? null,
                     // @ts-ignore
                     type: data.type,
                     countryOfOrigin: data.countryOfOrigin ?? null,
@@ -157,6 +157,7 @@ class AniList extends _1.default {
                     rating: data.meanScore ? data.meanScore / 10 : null,
                     description: data.description ?? null,
                     format: data.format,
+                    year: data.seasonYear ?? data.startDate?.year ?? null,
                     // @ts-ignore
                     type: data.type,
                     countryOfOrigin: data.countryOfOrigin ?? null,
@@ -213,7 +214,7 @@ class AniList extends _1.default {
             rating: data.meanScore ? data.meanScore / 10 : null,
             description: data.description ?? null,
             format: data.format,
-            year: data.seasonYear ?? null,
+            year: data.seasonYear ?? data.startDate?.year ?? null,
             countryOfOrigin: data.countryOfOrigin ?? null,
             tags: data.tags.map((tag) => tag.name)
         };
@@ -263,7 +264,7 @@ class AniList extends _1.default {
             rating: data.meanScore ? data.meanScore / 10 : null,
             description: data.description ?? null,
             format: data.format,
-            year: data.seasonYear ?? null,
+            year: data.seasonYear ?? data.startDate?.year ?? null,
             // @ts-ignore
             type: data.type,
             countryOfOrigin: data.countryOfOrigin ?? null,
@@ -342,6 +343,7 @@ class AniList extends _1.default {
                 description: data.description ?? null,
                 format: data.format,
                 countryOfOrigin: data.countryOfOrigin ?? null,
+                year: data.seasonYear ?? data.startDate?.year ?? null,
                 // @ts-ignore
                 type: data.type,
                 tags: data.tags.map((tag) => tag.name)
@@ -369,6 +371,7 @@ class AniList extends _1.default {
                 description: data.description ?? null,
                 format: data.format,
                 countryOfOrigin: data.countryOfOrigin ?? null,
+                year: data.seasonYear ?? data.startDate?.year ?? null,
                 // @ts-ignore
                 type: data.type,
                 tags: data.tags.map((tag) => tag.name)
@@ -396,6 +399,7 @@ class AniList extends _1.default {
                 description: data.description ?? null,
                 format: data.format,
                 countryOfOrigin: data.countryOfOrigin ?? null,
+                year: data.seasonYear ?? data.startDate?.year ?? null,
                 // @ts-ignore
                 type: data.type,
                 tags: data.tags.map((tag) => tag.name)
@@ -423,6 +427,7 @@ class AniList extends _1.default {
                 description: data.description ?? null,
                 format: data.format,
                 countryOfOrigin: data.countryOfOrigin ?? null,
+                year: data.seasonYear ?? data.startDate?.year ?? null,
                 // @ts-ignore
                 type: data.type,
                 tags: data.tags.map((tag) => tag.name)

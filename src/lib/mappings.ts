@@ -121,6 +121,13 @@ export const map = async (query: string, type: Type, formats: Format[], aniData:
     
     for (let i = 0; i < resultsArray.length; i++) {
         for (let j = 0; j < resultsArray[i].length; j++) {
+            const year = (aniData.year ?? aniData.startDate?.year) ?? null;
+            if (year && (resultsArray[i][j].year !== 0)) {
+                if (Number(resultsArray[i][j].year) !== Number(aniData.year)) {
+                    continue;
+                }
+            }
+
             const aniListResults = await aniList.search(sanitizeTitle(resultsArray[i][j].title), type, formats);
             if (!aniListResults) {
                 continue;

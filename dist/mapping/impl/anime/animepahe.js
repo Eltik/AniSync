@@ -22,6 +22,7 @@ class AnimePahe extends _1.default {
             results.push({
                 id: String(item.id) ?? item.session,
                 title: item.title,
+                year: item.year,
                 img: item.poster,
                 altTitles: [],
                 providerId: this.id

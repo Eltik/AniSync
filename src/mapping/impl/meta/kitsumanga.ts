@@ -57,6 +57,7 @@ export default class KitsuManga extends MetaProvider {
                     altTitles: altTitles,
                     id: result.id,
                     img: result.attributes.posterImage.original,
+                    year: result.attributes.startDate ? new Date(result.attributes.startDate).getFullYear() : 0,
                     providerId: this.id,
                 });
             });
