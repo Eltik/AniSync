@@ -6,6 +6,7 @@ import { existsSync } from "fs";
 import { join } from "path";
 import { readFile, writeFile } from "fs/promises";
 import colors from "colors";
+import { compareTwoStrings } from "@/src/helper/stringSimilarity";
 
 export default class AniList extends InformationProvider {
     override id: string = "anilist";
@@ -23,32 +24,20 @@ export default class AniList extends InformationProvider {
 
     override async search(query: string, type:Type, formats: Format[], page?:number, perPage?:number): Promise<AnimeInfo[] | MangaInfo[] | undefined> {
         // First try manami-project
-        const possible = await this.fetchManamiProject(query, type, formats);
+        const possible = await this.fetchManamiProject(query, formats);
         if (possible.length > 0 && type === Type.ANIME) {
             const data = possible.map((media:any) => {
                 const sources = media.sources;
-                const aniList = sources.find((source:any) => {
-                    // Try and parse AniList link
-                    const url = new URL(source);
-                    if (url.href.includes(this.url)) {
-                        return true;
-                    }
-                });
-                const mal = sources.find((source:any) => {
-                    // Try and parse AniList link
-                    const url = new URL(source);
-                    if (url.href.includes("https://myanimelist.net")) {
-                        return true;
-                    }
-                });
+                const aniList = (sources.find((source: string) => source.startsWith("https://anilist.co/")))?.match(/(?<=\/)\d+/)?.[0];
+                const mal = sources.find((source: string) => source.startsWith("https://myanimelist.net/"))?.match(/(?<=\/)\d+/)?.[0];
 
                 if (!aniList) {
                     return null;
                 }
 
                 return {
-                    aniListId: aniList ? aniList.split("/anime/")[1] : null,
-                    malId: mal ? mal.split("/anime/")[1] : null,
+                    aniListId: aniList ?? null,
+                    malId: mal ?? null,
                     title: {
                         english: media.title,
                         romaji: null,
@@ -467,7 +456,7 @@ export default class AniList extends InformationProvider {
         }
     }
 
-    private async fetchManamiProject(query:string, type:Type, formats:Format[]) {
+    private async fetchManamiProject(query:string, formats:Format[]) {
         try {
             if (existsSync(join(__dirname, "./manami.json"))) {
                 const data = JSON.parse(await readFile(join(__dirname, "./manami.json"), "utf-8"));
@@ -477,20 +466,28 @@ export default class AniList extends InformationProvider {
                     await writeFile(join(__dirname, "./manami.json"), JSON.stringify(data, null, 2), "utf-8");
                     console.log(colors.yellow("Manami Project data has been cached."));
                 }
-                const results = data.filter((data:any) => {
-                    return data.title.toLowerCase().includes(query.toLowerCase()) || data.synonyms.some((synonym:string) => synonym.toLowerCase() === query.toLowerCase()) && formats.includes(data.type);
+                
+                const results = data.filter((data: any) => {
+                    const titleMatchScore = compareTwoStrings(query, data.title.toLowerCase());
+                    const synonymsMatchScore = data.synonyms.some((synonym: string) => compareTwoStrings(query, synonym.toLowerCase()) > 0.6);
+                    const formatMatch = formats.includes(data.type);
+
+                    return titleMatchScore > 0.6 || synonymsMatchScore && formatMatch;
                 });
-    
                 return results;
             } else {
                 const { data } = await axios.get("https://raw.githubusercontent.com/manami-project/anime-offline-database/master/anime-offline-database.json").then((res) => res.data);
                 data.time = Date.now();
                 await writeFile(join(__dirname, "./manami.json"), JSON.stringify(data, null, 2), "utf-8");
                 console.log(colors.yellow("Manami Project data has been cached."));
-                const results = data.filter((data:any) => {
-                    return data.title.toLowerCase().includes(query.toLowerCase()) || data.synonyms.some((synonym:string) => synonym.toLowerCase() === query.toLowerCase()) && formats.includes(data.type);
+
+                const results = data.filter((data: any) => {
+                    const titleMatchScore = compareTwoStrings(query, data.title.toLowerCase());
+                    const synonymsMatchScore = data.synonyms.some((synonym: string) => compareTwoStrings(query, synonym.toLowerCase()) > 0.6);
+                    const formatMatch = formats.includes(data.type);
+
+                    return titleMatchScore > 0.6 || synonymsMatchScore && formatMatch;
                 });
-    
                 return results;
             }
         } catch (e) {

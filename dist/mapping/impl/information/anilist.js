@@ -10,6 +10,7 @@ const fs_1 = require("fs");
 const path_1 = require("path");
 const promises_1 = require("fs/promises");
 const colors_1 = __importDefault(require("colors"));
+const stringSimilarity_1 = require("@/src/helper/stringSimilarity");
 class AniList extends _1.default {
     id = "anilist";
     url = "https://anilist.co";
@@ -22,30 +23,18 @@ class AniList extends _1.default {
     }
     async search(query, type, formats, page, perPage) {
         // First try manami-project
-        const possible = await this.fetchManamiProject(query, type, formats);
+        const possible = await this.fetchManamiProject(query, formats);
         if (possible.length > 0 && type === "ANIME" /* Type.ANIME */) {
             const data = possible.map((media) => {
                 const sources = media.sources;
-                const aniList = sources.find((source) => {
-                    // Try and parse AniList link
-                    const url = new URL(source);
-                    if (url.href.includes(this.url)) {
-                        return true;
-                    }
-                });
-                const mal = sources.find((source) => {
-                    // Try and parse AniList link
-                    const url = new URL(source);
-                    if (url.href.includes("https://myanimelist.net")) {
-                        return true;
-                    }
-                });
+                const aniList = (sources.find((source) => source.startsWith("https://anilist.co/")))?.match(/(?<=\/)\d+/)?.[0];
+                const mal = sources.find((source) => source.startsWith("https://myanimelist.net/"))?.match(/(?<=\/)\d+/)?.[0];
                 if (!aniList) {
                     return null;
                 }
                 return {
-                    aniListId: aniList ? aniList.split("/anime/")[1] : null,
-                    malId: mal ? mal.split("/anime/")[1] : null,
+                    aniListId: aniList ?? null,
+                    malId: mal ?? null,
                     title: {
                         english: media.title,
                         romaji: null,
@@ -446,7 +435,7 @@ class AniList extends _1.default {
             top
         };
     }
-    async fetchManamiProject(query, type, formats) {
+    async fetchManamiProject(query, formats) {
         try {
             if ((0, fs_1.existsSync)((0, path_1.join)(__dirname, "./manami.json"))) {
                 const data = JSON.parse(await (0, promises_1.readFile)((0, path_1.join)(__dirname, "./manami.json"), "utf-8"));
@@ -457,7 +446,10 @@ class AniList extends _1.default {
                     console.log(colors_1.default.yellow("Manami Project data has been cached."));
                 }
                 const results = data.filter((data) => {
-                    return data.title.toLowerCase().includes(query.toLowerCase()) || data.synonyms.some((synonym) => synonym.toLowerCase() === query.toLowerCase()) && formats.includes(data.type);
+                    const titleMatchScore = (0, stringSimilarity_1.compareTwoStrings)(query, data.title.toLowerCase());
+                    const synonymsMatchScore = data.synonyms.some((synonym) => (0, stringSimilarity_1.compareTwoStrings)(query, synonym.toLowerCase()) > 0.6);
+                    const formatMatch = formats.includes(data.type);
+                    return titleMatchScore > 0.6 || synonymsMatchScore && formatMatch;
                 });
                 return results;
             }
@@ -467,7 +459,10 @@ class AniList extends _1.default {
                 await (0, promises_1.writeFile)((0, path_1.join)(__dirname, "./manami.json"), JSON.stringify(data, null, 2), "utf-8");
                 console.log(colors_1.default.yellow("Manami Project data has been cached."));
                 const results = data.filter((data) => {
-                    return data.title.toLowerCase().includes(query.toLowerCase()) || data.synonyms.some((synonym) => synonym.toLowerCase() === query.toLowerCase()) && formats.includes(data.type);
+                    const titleMatchScore = (0, stringSimilarity_1.compareTwoStrings)(query, data.title.toLowerCase());
+                    const synonymsMatchScore = data.synonyms.some((synonym) => (0, stringSimilarity_1.compareTwoStrings)(query, synonym.toLowerCase()) > 0.6);
+                    const formatMatch = formats.includes(data.type);
+                    return titleMatchScore > 0.6 || synonymsMatchScore && formatMatch;
                 });
                 return results;
             }
