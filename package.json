@@ -38,7 +38,7 @@
     },
     "homepage": "https://github.com/Eltik/Anify#readme",
     "dependencies": {
-        "@prisma/client": "^4.11.0",
+        "@prisma/client": "^4.13.0",
         "axios": "^0.27.2",
         "cfbypass": "^0.0.12",
         "cheerio": "^1.0.0-rc.12",

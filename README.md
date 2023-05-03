@@ -18,6 +18,10 @@ To start mapping, I recommend cloning the repository or downloading the code.
 ```bash
 git clone https://github.com/Eltik/AniSync
 ```
+Once downloaded or cloned run 
+```bash
+npm run build
+```
 
 ### PostgreSQL
 AniSync requires <b>PostgreSQL v15</b> to work as additional extensions are needed for searching the database.
@@ -93,6 +97,25 @@ The following are some additional things you can do to help with using AniSync.
 <b>Note</b>:As of the current commit, crawling requires editing the `/src/crawl.ts` file. Change the variables under the `CONFIGURE THINGS HERE` comment. I'll update with a fix soon.
 <br />
 To start crawling, run `npm run crawl`. Once you have run the command, keep the terminal open and wait. The program will insert media using AniList's [sitemap](https://anilist.co/sitemap/anime-0.xml). **Please note that crawling takes a REALLY long time.** I've mentioned above, but there are more optimizations that can be done to improve the crawling speed. AniList rate limit is a big factor, and as of now, crawling all of AniList will take over 50 days for manga/light novels. I've added the ability to use Manami (an offline database) for anime, so mappings don't take very long using that. The only issue right now is manga/light novels since there doesn't seem to be a good AniList offline database. However, the mappings are very accurate and in the end it's worth it.
+***************
+#### To Crawl Specific Number Of Anime
+1)Open `/src/crawl.ts` file. Under `CONFIGURE THINGS HERE` comment change the var `maxIds: number = x` where x is the number of anime you want to map.
+2)open `lastId.txt` and enter a number. Note that this number will decide to start mapping from which id.
+
+Example: 
+To map 2000-3000 anime only 
+<br/>
+1)Open `/src/crawl.ts` file. Under `CONFIGURE THINGS HERE` comment change the var `maxIds: number = 1000`
+<br/>
+2)open `lastId.txt` and enter 2000 and save.
+<br/>
+What will be the result?
+<br/>
+--> It will skip first 2000 anime from the AniList's [sitemap](https://anilist.co/sitemap/anime-0.xml) and start mapping from 2001st anime till 3000.
+<br/>
+Note The `maxIds` variable will decide how many anime to map. If you set it to 1000 then it will only map 1000 anime.
+***************
+
 ### Importing/Exporting
 There might be a `database.json` file located in the project. If it isn't, copy it into the root of the project. I have added a `npm run import` command to import pre-made databases so that crawling again isn't necessary. If you want to export the database, run `npm run export`.
 ### Coding with AniSync
