@@ -15,6 +15,9 @@ class AnimePahe extends _1.default {
     async search(query) {
         const { data } = await (0, axios_1.default)(`${this.url}/api?m=search&q=${encodeURIComponent(query)}`);
         const results = [];
+        if (!data.data) {
+            return [];
+        }
         data.data.map((item) => {
             results.push({
                 id: String(item.id) ?? item.session,

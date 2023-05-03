@@ -16,6 +16,10 @@ export default class AnimePahe extends AnimeProvider {
         const { data } = await axios(`${this.url}/api?m=search&q=${encodeURIComponent(query)}`);
         const results: Result[] = [];
 
+        if (!data.data) {
+            return [];
+        }
+
         data.data.map((item) => {
             results.push({
                 id: String(item.id) ?? item.session,
