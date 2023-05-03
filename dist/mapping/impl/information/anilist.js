@@ -6,6 +6,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = __importDefault(require("axios"));
 const _1 = __importDefault(require("."));
 const helper_1 = require("@/src/helper");
+const fs_1 = require("fs");
+const path_1 = require("path");
+const promises_1 = require("fs/promises");
+const colors_1 = __importDefault(require("colors"));
 class AniList extends _1.default {
     id = "anilist";
     url = "https://anilist.co";
@@ -17,6 +21,61 @@ class AniList extends _1.default {
         return ["synonyms", "genres", "tags"];
     }
     async search(query, type, formats, page, perPage) {
+        // First try manami-project
+        const possible = await this.fetchManamiProject(query, type, formats);
+        if (possible.length > 0 && type === "ANIME" /* Type.ANIME */) {
+            const data = possible.map((media) => {
+                const sources = media.sources;
+                const aniList = sources.find((source) => {
+                    // Try and parse AniList link
+                    const url = new URL(source);
+                    if (url.href.includes(this.url)) {
+                        return true;
+                    }
+                });
+                const mal = sources.find((source) => {
+                    // Try and parse AniList link
+                    const url = new URL(source);
+                    if (url.href.includes("https://myanimelist.net")) {
+                        return true;
+                    }
+                });
+                if (!aniList) {
+                    return null;
+                }
+                return {
+                    aniListId: aniList ? aniList.split("/anime/")[1] : null,
+                    malId: mal ? mal.split("/anime/")[1] : null,
+                    title: {
+                        english: media.title,
+                        romaji: null,
+                        native: null
+                    },
+                    trailer: null,
+                    currentEpisode: (media.status === "FINISHED" /* MediaStatus.FINISHED */ || media.status === "CANCELLED" /* MediaStatus.CANCELLED */) ? (media.episodes ?? 0) : 0,
+                    duration: null,
+                    coverImage: media.picture ?? null,
+                    bannerImage: null,
+                    popularity: 0,
+                    synonyms: media.synonyms ?? [],
+                    totalEpisodes: media.episodes ?? 0,
+                    color: null,
+                    status: media.status,
+                    season: media.animeSeason.season,
+                    genres: [],
+                    rating: null,
+                    description: null,
+                    format: media.type,
+                    year: media.animeSeason.year ?? null,
+                    type: type,
+                    countryOfOrigin: null,
+                    tags: media.tags
+                };
+            });
+            if (data.filter((media) => media !== null).length > 0) {
+                return data.filter((media) => media !== null);
+            }
+        }
         const aniListArgs = {
             query: `
             query($page: Int, $perPage: Int, $search: String, $type: MediaType, $format: [MediaFormat]) {
@@ -53,7 +112,7 @@ class AniList extends _1.default {
         if (!req) {
             return undefined;
         }
-        const media = req.data.data.Page.media;
+        const media = req?.data.data.Page.media;
         if (type === "ANIME" /* Type.ANIME */) {
             return media.map((data) => {
                 return {
@@ -387,6 +446,37 @@ class AniList extends _1.default {
             top
         };
     }
+    async fetchManamiProject(query, type, formats) {
+        try {
+            if ((0, fs_1.existsSync)((0, path_1.join)(__dirname, "./manami.json"))) {
+                const data = JSON.parse(await (0, promises_1.readFile)((0, path_1.join)(__dirname, "./manami.json"), "utf-8"));
+                if (Date.now() - data.time > /*86400000*/ 0) { // 1 day
+                    const { data } = await axios_1.default.get("https://raw.githubusercontent.com/manami-project/anime-offline-database/master/anime-offline-database.json").then((res) => res.data);
+                    data.time = Date.now();
+                    await (0, promises_1.writeFile)((0, path_1.join)(__dirname, "./manami.json"), JSON.stringify(data, null, 2), "utf-8");
+                    console.log(colors_1.default.yellow("Manami Project data has been cached."));
+                }
+                const results = data.filter((data) => {
+                    return data.title.toLowerCase().includes(query.toLowerCase()) || data.synonyms.some((synonym) => synonym.toLowerCase() === query.toLowerCase()) && formats.includes(data.type);
+                });
+                return results;
+            }
+            else {
+                const { data } = await axios_1.default.get("https://raw.githubusercontent.com/manami-project/anime-offline-database/master/anime-offline-database.json").then((res) => res.data);
+                data.time = Date.now();
+                await (0, promises_1.writeFile)((0, path_1.join)(__dirname, "./manami.json"), JSON.stringify(data, null, 2), "utf-8");
+                console.log(colors_1.default.yellow("Manami Project data has been cached."));
+                const results = data.filter((data) => {
+                    return data.title.toLowerCase().includes(query.toLowerCase()) || data.synonyms.some((synonym) => synonym.toLowerCase() === query.toLowerCase()) && formats.includes(data.type);
+                });
+                return results;
+            }
+        }
+        catch (e) {
+            console.error(e);
+            return [];
+        }
+    }
     /**
      * @description Custom request function for handling AniList rate limit.
      */
@@ -405,7 +495,7 @@ class AniList extends _1.default {
             }
             return await (0, axios_1.default)(url, options).catch((err) => {
                 const response = err.response;
-                if (response.status === 429) {
+                if (!response || response.status === 429) {
                     if (retries < 15) {
                         //console.log(colors.yellow("No rate limit headers found. Waiting..."));
                         return this.request(url, options, retries + 1);
@@ -427,7 +517,7 @@ class AniList extends _1.default {
             }
             return await (0, axios_1.default)(url, options).catch((err) => {
                 const response = err.response;
-                if (response.status === 429) {
+                if (!response || response.status === 429) {
                     if (retries < 15) {
                         //console.log(colors.yellow("No rate limit headers found. Waiting..."));
                         return this.request(url, options, retries + 1);

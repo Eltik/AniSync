@@ -55,6 +55,7 @@ const loadMapping = async (data) => {
     const result = await (0, exports.map)((aniData?.title.english ?? aniData?.title.romaji), (aniData?.type), [aniData?.format], aniData);
     for (let i = 0; i < result.length; i++) {
         if (String(result[i].id) === String(data.id)) {
+            console.log(colors_1.default.gray("Found mapping for ") + colors_1.default.blue(data.id) + colors_1.default.gray(".") + colors_1.default.gray(" Saving..."));
             await event_1.default.emitAsync(event_1.Events.COMPLETED_MAPPING_LOAD, [result[i]]);
             return [result[i]];
         }
@@ -83,39 +84,56 @@ const map = async (query, type, formats, aniData) => {
                 continue;
             }
         }
-        const promise = new Promise((resolve, reject) => {
-            provider.search(query).then(async (data) => {
-                // Sometimes providers doesn't take certain queries. This is a workaround.
-                if (data?.length === 0 && aniData.title.english) {
-                    data = await provider.search(aniData.title.english);
-                    await (0, helper_1.wait)(1000);
-                }
-                if (data?.length === 0 && aniData.title.romaji) {
-                    data = await provider.search(aniData.title.romaji);
-                    await (0, helper_1.wait)(1000);
-                }
-                if (data?.length === 0 && aniData.title.native) {
-                    data = await provider.search(aniData.title.native);
-                    await (0, helper_1.wait)(1000);
-                }
-                if (data?.length === 0 && aniData.synonyms?.length > 0) {
-                    for (let i = 0; i < aniData.synonyms.length; i++) {
-                        data = await provider.search(aniData.synonyms[i]);
-                        if (data.length > 0) {
-                            break;
-                        }
-                        await (0, helper_1.wait)(1000);
-                    }
-                }
-                resolve(data);
-            }).catch((err) => {
+        const promise = new Promise(async (resolve, reject) => {
+            let data = await provider.search(query).catch((err) => {
                 console.log(colors_1.default.red("Error fetching from provider " + colors_1.default.blue(provider.id) + ": " + colors_1.default.yellow(err.message ? err.message : err)));
                 resolve([]);
             });
+            // Sometimes providers doesn't take certain queries. This is a workaround.
+            if (data?.length === 0 && aniData.title.english) {
+                console.log(colors_1.default.gray("No results found for ") + colors_1.default.blue(query) + colors_1.default.gray(" on provider ") + colors_1.default.blue(provider.id) + colors_1.default.gray(". Trying with ") + colors_1.default.blue(aniData.title.english) + colors_1.default.gray("..."));
+                data = await provider.search(aniData.title.english).catch((err) => {
+                    console.log(colors_1.default.red("Error fetching from provider " + colors_1.default.blue(provider.id) + ": " + colors_1.default.yellow(err.message ? err.message : err)));
+                    return [];
+                });
+                await (0, helper_1.wait)(250);
+            }
+            if (data?.length === 0 && aniData.title.romaji) {
+                console.log(colors_1.default.gray("No results found for ") + colors_1.default.blue(query) + colors_1.default.gray(" on provider ") + colors_1.default.blue(provider.id) + colors_1.default.gray(". Trying with ") + colors_1.default.blue(aniData.title.romaji) + colors_1.default.gray("..."));
+                data = await provider.search(aniData.title.romaji).catch((err) => {
+                    console.log(colors_1.default.red("Error fetching from provider " + colors_1.default.blue(provider.id) + ": " + colors_1.default.yellow(err.message ? err.message : err)));
+                    return [];
+                });
+                await (0, helper_1.wait)(250);
+            }
+            if (data?.length === 0 && aniData.title.native) {
+                console.log(colors_1.default.gray("No results found for ") + colors_1.default.blue(query) + colors_1.default.gray(" on provider ") + colors_1.default.blue(provider.id) + colors_1.default.gray(". Trying with ") + colors_1.default.blue(aniData.title.native) + colors_1.default.gray("..."));
+                data = await provider.search(aniData.title.native).catch((err) => {
+                    console.log(colors_1.default.red("Error fetching from provider " + colors_1.default.blue(provider.id) + ": " + colors_1.default.yellow(err.message ? err.message : err)));
+                    return [];
+                });
+                await (0, helper_1.wait)(250);
+            }
+            if (data?.length === 0 && aniData.synonyms?.length > 0) {
+                for (let i = 0; i < aniData.synonyms.length; i++) {
+                    console.log(colors_1.default.gray("No results found for ") + colors_1.default.blue(query) + colors_1.default.gray(" on provider ") + colors_1.default.blue(provider.id) + colors_1.default.gray(". Trying with ") + colors_1.default.blue(aniData.synonyms[i]) + colors_1.default.gray("..."));
+                    data = await provider.search(aniData.synonyms[i]).catch((err) => {
+                        console.log(colors_1.default.red("Error fetching from provider " + colors_1.default.blue(provider.id) + ": " + colors_1.default.yellow(err.message ? err.message : err)));
+                        return [];
+                    });
+                    if (data.length > 0) {
+                        break;
+                    }
+                    await (0, helper_1.wait)(250);
+                }
+            }
+            resolve(data);
         });
         promises.push(promise);
     }
+    console.log(colors_1.default.gray("Waiting for all providers to finish..."));
     const resultsArray = await Promise.all(promises);
+    console.log(colors_1.default.yellow("Finished fetching from providers."));
     for (let i = 0; i < resultsArray.length; i++) {
         for (let j = 0; j < resultsArray[i].length; j++) {
             const aniListResults = await aniList.search((0, helper_1.sanitizeTitle)(resultsArray[i][j].title), type, formats);
@@ -279,7 +297,11 @@ async function createMedia(mappings, type) {
         const media = results[i];
         for (let j = 0; j < mapping_1.INFORMATION_PROVIDERS.length; j++) {
             const provider = mapping_1.INFORMATION_PROVIDERS[j];
-            const info = await provider.info(media);
+            const info = await provider.info(media).catch((err) => {
+                console.log(colors_1.default.red(`Error while fetching info for ${media.id} from ${provider.id}`));
+                console.log(err);
+                return null;
+            });
             if (!info) {
                 continue;
             }
@@ -289,49 +311,55 @@ async function createMedia(mappings, type) {
     return results;
 }
 function fillMediaInfo(media, info, provider) {
-    const crossLoadFields = ["popularity", "rating"];
-    const specialLoadFields = ["title"];
-    for (let ak of Object.keys(info)) {
-        // @ts-ignore
-        if (crossLoadFields.includes(ak) || provider.sharedArea.includes(ak) || specialLoadFields.includes(ak))
-            continue;
-        const v = media[ak];
-        let write = false;
-        if ((!v || v === "UNKNOWN") && (!!info[ak] && info[ak] !== "UNKNOWN")) {
-            write = true;
-        }
-        else {
+    try {
+        const crossLoadFields = ["popularity", "rating"];
+        const specialLoadFields = ["title"];
+        for (let ak of Object.keys(info)) {
             // @ts-ignore
-            if (provider.priorityArea.includes(ak) && !!info[ak])
+            if (crossLoadFields.includes(ak) || provider.sharedArea.includes(ak) || specialLoadFields.includes(ak))
+                continue;
+            const v = media[ak];
+            let write = false;
+            if ((!v || v === "UNKNOWN") && (!!info[ak] && info[ak] !== "UNKNOWN")) {
                 write = true;
+            }
+            else {
+                // @ts-ignore
+                if (provider.priorityArea.includes(ak) && !!info[ak])
+                    write = true;
+            }
+            if (write)
+                media[ak] = info[ak];
         }
-        if (write)
-            media[ak] = info[ak];
-    }
-    for (let special of specialLoadFields) {
-        // @ts-ignore
-        const v = info[special];
-        if (v) {
-            for (let [ak, av] of Object.entries(v)) {
-                if (av && av?.length) {
-                    // @ts-ignore
-                    media[special][ak] = av;
+        for (let special of specialLoadFields) {
+            // @ts-ignore
+            const v = info[special];
+            if (v) {
+                for (let [ak, av] of Object.entries(v)) {
+                    if (av && av?.length) {
+                        // @ts-ignore
+                        media[special][ak] = av;
+                    }
                 }
             }
         }
-    }
-    for (let shared of provider.sharedArea) {
-        // @ts-ignore
-        if (!media[shared]) {
+        for (let shared of provider.sharedArea) {
             // @ts-ignore
-            media[shared] = [];
+            if (!media[shared]) {
+                // @ts-ignore
+                media[shared] = [];
+            }
+            // @ts-ignore
+            media[shared] = [...new Set(media[shared].concat(info[shared]))];
         }
-        // @ts-ignore
-        media[shared] = [...new Set(media[shared].concat(info[shared]))];
+        for (let crossLoad of crossLoadFields) {
+            // @ts-ignore
+            media[crossLoad][provider.id] = info[crossLoad];
+        }
+        return media;
     }
-    for (let crossLoad of crossLoadFields) {
-        // @ts-ignore
-        media[crossLoad][provider.id] = info[crossLoad];
+    catch (e) {
+        console.log(colors_1.default.red(`Error while filling media info for ${media.id} with provider ${provider.id}`));
+        return media;
     }
-    return media;
 }

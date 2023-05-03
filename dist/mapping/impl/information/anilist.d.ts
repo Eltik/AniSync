@@ -16,6 +16,7 @@ export default class AniList extends InformationProvider {
         popular: any;
         top: any;
     } | undefined>;
+    private fetchManamiProject;
     /**
      * @description Custom request function for handling AniList rate limit.
      */

@@ -20,7 +20,7 @@ class MAL extends _1.default {
     }
     async info(media) {
         const malId = media.malId;
-        const jikanResponse = (await (await fetch(`https://jikan.nade.me/v4/${media.type.toLowerCase()}/${malId}/full`)).json());
+        const jikanResponse = (await (await fetch(`https://api.jikan.moe/v4/${media.type.toLowerCase()}/${malId}/full`)).json());
         const data = jikanResponse.data;
         if (!data)
             return undefined;

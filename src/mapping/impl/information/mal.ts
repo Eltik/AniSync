@@ -22,7 +22,7 @@ export default class MAL extends InformationProvider {
     override async info(media: Anime | Manga): Promise<AnimeInfo | MangaInfo | undefined> {
         const malId = media.malId;
 
-        const jikanResponse = (await (await fetch(`https://jikan.nade.me/v4/${media.type.toLowerCase()}/${malId}/full`)).json());
+        const jikanResponse = (await (await fetch(`https://api.jikan.moe/v4/${media.type.toLowerCase()}/${malId}/full`)).json());
 
         const data: JikanResponse = jikanResponse.data;
 

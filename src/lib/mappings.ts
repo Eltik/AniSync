@@ -33,6 +33,7 @@ export const loadMapping = async(data: { id:string, type:Type }) => {
     
     for (let i = 0; i < result.length; i++) {
         if (String(result[i].id) === String(data.id)) {
+            console.log(colors.gray("Found mapping for ") + colors.blue(data.id) + colors.gray(".") + colors.gray(" Saving..."));
             await emitter.emitAsync(Events.COMPLETED_MAPPING_LOAD, [result[i]]);
             return [result[i]];
         }
@@ -126,31 +127,27 @@ export const map = async (query: string, type: Type, formats: Format[], aniData:
             }
         
             let best: any = null;
-            try {
-                aniListResults.map(async (result) => {
-                    if (result.status === "NOT_YET_RELEASED") {
-                        return;
-                    }
-    
-                    const title = result.title.userPreferred || result.title.romaji || result.title.english || result.title.native;
-                    const altTitles:any[] = Object.values(result.title).concat(result.synonyms);
-    
-                    const sim = similarity(title, resultsArray[i][j].title, altTitles);
-    
-                    const tempBest = {
-                        index: j,
-                        similarity: sim,
-                        aniList: result,
-                    };
-    
-                    if (!best || sim.value > best.similarity.value) {
-                        best = tempBest;
-                    }
-                });
-            } catch (e) {
-                console.error(e);
-                console.log(aniListResults)
-            }
+            aniListResults.map(async (result) => {
+                if (result.status === "NOT_YET_RELEASED") {
+                    return;
+                }
+
+                const title = result.title.userPreferred || result.title.romaji || result.title.english || result.title.native;
+                const altTitles:any[] = Object.values(result.title).concat(result.synonyms);
+
+                const sim = similarity(title, resultsArray[i][j].title, altTitles);
+
+                const tempBest = {
+                    index: j,
+                    similarity: sim,
+                    aniList: result,
+                };
+
+                if (!best || sim.value > best.similarity.value) {
+                    best = tempBest;
+                }
+            });
+
             if (best) {
                 const mapping = resultsArray[i][best.index];
                 mappings.push({
@@ -298,7 +295,11 @@ async function createMedia(mappings: { id: string, malId: string, slug: string, 
 
         for (let j = 0; j < INFORMATION_PROVIDERS.length; j++) {
             const provider = INFORMATION_PROVIDERS[j];
-            const info = await provider.info(media);
+            const info = await provider.info(media).catch((err) => {
+                console.log(colors.red(`Error while fetching info for ${media.id} from ${provider.id}`));
+                console.log(err);
+                return null;
+            });
 
             if (!info) {
                 continue;
@@ -312,55 +313,60 @@ async function createMedia(mappings: { id: string, malId: string, slug: string, 
 }
 
 function fillMediaInfo(media: Anime | Manga, info: AnimeInfo | MangaInfo, provider: InformationProvider): Anime | Manga {
-    const crossLoadFields: (keyof AnimeInfo|MangaInfo)[] = ["popularity", "rating"];
-    const specialLoadFields: (keyof AnimeInfo|MangaInfo)[] = ["title"];
+    try {
+        const crossLoadFields: (keyof AnimeInfo|MangaInfo)[] = ["popularity", "rating"];
+        const specialLoadFields: (keyof AnimeInfo|MangaInfo)[] = ["title"];
 
-    for (let ak of Object.keys(info)) {
-        // @ts-ignore
-        if (crossLoadFields.includes(ak) || provider.sharedArea.includes(ak) || specialLoadFields.includes(ak)) continue;
-
-        const v = media[ak];
-
-        let write = false;
-        if ((!v || v === "UNKNOWN") && (!!info[ak] && info[ak] !== "UNKNOWN")) {
-            write = true;
-        } else {
+        for (let ak of Object.keys(info)) {
             // @ts-ignore
-            if (provider.priorityArea.includes(ak) && !!info[ak]) write = true;
+            if (crossLoadFields.includes(ak) || provider.sharedArea.includes(ak) || specialLoadFields.includes(ak)) continue;
+    
+            const v = media[ak];
+    
+            let write = false;
+            if ((!v || v === "UNKNOWN") && (!!info[ak] && info[ak] !== "UNKNOWN")) {
+                write = true;
+            } else {
+                // @ts-ignore
+                if (provider.priorityArea.includes(ak) && !!info[ak]) write = true;
+            }
+    
+            if (write) media[ak] = info[ak];
         }
-
-        if (write) media[ak] = info[ak];
-    }
-
-    for (let special of specialLoadFields) {
-        // @ts-ignore
-        const v = info[special];
-
-        if (v) {
-            for (let [ak, av] of Object.entries(v)) {
-                if (av && (av as any)?.length) {
-                    // @ts-ignore
-                    media[special][ak] = av;
+    
+        for (let special of specialLoadFields) {
+            // @ts-ignore
+            const v = info[special];
+    
+            if (v) {
+                for (let [ak, av] of Object.entries(v)) {
+                    if (av && (av as any)?.length) {
+                        // @ts-ignore
+                        media[special][ak] = av;
+                    }
                 }
             }
         }
-    }
-
-    for (let shared of provider.sharedArea) {
-        // @ts-ignore
-        if (!media[shared]) {
+    
+        for (let shared of provider.sharedArea) {
             // @ts-ignore
-            media[shared] = [];
+            if (!media[shared]) {
+                // @ts-ignore
+                media[shared] = [];
+            }
+    
+            // @ts-ignore
+            media[shared] = [...new Set(media[shared].concat(info[shared]))];
         }
-
-        // @ts-ignore
-        media[shared] = [...new Set(media[shared].concat(info[shared]))];
+    
+        for (let crossLoad of crossLoadFields) {
+            // @ts-ignore
+            media[crossLoad][provider.id] = info[crossLoad];
+        }
+    
+        return media;
+    } catch (e) {
+        console.log(colors.red(`Error while filling media info for ${media.id} with provider ${provider.id}`));
+        return media;
     }
-
-    for (let crossLoad of crossLoadFields) {
-        // @ts-ignore
-        media[crossLoad][provider.id] = info[crossLoad];
-    }
-
-    return media;
 }
