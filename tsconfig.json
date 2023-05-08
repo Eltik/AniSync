@@ -24,7 +24,7 @@
         "outDir": "./dist"
     },
     "include": ["**/*.ts", "src/**/*.ts"],
-    "exclude": ["node_modules"],
+    "exclude": ["node_modules", "./dist"],
     "ts-node": {
         "compilerOptions": {
             "module": "commonjs",

@@ -1,5 +1,6 @@
 import { Format, type Result } from "../..";
 export default abstract class AnimeProvider {
+    abstract rateLimit: number;
     abstract id: string;
     abstract url: string;
     abstract formats: Format[];

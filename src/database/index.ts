@@ -5,7 +5,7 @@ export * from '@prisma/client';
 
 const averageMetric = (object: PrismaJson.MetaSitesMetric) => {
     let average = 0, validCount = 0;
-    for (let [_, v] of Object.entries(object)) {
+    for (const [_, v] of Object.entries(object)) {
         if (v && typeof v === "number") {
             average += v;
             validCount++;
@@ -15,7 +15,7 @@ const averageMetric = (object: PrismaJson.MetaSitesMetric) => {
     return validCount === 0 ? 0 : Number.parseFloat((average / validCount).toFixed(2))
 }
 
-let $prisma = new PrismaClient({
+const $prisma = new PrismaClient({
     log: ["error"]
 });
 
@@ -25,7 +25,7 @@ $prisma.$use(async (params, next) => {
     if (params.model === "Manga" || params.model === "Anime") {
         if (!params?.args) return next(params);
 
-        for (let field of dedupeFields) {
+        for (const field of dedupeFields) {
             if (params.args['data'] && params.args['data'][field]) {
                 params.args['data'][field] = Array.from(new Set(params.args['data'][field]))
             }
@@ -79,6 +79,29 @@ const modifiedPrisma = $prisma.$extends({
                 needs: { popularity: true },
                 compute(anime) {
                     return averageMetric(anime.popularity);
+                }
+            }
+        },
+        manga: {
+            save: {
+                needs: { id: true },
+                compute(manga) {
+                    delete manga["averagePopularity"];
+                    delete manga["averageRating"];
+
+                    return () => $prisma.manga.update({ where: { id: manga.id }, data: manga });
+                }
+            },
+            averageRating: {
+                needs: { rating: true },
+                compute(manga) {
+                    return averageMetric(manga.rating);
+                }
+            },
+            averagePopularity: {
+                needs: { popularity: true },
+                compute(manga) {
+                    return averageMetric(manga.popularity);
                 }
             }
         }
@@ -271,7 +294,7 @@ export const search = async (query: string, type: Type, formats: Format[], page:
         ]);
     }
 
-    const total: number = Number((count)[0].count);
+    const total = Number((count)[0].count);
     const lastPage = Math.ceil(Number(total) / perPage);
 
     return results;
@@ -286,7 +309,7 @@ export const info = async (id: string): Promise<Anime | Manga | null> => {
         media = await prisma.manga.findUnique({
             where: { id }
         });
-    };
+    }
 
     if (!media) return null;
 

@@ -9,10 +9,10 @@ import colors from "colors";
 import { compareTwoStrings } from "@/src/helper/stringSimilarity";
 
 export default class AniList extends InformationProvider {
-    override id: string = "anilist";
-    override url: string = "https://anilist.co";
+    override id = "anilist";
+    override url = "https://anilist.co";
 
-    private api: string = "https://graphql.anilist.co";
+    private api = "https://graphql.anilist.co";
 
     override get priorityArea(): (keyof AnimeInfo | MangaInfo)[] {
         return ["bannerImage"];
@@ -134,7 +134,6 @@ export default class AniList extends InformationProvider {
                     description: data.description ?? null,
                     format: data.format,
                     year: data.seasonYear ?? data.startDate?.year ?? null,
-                    // @ts-ignore
                     type: data.type,
                     countryOfOrigin: data.countryOfOrigin ?? null,
                     tags: data.tags
@@ -163,7 +162,6 @@ export default class AniList extends InformationProvider {
                     description: data.description ?? null,
                     format: data.format,
                     year: data.seasonYear ?? data.startDate?.year ?? null,
-                    // @ts-ignore
                     type: data.type,
                     countryOfOrigin: data.countryOfOrigin ?? null,
                     tags: data.tags.map((tag) => tag.name)
@@ -277,11 +275,10 @@ export default class AniList extends InformationProvider {
             description: data.description ?? null,
             format: data.format,
             year: data.seasonYear ?? data.startDate?.year ?? null,
-            // @ts-ignore
             type: data.type,
             countryOfOrigin: data.countryOfOrigin ?? null,
             tags: data.tags.map((tag) => tag.name)
-        }
+        } as any
     }
 
     public async fetchSeasonal(type:Type, formats:Format[]) {
@@ -360,13 +357,12 @@ export default class AniList extends InformationProvider {
                 format: data.format,
                 countryOfOrigin: data.countryOfOrigin ?? null,
                 year: data.seasonYear ?? data.startDate?.year ?? null,
-                // @ts-ignore
                 type: data.type,
                 tags: data.tags.map((tag) => tag.name)
             }
         });
 
-        const seasonal = data.season.media.map((data: Media) => {
+        const seasonal = data.season.media?.map((data: Media) => {
             return {
                 aniListId: data.id,
                 malId: data.idMal,
@@ -389,7 +385,6 @@ export default class AniList extends InformationProvider {
                 format: data.format,
                 countryOfOrigin: data.countryOfOrigin ?? null,
                 year: data.seasonYear ?? data.startDate?.year ?? null,
-                // @ts-ignore
                 type: data.type,
                 tags: data.tags.map((tag) => tag.name)
             }
@@ -418,7 +413,6 @@ export default class AniList extends InformationProvider {
                 format: data.format,
                 countryOfOrigin: data.countryOfOrigin ?? null,
                 year: data.seasonYear ?? data.startDate?.year ?? null,
-                // @ts-ignore
                 type: data.type,
                 tags: data.tags.map((tag) => tag.name)
             }
@@ -447,7 +441,6 @@ export default class AniList extends InformationProvider {
                 format: data.format,
                 countryOfOrigin: data.countryOfOrigin ?? null,
                 year: data.seasonYear ?? data.startDate?.year ?? null,
-                // @ts-ignore
                 type: data.type,
                 tags: data.tags.map((tag) => tag.name)
             }
@@ -501,19 +494,68 @@ export default class AniList extends InformationProvider {
         }
     }
 
+    public async batchRequest(queries: string[]): Promise<any | undefined> {
+        const MAX_QUERIES = 30; // Can send 5 queries per request
+        const results: any[] = [];
+        let currentQuery = "{";
+        let queryCount = 0;
+      
+        for (let i = 0; i < queries.length; i++) {
+            const query = queries[i];
+            if (queryCount === MAX_QUERIES) {
+                const result = await this.executeGraphQLQuery(currentQuery + "}");
+                if (!result) {
+                    continue;
+                }
+                results.push(...Object.values(result?.data));
+                currentQuery = "{";
+                queryCount = 0;
+            }
+        
+            currentQuery += `${query}\n`;
+            queryCount++;
+        }
+      
+        if (currentQuery.length > 0) {
+            const result = await this.executeGraphQLQuery(currentQuery + "}");
+            if (result) {
+                results.push(...Object.values(result?.data));
+            }
+        }
+      
+        return results;
+    }
+
+    private async executeGraphQLQuery(query: string) {
+        const variables = {};
+        return await this.request(this.api, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            data: {
+                query,
+                variables
+            }
+        }).catch((err) => {
+            return null;
+        })
+    }
+
     /**
      * @description Custom request function for handling AniList rate limit.
      */
-    public async request(url: string, options?: AxiosRequestConfig, retries: number = 0): Promise<AxiosResponse | null> {
+    public async request(url: string, options?: AxiosRequestConfig, retries = 0): Promise<AxiosResponse | null> {
         const req:any = await axios(url, options).catch((err) => {
             return err;
         });
 
         const response = req.response ? req.response : req;
 
-        const remainingRequests = parseInt(response?.headers['x-ratelimit-remaining']) || 0;
-        const requestLimit = parseInt(response?.headers['x-ratelimit-limit']) || 0;
-        const resetTime = parseInt(response?.headers['x-ratelimit-reset']) || 0;
+        const remainingRequests = parseInt(response.headers?.['x-ratelimit-remaining']) || 0;
+        const requestLimit = parseInt(response.headers?.['x-ratelimit-limit']) || 0;
+        const resetTime = parseInt(response.headers?.['x-ratelimit-reset']) || 0;
         
         if (remainingRequests >= 60) {
             const delay = resetTime * 1000 - Date.now();
@@ -530,13 +572,15 @@ export default class AniList extends InformationProvider {
                         throw new Error("Rate limit reached.");
                     }
                 } else {
+                    console.error(response.data.errors);
+                    console.log(options?.data);
                     throw new Error(err);
                 }
             });
         }
-        if (response.headers['retry-after']) {
+        if (response.headers?.['retry-after']) {
             //console.log(colors.yellow("Rate limit headers found. Waiting..."));
-            const delay = parseInt(response.headers['retry-after']) * 3000;
+            const delay = parseInt(response.headers?.['retry-after']) * 3000;
             if (delay > 0) {
                 await new Promise(resolve => setTimeout(resolve, delay));
             }
@@ -566,7 +610,7 @@ export default class AniList extends InformationProvider {
         return response;
     }  
 
-    private query:string = `
+    public query = `
     id
     idMal
     title {
@@ -610,15 +654,6 @@ export default class AniList extends InformationProvider {
     favourites
     countryOfOrigin
     isLicensed
-    airingSchedule {
-        edges {
-            node {
-                airingAt
-                timeUntilAiring
-                episode
-            }
-        }
-    }
     relations {
         edges {
             id
@@ -635,41 +670,6 @@ export default class AniList extends InformationProvider {
                 coverImage {
                     large
                 }
-            }
-        }
-    }
-    characterPreview: characters(perPage: 6, sort: [ROLE, RELEVANCE, ID]) {
-        edges {
-            id
-            role
-            name
-            voiceActors(language: JAPANESE, sort: [RELEVANCE, ID]) {
-                id
-                name {
-                    userPreferred
-                }
-                language: languageV2
-                image {
-                    large
-                }
-            }
-            node {
-                id
-                name {
-                    userPreferred
-                }
-                image {
-                    large
-                }
-            }
-        }
-    }
-    studios {
-        edges {
-            isMain
-            node {
-                id
-                name
             }
         }
     }
@@ -790,7 +790,7 @@ interface Media {
         site:string;
     };
     tags: [{ id:number; name:string; }];
-};
+}
 
 interface RelationsNode {
     id:number;

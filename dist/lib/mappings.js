@@ -33,6 +33,8 @@ const anilist_1 = __importDefault(require("../mapping/impl/information/anilist")
 const helper_1 = require("@/src/helper");
 const event_1 = __importStar(require("@/src/helper/event"));
 const database_1 = require("database");
+const stringSimilarity_1 = require("../helper/stringSimilarity");
+// Return a mapped result using the ID given
 const loadMapping = async (data) => {
     // First check if exists in database
     const existing = data.type === "ANIME" /* Type.ANIME */ ? await database_1.prisma.anime.findFirst({
@@ -50,9 +52,11 @@ const loadMapping = async (data) => {
     }
     console.log(colors_1.default.gray("Loading mapping for ") + colors_1.default.blue(data.id) + colors_1.default.gray("..."));
     const aniList = new anilist_1.default();
+    // Map only one media
     const aniData = await aniList.getMedia(data.id);
-    // @ts-ignore
-    const result = await (0, exports.map)((aniData?.title.english ?? aniData?.title.romaji), (aniData?.type), [aniData?.format], aniData);
+    const result = await (0, exports.map)(aniList, (aniData?.title.english ?? aniData?.title.romaji), aniData?.type, [aniData?.format], aniData);
+    // Only return if the ID matches the one we're looking for
+    // If it isn't, we don't want to return.
     for (let i = 0; i < result.length; i++) {
         if (String(result[i].id) === String(data.id)) {
             console.log(colors_1.default.gray("Found mapping for ") + colors_1.default.blue(data.id) + colors_1.default.gray(".") + colors_1.default.gray(" Saving..."));
@@ -62,78 +66,72 @@ const loadMapping = async (data) => {
     }
 };
 exports.loadMapping = loadMapping;
-const map = async (query, type, formats, aniData) => {
+const map = async (aniList, query, type, formats, aniData) => {
     console.log(colors_1.default.gray("Searching for ") + colors_1.default.blue(query) + colors_1.default.gray(" of type ") + colors_1.default.blue(type) + colors_1.default.gray(" and of formats ") + (colors_1.default.blue((formats.length > 0 ? formats.toString() : "NONE")))) + colors_1.default.gray("...");
-    const aniList = new anilist_1.default();
     const providers = (type === "ANIME" /* Type.ANIME */ ? mapping_1.ANIME_PROVIDERS : mapping_1.MANGA_PROVIDERS);
     providers.push(...mapping_1.META_PROVIDERS);
-    const mappings = [];
-    const promises = [];
-    for (let i = 0; i < providers.length; i++) {
-        const provider = providers[i];
-        // Check format
+    // Filter out unsuitable providers
+    const suitableProviders = providers.filter(provider => {
         if (formats && provider.formats) {
-            let canSearch = true;
-            for (let j = 0; j < formats.length; j++) {
-                if (!provider.formats.includes(formats[j])) {
-                    canSearch = false;
-                    break;
-                }
-            }
-            if (!canSearch) {
-                continue;
-            }
+            return formats.some(format => provider.formats.includes(format));
         }
-        const promise = new Promise(async (resolve, reject) => {
-            let data = await provider.search(query).catch((err) => {
-                console.log(colors_1.default.red("Error fetching from provider " + colors_1.default.blue(provider.id) + ": " + colors_1.default.yellow(err.message ? err.message : err)));
-                resolve([]);
-            });
-            // Sometimes providers doesn't take certain queries. This is a workaround.
-            if (data?.length === 0 && aniData.title.english) {
-                console.log(colors_1.default.gray("No results found for ") + colors_1.default.blue(query) + colors_1.default.gray(" on provider ") + colors_1.default.blue(provider.id) + colors_1.default.gray(". Trying with ") + colors_1.default.blue(aniData.title.english) + colors_1.default.gray("..."));
-                data = await provider.search(aniData.title.english).catch((err) => {
-                    console.log(colors_1.default.red("Error fetching from provider " + colors_1.default.blue(provider.id) + ": " + colors_1.default.yellow(err.message ? err.message : err)));
-                    return [];
-                });
-                await (0, helper_1.wait)(250);
-            }
-            if (data?.length === 0 && aniData.title.romaji) {
-                console.log(colors_1.default.gray("No results found for ") + colors_1.default.blue(query) + colors_1.default.gray(" on provider ") + colors_1.default.blue(provider.id) + colors_1.default.gray(". Trying with ") + colors_1.default.blue(aniData.title.romaji) + colors_1.default.gray("..."));
-                data = await provider.search(aniData.title.romaji).catch((err) => {
-                    console.log(colors_1.default.red("Error fetching from provider " + colors_1.default.blue(provider.id) + ": " + colors_1.default.yellow(err.message ? err.message : err)));
-                    return [];
-                });
-                await (0, helper_1.wait)(250);
-            }
-            if (data?.length === 0 && aniData.title.native) {
-                console.log(colors_1.default.gray("No results found for ") + colors_1.default.blue(query) + colors_1.default.gray(" on provider ") + colors_1.default.blue(provider.id) + colors_1.default.gray(". Trying with ") + colors_1.default.blue(aniData.title.native) + colors_1.default.gray("..."));
-                data = await provider.search(aniData.title.native).catch((err) => {
-                    console.log(colors_1.default.red("Error fetching from provider " + colors_1.default.blue(provider.id) + ": " + colors_1.default.yellow(err.message ? err.message : err)));
-                    return [];
-                });
-                await (0, helper_1.wait)(250);
-            }
-            if (data?.length === 0 && aniData.synonyms?.length > 0) {
-                for (let i = 0; i < aniData.synonyms.length; i++) {
-                    console.log(colors_1.default.gray("No results found for ") + colors_1.default.blue(query) + colors_1.default.gray(" on provider ") + colors_1.default.blue(provider.id) + colors_1.default.gray(". Trying with ") + colors_1.default.blue(aniData.synonyms[i]) + colors_1.default.gray("..."));
-                    data = await provider.search(aniData.synonyms[i]).catch((err) => {
-                        console.log(colors_1.default.red("Error fetching from provider " + colors_1.default.blue(provider.id) + ": " + colors_1.default.yellow(err.message ? err.message : err)));
-                        return [];
-                    });
-                    if (data.length > 0) {
-                        break;
+        return true;
+    });
+    // List of all titles and synonyms
+    const titlesAndSynonyms = [
+        aniData.title.english,
+        aniData.title.romaji,
+        aniData.title.native,
+        ...aniData.synonyms
+    ].filter(e => typeof e === "string" && e);
+    // Search via the titles and synonyms in case a provider requires you to search by the romaji or native titles or one of the synonyms.
+    const promises = suitableProviders.map(provider => {
+        const searchPromises = titlesAndSynonyms.map(title => provider.search(title).catch(() => []));
+        return Promise.all(searchPromises).then(results => {
+            return results.find(r => r.length !== 0) || [];
+        });
+    });
+    const resultsArray = await Promise.all(promises);
+    console.log(colors_1.default.yellow("Finished fetching from providers.") + colors_1.default.blue(" - ") + colors_1.default.yellow(query));
+    // Process results and create mappings
+    const mappings = [];
+    // Prepare batch requests for AniList
+    const searchQueries = resultsArray.flat().map((result, index) => {
+        const title = (0, helper_1.sanitizeTitle)(result.title);
+        return `
+            anime${index}: Page(page: 0, perPage: 10) {
+                media(type: ${type}, format_in: ${aniData.format}, search: "${title.replace(/"|"/g, "")}") {
+                    id
+                    idMal
+                    title {
+                        english
+                        romaji
+                        native
+                        userPreferred
                     }
-                    await (0, helper_1.wait)(250);
+                    status
+                    synonyms
+                    format
+                    startDate {
+                        year
+                        month
+                        day
+                    }
                 }
             }
-            resolve(data);
-        });
-        promises.push(promise);
-    }
-    console.log(colors_1.default.gray("Waiting for all providers to finish..."));
-    const resultsArray = await Promise.all(promises);
-    console.log(colors_1.default.yellow("Finished fetching from providers."));
+        `;
+    });
+    const results = (await aniList.batchRequest(searchQueries).catch((err) => {
+        return [];
+    })).map((data) => {
+        return data;
+    }).filter(Boolean);
+    const batchResults = results.reduce((accumulator, currentObject) => {
+        const mediaArrays = Object.values(currentObject).map((anime) => anime.media);
+        return accumulator.concat(...mediaArrays);
+    }, []);
+    console.log(colors_1.default.green("Finished AniList response.") + colors_1.default.blue(" - ") + colors_1.default.green(query));
+    // Loop through provider results
     for (let i = 0; i < resultsArray.length; i++) {
         for (let j = 0; j < resultsArray[i].length; j++) {
             const year = (aniData.year ?? aniData.startDate?.year) ?? null;
@@ -142,10 +140,23 @@ const map = async (query, type, formats, aniData) => {
                     continue;
                 }
             }
-            const aniListResults = await aniList.search((0, helper_1.sanitizeTitle)(resultsArray[i][j].title), type, formats);
-            if (!aniListResults) {
-                continue;
+            const format = (aniData.format);
+            if (format && (resultsArray[i][j].format !== "UNKNOWN" /* Format.UNKNOWN */)) {
+                if (format !== resultsArray[i][j].format) {
+                    continue;
+                }
             }
+            const aniListResults = batchResults.map(result => {
+                const titles = [
+                    result.title.english,
+                    result.title.romaji,
+                    result.title.native,
+                    ...result.synonyms
+                ].filter(e => typeof e === "string" && e);
+                const similarity = (0, stringSimilarity_1.findBestMatch)(resultsArray[i][j].title, titles).bestMatch;
+                return { ...result, similarity: similarity.rating };
+            }).filter(result => result.similarity > 0.6);
+            // Find the best result from the AniList results
             let best = null;
             aniListResults.map(async (result) => {
                 if (result.status === "NOT_YET_RELEASED") {
@@ -166,8 +177,8 @@ const map = async (query, type, formats, aniData) => {
             if (best) {
                 const mapping = resultsArray[i][best.index];
                 mappings.push({
-                    id: best.aniList.aniListId,
-                    malId: best.aniList.malId,
+                    id: best.aniList.id,
+                    malId: best.aniList.idMal,
                     slug: (0, helper_1.slugify)((best.aniList.title.english ?? best.aniList.title.romaji ?? best.aniList.title.native)),
                     data: mapping,
                     similarity: best.similarity
@@ -175,6 +186,7 @@ const map = async (query, type, formats, aniData) => {
             }
         }
     }
+    // Create a media object
     const result = await createMedia(mappings, type);
     return result;
 };
@@ -320,8 +332,7 @@ function fillMediaInfo(media, info, provider) {
     try {
         const crossLoadFields = ["popularity", "rating"];
         const specialLoadFields = ["title"];
-        for (let ak of Object.keys(info)) {
-            // @ts-ignore
+        for (const ak of Object.keys(info)) {
             if (crossLoadFields.includes(ak) || provider.sharedArea.includes(ak) || specialLoadFields.includes(ak))
                 continue;
             const v = media[ak];
@@ -330,36 +341,29 @@ function fillMediaInfo(media, info, provider) {
                 write = true;
             }
             else {
-                // @ts-ignore
                 if (provider.priorityArea.includes(ak) && !!info[ak])
                     write = true;
             }
             if (write)
                 media[ak] = info[ak];
         }
-        for (let special of specialLoadFields) {
-            // @ts-ignore
+        for (const special of specialLoadFields) {
             const v = info[special];
             if (v) {
-                for (let [ak, av] of Object.entries(v)) {
+                for (const [ak, av] of Object.entries(v)) {
                     if (av && av?.length) {
-                        // @ts-ignore
                         media[special][ak] = av;
                     }
                 }
             }
         }
-        for (let shared of provider.sharedArea) {
-            // @ts-ignore
+        for (const shared of provider.sharedArea) {
             if (!media[shared]) {
-                // @ts-ignore
                 media[shared] = [];
             }
-            // @ts-ignore
             media[shared] = [...new Set(media[shared].concat(info[shared]))];
         }
-        for (let crossLoad of crossLoadFields) {
-            // @ts-ignore
+        for (const crossLoad of crossLoadFields) {
             media[crossLoad][provider.id] = info[crossLoad];
         }
         return media;

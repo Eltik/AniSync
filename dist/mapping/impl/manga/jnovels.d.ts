@@ -1,10 +1,9 @@
-import AnimeProvider, { SubType } from ".";
+import MangaProvider from ".";
 import { Format, Result } from "../..";
-export default class GogoAnime extends AnimeProvider {
+export default class JNovels extends MangaProvider {
     rateLimit: number;
     id: string;
     url: string;
     formats: Format[];
-    get subTypes(): SubType[];
     search(query: string): Promise<Result[] | undefined>;
 }

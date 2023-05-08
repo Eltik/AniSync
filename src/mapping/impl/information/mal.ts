@@ -2,8 +2,8 @@ import InformationProvider, { AnimeInfo, MangaInfo } from ".";
 import { Anime, Format, Genres, Manga, MediaStatus, Season, Type } from "../..";
 
 export default class MAL extends InformationProvider {
-    override id: string = "mal";
-    override url: string = "https://myanimelist.net";
+    override id = "mal";
+    override url = "https://myanimelist.net";
 
     private statusMap = {
         "not yet aired": MediaStatus.NOT_YET_RELEASED,

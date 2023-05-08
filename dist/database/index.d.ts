@@ -66,6 +66,63 @@ export declare const prisma: Omit<PrismaClient<{
                 }): number;
             };
         };
+        manga: {
+            save: () => {
+                needs: {
+                    id: true;
+                };
+                compute(manga: {
+                    id: string;
+                }): () => Pris.Prisma__MangaClient<{
+                    title: PrismaJson.AnimeTitle;
+                    synonyms: string[];
+                    bannerImage: string | null;
+                    coverImage: string | null;
+                    color: string | null;
+                    status: import(".prisma/client").AiringStatus | null;
+                    genres: string[];
+                    description: string | null;
+                    format: import(".prisma/client").MediaFormat | null;
+                    duration: number | null;
+                    countryOfOrigin: string | null;
+                    tags: string[];
+                    rating: PrismaJson.MetaSitesMetric;
+                    popularity: PrismaJson.MetaSitesMetric;
+                    totalChapters: number | null;
+                    totalVolumes: number | null;
+                    id: string;
+                    malId: string;
+                    slug: string;
+                    kitsuId: string | null;
+                    mappings: Pris.JsonValue;
+                    type: string;
+                    relations: Pris.JsonValue;
+                    averageRating: number | null;
+                    averagePopularity: number | null;
+                }, never, {
+                    result: {};
+                    model: {};
+                    query: {};
+                    client: {};
+                }>;
+            };
+            averageRating: () => {
+                needs: {
+                    rating: true;
+                };
+                compute(manga: {
+                    rating: PrismaJson.MetaSitesMetric;
+                }): number;
+            };
+            averagePopularity: () => {
+                needs: {
+                    popularity: true;
+                };
+                compute(manga: {
+                    popularity: PrismaJson.MetaSitesMetric;
+                }): number;
+            };
+        };
     };
     model: {} & Record<string, {}>;
     client: {};
@@ -378,8 +435,40 @@ export declare const seasonal: (trending: Anime[] | Manga[], popular: Anime[] | 
         mappings: Pris.JsonValue;
         type: string;
         relations: Pris.JsonValue;
-        averageRating: number | null;
-        averagePopularity: number | null;
+        averageRating: number;
+        averagePopularity: number;
+        save: () => Pris.Prisma__MangaClient<{
+            title: PrismaJson.AnimeTitle;
+            synonyms: string[];
+            bannerImage: string | null;
+            coverImage: string | null;
+            color: string | null;
+            status: import(".prisma/client").AiringStatus | null;
+            genres: string[];
+            description: string | null;
+            format: import(".prisma/client").MediaFormat | null;
+            duration: number | null;
+            countryOfOrigin: string | null;
+            tags: string[];
+            rating: PrismaJson.MetaSitesMetric;
+            popularity: PrismaJson.MetaSitesMetric;
+            totalChapters: number | null;
+            totalVolumes: number | null;
+            id: string;
+            malId: string;
+            slug: string;
+            kitsuId: string | null;
+            mappings: Pris.JsonValue;
+            type: string;
+            relations: Pris.JsonValue;
+            averageRating: number | null;
+            averagePopularity: number | null;
+        }, never, {
+            result: {};
+            model: {};
+            query: {};
+            client: {};
+        }>;
     }[];
     popular: {
         title: PrismaJson.AnimeTitle;
@@ -405,8 +494,40 @@ export declare const seasonal: (trending: Anime[] | Manga[], popular: Anime[] | 
         mappings: Pris.JsonValue;
         type: string;
         relations: Pris.JsonValue;
-        averageRating: number | null;
-        averagePopularity: number | null;
+        averageRating: number;
+        averagePopularity: number;
+        save: () => Pris.Prisma__MangaClient<{
+            title: PrismaJson.AnimeTitle;
+            synonyms: string[];
+            bannerImage: string | null;
+            coverImage: string | null;
+            color: string | null;
+            status: import(".prisma/client").AiringStatus | null;
+            genres: string[];
+            description: string | null;
+            format: import(".prisma/client").MediaFormat | null;
+            duration: number | null;
+            countryOfOrigin: string | null;
+            tags: string[];
+            rating: PrismaJson.MetaSitesMetric;
+            popularity: PrismaJson.MetaSitesMetric;
+            totalChapters: number | null;
+            totalVolumes: number | null;
+            id: string;
+            malId: string;
+            slug: string;
+            kitsuId: string | null;
+            mappings: Pris.JsonValue;
+            type: string;
+            relations: Pris.JsonValue;
+            averageRating: number | null;
+            averagePopularity: number | null;
+        }, never, {
+            result: {};
+            model: {};
+            query: {};
+            client: {};
+        }>;
     }[];
     top: {
         title: PrismaJson.AnimeTitle;
@@ -432,8 +553,40 @@ export declare const seasonal: (trending: Anime[] | Manga[], popular: Anime[] | 
         mappings: Pris.JsonValue;
         type: string;
         relations: Pris.JsonValue;
-        averageRating: number | null;
-        averagePopularity: number | null;
+        averageRating: number;
+        averagePopularity: number;
+        save: () => Pris.Prisma__MangaClient<{
+            title: PrismaJson.AnimeTitle;
+            synonyms: string[];
+            bannerImage: string | null;
+            coverImage: string | null;
+            color: string | null;
+            status: import(".prisma/client").AiringStatus | null;
+            genres: string[];
+            description: string | null;
+            format: import(".prisma/client").MediaFormat | null;
+            duration: number | null;
+            countryOfOrigin: string | null;
+            tags: string[];
+            rating: PrismaJson.MetaSitesMetric;
+            popularity: PrismaJson.MetaSitesMetric;
+            totalChapters: number | null;
+            totalVolumes: number | null;
+            id: string;
+            malId: string;
+            slug: string;
+            kitsuId: string | null;
+            mappings: Pris.JsonValue;
+            type: string;
+            relations: Pris.JsonValue;
+            averageRating: number | null;
+            averagePopularity: number | null;
+        }, never, {
+            result: {};
+            model: {};
+            query: {};
+            client: {};
+        }>;
     }[];
     seasonal: {
         title: PrismaJson.AnimeTitle;
@@ -459,8 +612,40 @@ export declare const seasonal: (trending: Anime[] | Manga[], popular: Anime[] | 
         mappings: Pris.JsonValue;
         type: string;
         relations: Pris.JsonValue;
-        averageRating: number | null;
-        averagePopularity: number | null;
+        averageRating: number;
+        averagePopularity: number;
+        save: () => Pris.Prisma__MangaClient<{
+            title: PrismaJson.AnimeTitle;
+            synonyms: string[];
+            bannerImage: string | null;
+            coverImage: string | null;
+            color: string | null;
+            status: import(".prisma/client").AiringStatus | null;
+            genres: string[];
+            description: string | null;
+            format: import(".prisma/client").MediaFormat | null;
+            duration: number | null;
+            countryOfOrigin: string | null;
+            tags: string[];
+            rating: PrismaJson.MetaSitesMetric;
+            popularity: PrismaJson.MetaSitesMetric;
+            totalChapters: number | null;
+            totalVolumes: number | null;
+            id: string;
+            malId: string;
+            slug: string;
+            kitsuId: string | null;
+            mappings: Pris.JsonValue;
+            type: string;
+            relations: Pris.JsonValue;
+            averageRating: number | null;
+            averagePopularity: number | null;
+        }, never, {
+            result: {};
+            model: {};
+            query: {};
+            client: {};
+        }>;
     }[];
 }>;
 export declare const search: (query: string, type: Type, formats: Format[], page: number, perPage: number) => Promise<never[]>;

@@ -36,7 +36,6 @@ const anilist_1 = __importDefault(require("./mapping/impl/information/anilist"))
 const mappings_1 = require("./lib/mappings");
 const worker_1 = __importDefault(require("./worker"));
 const event_1 = __importStar(require("@/src/helper/event"));
-// CONFIGURE THINGS HERE
 const type = "ANIME" /* Type.ANIME */;
 let maxIds = 0;
 event_1.default.on(event_1.Events.COMPLETED_MAPPING_LOAD, (data) => {
@@ -52,7 +51,7 @@ worker_1.default.createEntry.start();
     maxIds = maxIds ? maxIds : ids.length;
     let lastId = 0;
     try {
-        let lastIdString = (0, fs_1.readFileSync)("lastId.txt", "utf8");
+        const lastIdString = (0, fs_1.readFileSync)("lastId.txt", "utf8");
         lastId = isNaN(parseInt(lastIdString)) ? 0 : parseInt(lastIdString);
     }
     catch (err) {

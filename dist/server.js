@@ -17,6 +17,54 @@ const cacheTime = process.env.REDIS_CACHE_TIME || 60 * 60 * 24 * 7;
 fastify.get("/", async (request, reply) => {
     return { hello: "world" };
 });
+fastify.get("/stats", async (request, reply) => {
+    const cached = await redis.get(`stats`);
+    if (cached) {
+        return JSON.parse(cached);
+    }
+    const data = {
+        anime: 0,
+        manga: 0,
+        novels: 0
+    };
+    const manga = await database_1.prisma.manga.count();
+    const mangaNotNovels = await database_1.prisma.manga.count({
+        where: {
+            format: {
+                not: "NOVEL"
+            }
+        }
+    });
+    data.anime = await database_1.prisma.anime.count();
+    data.manga = mangaNotNovels;
+    data.novels = manga - mangaNotNovels;
+    await redis.set(`stats`, JSON.stringify(data), "EX", cacheTime);
+    return data;
+});
+fastify.post("/stats", async (request, reply) => {
+    const cached = await redis.get(`stats`);
+    if (cached) {
+        return JSON.parse(cached);
+    }
+    const data = {
+        anime: 0,
+        manga: 0,
+        novels: 0
+    };
+    const manga = await database_1.prisma.manga.count();
+    const mangaNotNovels = await database_1.prisma.manga.count({
+        where: {
+            format: {
+                not: "NOVEL"
+            }
+        }
+    });
+    data.anime = await database_1.prisma.anime.count();
+    data.manga = mangaNotNovels;
+    data.novels = manga - mangaNotNovels;
+    await redis.set(`stats`, JSON.stringify(data), "EX", cacheTime);
+    return data;
+});
 fastify.get("/search/:type/:query", async (request, reply) => {
     let { type, query } = request.params;
     const validTypes = ["anime", "manga", "novel"];
@@ -56,6 +104,9 @@ fastify.post("/search", async (request, reply) => {
     if (!query || query.length < 3) {
         return reply.code(400).send({ error: "Invalid query" });
     }
+    const formats = type.toLowerCase() === "anime" ? ["MOVIE" /* Format.MOVIE */, "TV" /* Format.TV */, "TV_SHORT" /* Format.TV_SHORT */, "OVA" /* Format.OVA */, "ONA" /* Format.ONA */, "OVA" /* Format.OVA */] :
+        type.toLowerCase() === "manga" ? ["MANGA" /* Format.MANGA */, "ONE_SHOT" /* Format.ONE_SHOT */] :
+            ["NOVEL" /* Format.NOVEL */];
     const originalType = type;
     if (type.toLowerCase().includes("novel")) {
         type = "manga";
@@ -64,9 +115,6 @@ fastify.post("/search", async (request, reply) => {
     if (cached) {
         return JSON.parse(cached);
     }
-    const formats = type.toLowerCase() === "anime" ? ["MOVIE" /* Format.MOVIE */, "TV" /* Format.TV */, "TV_SHORT" /* Format.TV_SHORT */, "OVA" /* Format.OVA */, "ONA" /* Format.ONA */, "OVA" /* Format.OVA */] :
-        type.toLowerCase() === "manga" ? ["MANGA" /* Format.MANGA */, "ONE_SHOT" /* Format.ONE_SHOT */] :
-            ["NOVEL" /* Format.NOVEL */];
     const existing = await (0, database_1.search)(query, type.toUpperCase(), formats, 0, 20);
     if (existing.length === 0) {
         worker_1.default.searchQueue.add({ type: type.toUpperCase(), query: query, formats: formats });
@@ -83,6 +131,9 @@ fastify.get("/seasonal/:type", async (request, reply) => {
     if (!type || (type.toLowerCase() !== "anime" && type.toLowerCase() !== "manga") && type.toLowerCase() !== "novel") {
         return reply.code(400).send({ error: "Invalid type" });
     }
+    const formats = type.toLowerCase() === "anime" ? ["MOVIE" /* Format.MOVIE */, "TV" /* Format.TV */, "TV_SHORT" /* Format.TV_SHORT */, "OVA" /* Format.OVA */, "ONA" /* Format.ONA */, "OVA" /* Format.OVA */] :
+        type.toLowerCase() === "manga" ? ["MANGA" /* Format.MANGA */, "ONE_SHOT" /* Format.ONE_SHOT */] :
+            ["NOVEL" /* Format.NOVEL */];
     const originalType = type;
     if (type.toLowerCase().includes("novel")) {
         type = "manga";
@@ -91,9 +142,6 @@ fastify.get("/seasonal/:type", async (request, reply) => {
     if (cached) {
         return JSON.parse(cached);
     }
-    const formats = type.toLowerCase() === "anime" ? ["MOVIE" /* Format.MOVIE */, "TV" /* Format.TV */, "TV_SHORT" /* Format.TV_SHORT */, "OVA" /* Format.OVA */, "ONA" /* Format.ONA */, "OVA" /* Format.OVA */] :
-        type.toLowerCase() === "manga" ? ["MANGA" /* Format.MANGA */, "ONE_SHOT" /* Format.ONE_SHOT */] :
-            ["NOVEL" /* Format.NOVEL */];
     const aniListData = await (0, season_1.loadSeasonal)({ type: type.toUpperCase(), formats: formats });
     const data = await (0, database_1.seasonal)(aniListData?.trending, aniListData?.popular, aniListData?.top, aniListData?.seasonal);
     await redis.set(`seasonal:${originalType}`, JSON.stringify(data), "EX", cacheTime);
@@ -104,6 +152,9 @@ fastify.post("/seasonal", async (request, reply) => {
     if (!type || (type.toLowerCase() !== "anime" && type.toLowerCase() !== "manga") && type.toLowerCase() !== "novel") {
         return reply.code(400).send({ error: "Invalid type" });
     }
+    const formats = type.toLowerCase() === "anime" ? ["MOVIE" /* Format.MOVIE */, "TV" /* Format.TV */, "TV_SHORT" /* Format.TV_SHORT */, "OVA" /* Format.OVA */, "ONA" /* Format.ONA */, "OVA" /* Format.OVA */] :
+        type.toLowerCase() === "manga" ? ["MANGA" /* Format.MANGA */, "ONE_SHOT" /* Format.ONE_SHOT */] :
+            ["NOVEL" /* Format.NOVEL */];
     const originalType = type;
     if (type.toLowerCase().includes("novel")) {
         type = "manga";
@@ -112,9 +163,6 @@ fastify.post("/seasonal", async (request, reply) => {
     if (cached) {
         return JSON.parse(cached);
     }
-    const formats = type.toLowerCase() === "anime" ? ["MOVIE" /* Format.MOVIE */, "TV" /* Format.TV */, "TV_SHORT" /* Format.TV_SHORT */, "OVA" /* Format.OVA */, "ONA" /* Format.ONA */, "OVA" /* Format.OVA */] :
-        type.toLowerCase() === "manga" ? ["MANGA" /* Format.MANGA */, "ONE_SHOT" /* Format.ONE_SHOT */] :
-            ["NOVEL" /* Format.NOVEL */];
     const aniListData = await (0, season_1.loadSeasonal)({ type: type.toUpperCase(), formats: formats });
     const data = await (0, database_1.seasonal)(aniListData?.trending, aniListData?.popular, aniListData?.top, aniListData?.seasonal);
     await redis.set(`seasonal:${originalType}`, JSON.stringify(data), "EX", cacheTime);

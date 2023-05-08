@@ -24,13 +24,11 @@ function substringBefore(str, toFind) {
     return index == -1 ? '' : str.substring(0, index);
 }
 exports.substringBefore = substringBefore;
-;
 function substringAfter(str, toFind) {
     const index = str.indexOf(toFind);
     return index == -1 ? '' : str.substring(index + toFind.length);
 }
 exports.substringAfter = substringAfter;
-;
 function sanitizeTitle(title) {
     let resTitle = title.replace(/ *(\(dub\)|\(sub\)|\(uncensored\)|\(uncut\)|\(subbed\)|\(dubbed\))/i, '');
     resTitle = resTitle.replace(/ *\([^)]+audio\)/i, '');

@@ -5,7 +5,7 @@ import colors from "colors";
 
 import queues from './worker';
 import { Format } from "./mapping";
-import { info, search, seasonal } from "./database";
+import { info, prisma, search, seasonal } from "./database";
 import { loadSeasonal } from "./lib/season";
 
 const port = parseInt(process.env.PORT as string) || 3000;
@@ -17,6 +17,66 @@ const cacheTime = process.env.REDIS_CACHE_TIME as string || 60 * 60 * 24 * 7;
 
 fastify.get("/", async (request, reply) => {
     return { hello: "world" }
+})
+
+fastify.get("/stats", async (request, reply) => {
+    const cached = await redis.get(`stats`);
+    if (cached) {
+        return JSON.parse(cached);
+    }
+
+    const data = {
+        anime: 0,
+        manga: 0,
+        novels: 0
+    };
+
+    const manga = await prisma.manga.count();
+    const mangaNotNovels = await prisma.manga.count({
+        where: {
+            format: {
+                not: "NOVEL"
+            }
+        }
+    });
+
+    data.anime = await prisma.anime.count();
+    data.manga = mangaNotNovels;
+    data.novels = manga - mangaNotNovels;
+
+    await redis.set(`stats`, JSON.stringify(data), "EX", cacheTime);
+
+    return data;
+})
+
+fastify.post("/stats", async (request, reply) => {
+    const cached = await redis.get(`stats`);
+    if (cached) {
+        return JSON.parse(cached);
+    }
+
+    const data = {
+        anime: 0,
+        manga: 0,
+        novels: 0
+    };
+
+    const manga = await prisma.manga.count();
+    const mangaNotNovels = await prisma.manga.count({
+        where: {
+            format: {
+                not: "NOVEL"
+            }
+        }
+    });
+
+    data.anime = await prisma.anime.count();
+    data.manga = mangaNotNovels;
+    data.novels = manga - mangaNotNovels;
+
+    await redis.set(`stats`, JSON.stringify(data), "EX", cacheTime);
+
+    return data;
 })
 
 fastify.get("/search/:type/:query", async (request, reply) => {
@@ -70,6 +130,10 @@ fastify.post("/search", async (request, reply) => {
     if (!query || query.length < 3) {
         return reply.code(400).send({ error: "Invalid query" });
     }
+    
+    const formats = type.toLowerCase() === "anime" ? [Format.MOVIE, Format.TV, Format.TV_SHORT, Format.OVA, Format.ONA, Format.OVA] :
+                type.toLowerCase() === "manga" ? [Format.MANGA, Format.ONE_SHOT] :
+                [Format.NOVEL];
 
     const originalType = type;
 
@@ -81,10 +145,6 @@ fastify.post("/search", async (request, reply) => {
     if (cached) {
         return JSON.parse(cached);
     }
-    
-    const formats = type.toLowerCase() === "anime" ? [Format.MOVIE, Format.TV, Format.TV_SHORT, Format.OVA, Format.ONA, Format.OVA] :
-                type.toLowerCase() === "manga" ? [Format.MANGA, Format.ONE_SHOT] :
-                [Format.NOVEL];
 
     const existing = await search(query, type.toUpperCase(), formats, 0, 20);
     if (existing.length === 0) {
@@ -106,6 +166,10 @@ fastify.get("/seasonal/:type", async (request, reply) => {
     if (!type || (type.toLowerCase() !== "anime" && type.toLowerCase() !== "manga") && type.toLowerCase() !== "novel") {
         return reply.code(400).send({ error: "Invalid type" });
     }
+    
+    const formats = type.toLowerCase() === "anime" ? [Format.MOVIE, Format.TV, Format.TV_SHORT, Format.OVA, Format.ONA, Format.OVA] :
+                type.toLowerCase() === "manga" ? [Format.MANGA, Format.ONE_SHOT] :
+                [Format.NOVEL];
 
     const originalType = type;
 
@@ -117,10 +181,6 @@ fastify.get("/seasonal/:type", async (request, reply) => {
     if (cached) {
         return JSON.parse(cached);
     }
-    
-    const formats = type.toLowerCase() === "anime" ? [Format.MOVIE, Format.TV, Format.TV_SHORT, Format.OVA, Format.ONA, Format.OVA] :
-                type.toLowerCase() === "manga" ? [Format.MANGA, Format.ONE_SHOT] :
-                [Format.NOVEL];
 
     const aniListData = await loadSeasonal({ type: type.toUpperCase(), formats: formats });
     const data = await seasonal(aniListData?.trending, aniListData?.popular, aniListData?.top, aniListData?.seasonal);
@@ -136,6 +196,10 @@ fastify.post("/seasonal", async (request, reply) => {
     if (!type || (type.toLowerCase() !== "anime" && type.toLowerCase() !== "manga") && type.toLowerCase() !== "novel") {
         return reply.code(400).send({ error: "Invalid type" });
     }
+    
+    const formats = type.toLowerCase() === "anime" ? [Format.MOVIE, Format.TV, Format.TV_SHORT, Format.OVA, Format.ONA, Format.OVA] :
+                type.toLowerCase() === "manga" ? [Format.MANGA, Format.ONE_SHOT] :
+                [Format.NOVEL];
 
     const originalType = type;
 
@@ -147,10 +211,6 @@ fastify.post("/seasonal", async (request, reply) => {
     if (cached) {
         return JSON.parse(cached);
     }
-    
-    const formats = type.toLowerCase() === "anime" ? [Format.MOVIE, Format.TV, Format.TV_SHORT, Format.OVA, Format.ONA, Format.OVA] :
-                type.toLowerCase() === "manga" ? [Format.MANGA, Format.ONE_SHOT] :
-                [Format.NOVEL];
 
     const aniListData = await loadSeasonal({ type: type.toUpperCase(), formats: formats });
     const data = await seasonal(aniListData?.trending, aniListData?.popular, aniListData?.top, aniListData?.seasonal);

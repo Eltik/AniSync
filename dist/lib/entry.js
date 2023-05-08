@@ -22,10 +22,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createEntry = void 0;
 const database_1 = require("database");
 const event_1 = __importStar(require("@/src/helper/event"));
+const colors_1 = __importDefault(require("colors"));
 const createEntry = async (data) => {
     const existing = data.type === "ANIME" /* Type.ANIME */ ? await database_1.prisma.anime.findUnique({ where: {
             id: String(data.toInsert.id)
@@ -35,6 +39,12 @@ const createEntry = async (data) => {
     if (existing) {
         await event_1.default.emitAsync(event_1.Events.COMPLETED_ENTRY_CREATION, data.toInsert.id);
         return existing;
+    }
+    if (data.type === "ANIME" /* Type.ANIME */) {
+        if (Array.isArray(data.toInsert.season)) {
+            console.log(colors_1.default.yellow("Fixed season for anime."));
+            data.toInsert.season = data.toInsert.season[0];
+        }
     }
     data.type === "ANIME" /* Type.ANIME */ ? await database_1.prisma.anime.create({
         data: {
@@ -50,25 +60,19 @@ const createEntry = async (data) => {
             color: data.toInsert.color,
             countryOfOrigin: data.toInsert.countryOfOrigin,
             coverImage: data.toInsert.coverImage,
-            // @ts-ignore
             currentEpisode: data.toInsert.currentEpisode,
             description: data.toInsert.description,
-            // @ts-ignore
             duration: data.toInsert.duration,
             format: data.toInsert.format,
             genres: data.toInsert.genres,
             mappings: data.toInsert.mappings,
             relations: data.toInsert.relations,
-            // @ts-ignore
             season: data.toInsert.season,
             status: data.toInsert.status,
             synonyms: data.toInsert.synonyms,
             tags: data.toInsert.tags,
-            // @ts-ignore
             totalEpisodes: data.toInsert.totalEpisodes,
-            // @ts-ignore
             trailer: data.toInsert.trailer,
-            // @ts-ignore
             year: data.toInsert.year,
         }
     }) : await database_1.prisma.manga.create({
@@ -85,9 +89,7 @@ const createEntry = async (data) => {
             color: data.toInsert.color,
             countryOfOrigin: data.toInsert.countryOfOrigin,
             coverImage: data.toInsert.coverImage,
-            // @ts-ignore
             totalChapters: data.toInsert.totalChapters,
-            // @ts-ignore
             totalVolumes: data.toInsert.totalVolumes,
             description: data.toInsert.description,
             format: data.toInsert.format,

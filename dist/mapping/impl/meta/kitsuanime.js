@@ -4,8 +4,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = __importDefault(require("axios"));
+const __1 = require("../..");
 const _1 = __importDefault(require("."));
 class KitsuAnime extends _1.default {
+    rateLimit = 250;
     id = "kitsu";
     url = "https://kitsu.io";
     formats = ["TV" /* Format.TV */, "MOVIE" /* Format.MOVIE */, "ONA" /* Format.ONA */, "SPECIAL" /* Format.SPECIAL */, "TV_SHORT" /* Format.TV_SHORT */, "OVA" /* Format.OVA */];
@@ -52,11 +54,14 @@ class KitsuAnime extends _1.default {
                 if (result.attributes.titles.zh_cn) {
                     altTitles.push(result.attributes.titles.zh_cn);
                 }
+                const formatString = result.attributes.subtype.toUpperCase();
+                const format = __1.Formats.includes(formatString) ? formatString : "UNKNOWN" /* Format.UNKNOWN */;
                 results.push({
                     title: result.attributes.titles.en_us || result.attributes.titles.en_jp || result.attributes.titles.ja_jp || result.attributes.titles.en || result.attributes.titles.en_kr || result.attributes.titles.ko_kr || result.attributes.titles.en_cn || result.attributes.titles.zh_cn || result.attributes.canonicalTitle || result.attributes.slug,
                     altTitles: altTitles,
                     id: result.id,
                     year: result.attributes.startDate ? new Date(result.attributes.startDate).getFullYear() : 0,
+                    format,
                     img: result.attributes.posterImage.original,
                     providerId: this.id,
                 });

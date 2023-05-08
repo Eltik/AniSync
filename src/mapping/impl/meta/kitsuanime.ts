@@ -1,10 +1,11 @@
 import axios from "axios";
-import { Format, Result, Type } from "../..";
+import { Format, Formats, Result, Type } from "../..";
 import MetaProvider from ".";
 
 export default class KitsuAnime extends MetaProvider {
-    override id: string = "kitsu";
-    override url: string = "https://kitsu.io";
+    override rateLimit = 250;
+    override id = "kitsu";
+    override url = "https://kitsu.io";
     override formats: Format[] = [Format.TV, Format.MOVIE, Format.ONA, Format.SPECIAL, Format.TV_SHORT, Format.OVA];
 
     private kitsuApiUrl = "https://kitsu.io/api/edge";
@@ -52,11 +53,16 @@ export default class KitsuAnime extends MetaProvider {
                 if (result.attributes.titles.zh_cn) {
                     altTitles.push(result.attributes.titles.zh_cn);
                 }
+
+                const formatString: string = result.attributes.subtype.toUpperCase();
+                const format: Format = Formats.includes(formatString as Format) ? formatString as Format : Format.UNKNOWN;
+
                 results.push({
                     title: result.attributes.titles.en_us || result.attributes.titles.en_jp || result.attributes.titles.ja_jp || result.attributes.titles.en || result.attributes.titles.en_kr || result.attributes.titles.ko_kr || result.attributes.titles.en_cn || result.attributes.titles.zh_cn || result.attributes.canonicalTitle || result.attributes.slug,
                     altTitles: altTitles,
                     id: result.id,
                     year: result.attributes.startDate ? new Date(result.attributes.startDate).getFullYear() : 0,
+                    format,
                     img: result.attributes.posterImage.original,
                     providerId: this.id,
                 });

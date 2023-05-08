@@ -20,7 +20,7 @@ const client_2 = require("@prisma/client");
 __exportStar(require("@prisma/client"), exports);
 const averageMetric = (object) => {
     let average = 0, validCount = 0;
-    for (let [_, v] of Object.entries(object)) {
+    for (const [_, v] of Object.entries(object)) {
         if (v && typeof v === "number") {
             average += v;
             validCount++;
@@ -28,7 +28,7 @@ const averageMetric = (object) => {
     }
     return validCount === 0 ? 0 : Number.parseFloat((average / validCount).toFixed(2));
 };
-let $prisma = new client_1.PrismaClient({
+const $prisma = new client_1.PrismaClient({
     log: ["error"]
 });
 const dedupeFields = ["synonyms", "genres"];
@@ -36,7 +36,7 @@ $prisma.$use(async (params, next) => {
     if (params.model === "Manga" || params.model === "Anime") {
         if (!params?.args)
             return next(params);
-        for (let field of dedupeFields) {
+        for (const field of dedupeFields) {
             if (params.args['data'] && params.args['data'][field]) {
                 params.args['data'][field] = Array.from(new Set(params.args['data'][field]));
             }
@@ -87,6 +87,28 @@ const modifiedPrisma = $prisma.$extends({
                 needs: { popularity: true },
                 compute(anime) {
                     return averageMetric(anime.popularity);
+                }
+            }
+        },
+        manga: {
+            save: {
+                needs: { id: true },
+                compute(manga) {
+                    delete manga["averagePopularity"];
+                    delete manga["averageRating"];
+                    return () => $prisma.manga.update({ where: { id: manga.id }, data: manga });
+                }
+            },
+            averageRating: {
+                needs: { rating: true },
+                compute(manga) {
+                    return averageMetric(manga.rating);
+                }
+            },
+            averagePopularity: {
+                needs: { popularity: true },
+                compute(manga) {
+                    return averageMetric(manga.popularity);
                 }
             }
         }
@@ -249,7 +271,6 @@ const info = async (id) => {
             where: { id }
         });
     }
-    ;
     if (!media)
         return null;
     if (media.synonyms)

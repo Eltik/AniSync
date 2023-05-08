@@ -3,8 +3,9 @@ import { Format, Result } from "../..";
 import MetaProvider from ".";
 
 export default class TMDB extends MetaProvider {
-    override id: string = "tmdb";
-    override url: string = "https://themoviedb.org";
+    override rateLimit = 500;
+    override id = "tmdb";
+    override url = "https://themoviedb.org";
     override formats: Format[] = [Format.TV, Format.MOVIE, Format.ONA, Format.SPECIAL, Format.TV_SHORT, Format.OVA];
 
     private tmdbApiUrl = "https://api.themoviedb.org/3";
@@ -25,6 +26,7 @@ export default class TMDB extends MetaProvider {
                         title: result.title || result.name,
                         altTitles: [result.original_title || result.original_name, result.title || result.name],
                         img: `https://image.tmdb.org/t/p/w500${result.poster_path}`,
+                        format: Format.UNKNOWN,
                         year: result.first_air_date ? new Date(result.first_air_date).getFullYear() : 0,
                         providerId: this.id,
                     });
@@ -34,6 +36,7 @@ export default class TMDB extends MetaProvider {
                         title: result.title || result.name,
                         altTitles: [result.original_title || result.original_name, result.title || result.name],
                         img: `https://image.tmdb.org/t/p/w500${result.poster_path}`,
+                        format: Format.MOVIE,
                         year: result.first_air_date ? new Date(result.first_air_date).getFullYear() : 0,
                         providerId: this.id,
                     });

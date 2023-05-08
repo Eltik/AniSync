@@ -98,7 +98,7 @@ The following are some additional things you can do to help with using AniSync.
 ### Crawling
 <b>Note</b>:As of the current commit, crawling requires editing the `/src/crawl.ts` file. Change the variables under the `CONFIGURE THINGS HERE` comment. I'll update with a fix soon.
 <br />
-To start crawling, run `npm run crawl`. Once you have run the command, keep the terminal open and wait. The program will insert media using AniList's [sitemap](https://anilist.co/sitemap/anime-0.xml). **Please note that crawling takes a pretty long time.** I've mentioned above, but there are more optimizations that can be done to improve the crawling speed. AniList rate limit is a big factor, and as of now, crawling all of AniList will take over 50 days for manga/light novels. I've added the ability to use Manami (an offline database) for anime, so mappings don't take very long using that. The only issue right now is manga/light novels since there doesn't seem to be a good AniList offline database. However, the mappings are very accurate and in the end it's worth it.
+To start crawling, run `npm run crawl`. Once you have run the command, keep the terminal open and wait. The program will insert media using AniList's [sitemap](https://anilist.co/sitemap/anime-0.xml). Some mappings **may be innacurate**, so I suggest you monitor mappings.
 ***************
 #### To Crawl Specific Amounts of Media
 1. Open the `/src/crawl.ts` file. Under the `CONFIGURE THINGS HERE` comment, change the variable `maxIds: number = x` where x is the number of anime you want to map.

@@ -3,7 +3,7 @@ dotenv.config();
 
 import axios from "axios";
 import { existsSync, readFileSync, writeFileSync } from "fs";
-import { Format, Type } from "./mapping";
+import { Type } from "./mapping";
 
 import colors from "colors";
 import { prisma } from "./database";
@@ -13,9 +13,8 @@ import { loadMapping } from "./lib/mappings";
 import queues from './worker';
 import emitter, { Events } from '@/src/helper/event';
 
-// CONFIGURE THINGS HERE
 const type: Type = Type.ANIME;
-let maxIds: number = 0;
+let maxIds = 0;
 
 emitter.on(Events.COMPLETED_MAPPING_LOAD, (data) => {
     for (let i = 0; i < data.length; i++) {
@@ -36,7 +35,7 @@ queues.createEntry.start();
     let lastId = 0;
     
     try {
-        let lastIdString = readFileSync("lastId.txt", "utf8");
+        const lastIdString = readFileSync("lastId.txt", "utf8");
         lastId = isNaN(parseInt(lastIdString)) ? 0 : parseInt(lastIdString);
     } catch(err) {
         if (!existsSync("lastId.txt")) {

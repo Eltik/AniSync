@@ -12,6 +12,7 @@ export type Result = {
     title: string;
     altTitles: string[];
     year: number;
+    format: Format;
     img: string | null;
     providerId: string;
 };
@@ -32,6 +33,7 @@ export declare const enum Format {
     ONE_SHOT = "ONE_SHOT",
     UNKNOWN = "UNKNOWN"
 }
+export declare const Formats: Format[];
 export declare const enum Season {
     WINTER = "WINTER",
     SPRING = "SPRING",

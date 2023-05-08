@@ -3,12 +3,13 @@ import MangaProvider from ".";
 import { Format, Result } from "../..";
 
 export default class ComicK extends MangaProvider {
-    override id: string = "comick";
-    override url: string = "https://comick.app";
+    override rateLimit = 250;
+    override id = "comick";
+    override url = "https://comick.app";
     
     override formats: Format[] = [Format.MANGA, Format.ONE_SHOT];
 
-    private api: string = "https://api.comick.app";
+    private api = "https://api.comick.app";
 
     override async search(query: string): Promise<Result[] | undefined> {
         const data: SearchResult[] = (await axios(`${this.api}/v1.0/search?q=${encodeURIComponent(query)}&limit=25&page=1`)).data;
@@ -26,6 +27,7 @@ export default class ComicK extends MangaProvider {
                 title: result.title ?? result.slug,
                 altTitles: result.md_titles ? result.md_titles.map((title) => title.title) : [],
                 img: cover,
+                format: Format.UNKNOWN,
                 year: result.created_at ? new Date(result.created_at).getFullYear() : 0,
                 providerId: this.id,
             });

@@ -3,8 +3,8 @@ import InformationProvider, { AnimeInfo, MangaInfo } from ".";
 import { Anime, Format, Manga, Season, Type } from "../..";
 
 export default class Kitsu extends InformationProvider {
-    override id: string = "kitsu";
-    override url: string = "https://kitsu.io";
+    override id = "kitsu";
+    override url = "https://kitsu.io";
 
     private kitsuApiUrl = "https://kitsu.io/api/edge";
 

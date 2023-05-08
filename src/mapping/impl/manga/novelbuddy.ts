@@ -4,8 +4,9 @@ import { Format, Result } from "../..";
 import { load } from "cheerio";
 
 export default class NovelBuddy extends MangaProvider {
-    override id: string = "novelbuddy";
-    override url: string = "https://novelbuddy.com";
+    override rateLimit = 250;
+    override id = "novelbuddy";
+    override url = "https://novelbuddy.com";
     
     override formats: Format[] = [Format.NOVEL];
 
@@ -26,6 +27,7 @@ export default class NovelBuddy extends MangaProvider {
                 title: title?.trim()!,
                 img: img,
                 year: 0,
+                format: Format.NOVEL,
                 altTitles: [],
                 providerId: this.id
             })

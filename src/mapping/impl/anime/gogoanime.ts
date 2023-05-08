@@ -4,8 +4,9 @@ import { Format, Result } from "../..";
 import { load } from "cheerio";
 
 export default class GogoAnime extends AnimeProvider {
-    override id: string = "gogoanime";
-    override url: string = "https://gogoanime.cl";
+    override rateLimit = 250;
+    override id = "gogoanime";
+    override url = "https://gogoanime.cl";
 
     override formats: Format[] = [Format.MOVIE, Format.ONA, Format.OVA, Format.SPECIAL, Format.TV, Format.TV_SHORT];
 
@@ -25,11 +26,14 @@ export default class GogoAnime extends AnimeProvider {
             const year = (parseInt($("p.released").text()?.split("Released: ")[1]) ?? 0);
             const img = $(el).find("div.img a img").attr("src")!;
 
+            const format: Format = Format.UNKNOWN;
+
             results.push({
                 id: id,
                 title: title,
                 altTitles: [],
                 img: img,
+                format,
                 year: year,
                 providerId: this.id
             })

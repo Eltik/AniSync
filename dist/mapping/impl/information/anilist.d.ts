@@ -17,9 +17,11 @@ export default class AniList extends InformationProvider {
         top: any;
     } | undefined>;
     private fetchManamiProject;
+    batchRequest(queries: string[]): Promise<any | undefined>;
+    private executeGraphQLQuery;
     /**
      * @description Custom request function for handling AniList rate limit.
      */
     request(url: string, options?: AxiosRequestConfig, retries?: number): Promise<AxiosResponse | null>;
-    private query;
+    query: string;
 }

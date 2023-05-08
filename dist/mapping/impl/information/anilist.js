@@ -128,7 +128,6 @@ class AniList extends _1.default {
                     description: data.description ?? null,
                     format: data.format,
                     year: data.seasonYear ?? data.startDate?.year ?? null,
-                    // @ts-ignore
                     type: data.type,
                     countryOfOrigin: data.countryOfOrigin ?? null,
                     tags: data.tags
@@ -158,7 +157,6 @@ class AniList extends _1.default {
                     description: data.description ?? null,
                     format: data.format,
                     year: data.seasonYear ?? data.startDate?.year ?? null,
-                    // @ts-ignore
                     type: data.type,
                     countryOfOrigin: data.countryOfOrigin ?? null,
                     tags: data.tags.map((tag) => tag.name)
@@ -265,7 +263,6 @@ class AniList extends _1.default {
             description: data.description ?? null,
             format: data.format,
             year: data.seasonYear ?? data.startDate?.year ?? null,
-            // @ts-ignore
             type: data.type,
             countryOfOrigin: data.countryOfOrigin ?? null,
             tags: data.tags.map((tag) => tag.name)
@@ -344,12 +341,11 @@ class AniList extends _1.default {
                 format: data.format,
                 countryOfOrigin: data.countryOfOrigin ?? null,
                 year: data.seasonYear ?? data.startDate?.year ?? null,
-                // @ts-ignore
                 type: data.type,
                 tags: data.tags.map((tag) => tag.name)
             };
         });
-        const seasonal = data.season.media.map((data) => {
+        const seasonal = data.season.media?.map((data) => {
             return {
                 aniListId: data.id,
                 malId: data.idMal,
@@ -372,7 +368,6 @@ class AniList extends _1.default {
                 format: data.format,
                 countryOfOrigin: data.countryOfOrigin ?? null,
                 year: data.seasonYear ?? data.startDate?.year ?? null,
-                // @ts-ignore
                 type: data.type,
                 tags: data.tags.map((tag) => tag.name)
             };
@@ -400,7 +395,6 @@ class AniList extends _1.default {
                 format: data.format,
                 countryOfOrigin: data.countryOfOrigin ?? null,
                 year: data.seasonYear ?? data.startDate?.year ?? null,
-                // @ts-ignore
                 type: data.type,
                 tags: data.tags.map((tag) => tag.name)
             };
@@ -428,7 +422,6 @@ class AniList extends _1.default {
                 format: data.format,
                 countryOfOrigin: data.countryOfOrigin ?? null,
                 year: data.seasonYear ?? data.startDate?.year ?? null,
-                // @ts-ignore
                 type: data.type,
                 tags: data.tags.map((tag) => tag.name)
             };
@@ -477,6 +470,49 @@ class AniList extends _1.default {
             return [];
         }
     }
+    async batchRequest(queries) {
+        const MAX_QUERIES = 30; // Can send 5 queries per request
+        const results = [];
+        let currentQuery = "{";
+        let queryCount = 0;
+        for (let i = 0; i < queries.length; i++) {
+            const query = queries[i];
+            if (queryCount === MAX_QUERIES) {
+                const result = await this.executeGraphQLQuery(currentQuery + "}");
+                if (!result) {
+                    continue;
+                }
+                results.push(...Object.values(result?.data));
+                currentQuery = "{";
+                queryCount = 0;
+            }
+            currentQuery += `${query}\n`;
+            queryCount++;
+        }
+        if (currentQuery.length > 0) {
+            const result = await this.executeGraphQLQuery(currentQuery + "}");
+            if (result) {
+                results.push(...Object.values(result?.data));
+            }
+        }
+        return results;
+    }
+    async executeGraphQLQuery(query) {
+        const variables = {};
+        return await this.request(this.api, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            data: {
+                query,
+                variables
+            }
+        }).catch((err) => {
+            return null;
+        });
+    }
     /**
      * @description Custom request function for handling AniList rate limit.
      */
@@ -485,9 +521,9 @@ class AniList extends _1.default {
             return err;
         });
         const response = req.response ? req.response : req;
-        const remainingRequests = parseInt(response?.headers['x-ratelimit-remaining']) || 0;
-        const requestLimit = parseInt(response?.headers['x-ratelimit-limit']) || 0;
-        const resetTime = parseInt(response?.headers['x-ratelimit-reset']) || 0;
+        const remainingRequests = parseInt(response.headers?.['x-ratelimit-remaining']) || 0;
+        const requestLimit = parseInt(response.headers?.['x-ratelimit-limit']) || 0;
+        const resetTime = parseInt(response.headers?.['x-ratelimit-reset']) || 0;
         if (remainingRequests >= 60) {
             const delay = resetTime * 1000 - Date.now();
             if (delay > 0) {
@@ -505,13 +541,15 @@ class AniList extends _1.default {
                     }
                 }
                 else {
+                    console.error(response.data.errors);
+                    console.log(options?.data);
                     throw new Error(err);
                 }
             });
         }
-        if (response.headers['retry-after']) {
+        if (response.headers?.['retry-after']) {
             //console.log(colors.yellow("Rate limit headers found. Waiting..."));
-            const delay = parseInt(response.headers['retry-after']) * 3000;
+            const delay = parseInt(response.headers?.['retry-after']) * 3000;
             if (delay > 0) {
                 await new Promise(resolve => setTimeout(resolve, delay));
             }
@@ -587,15 +625,6 @@ class AniList extends _1.default {
     favourites
     countryOfOrigin
     isLicensed
-    airingSchedule {
-        edges {
-            node {
-                airingAt
-                timeUntilAiring
-                episode
-            }
-        }
-    }
     relations {
         edges {
             id
@@ -615,41 +644,6 @@ class AniList extends _1.default {
             }
         }
     }
-    characterPreview: characters(perPage: 6, sort: [ROLE, RELEVANCE, ID]) {
-        edges {
-            id
-            role
-            name
-            voiceActors(language: JAPANESE, sort: [RELEVANCE, ID]) {
-                id
-                name {
-                    userPreferred
-                }
-                language: languageV2
-                image {
-                    large
-                }
-            }
-            node {
-                id
-                name {
-                    userPreferred
-                }
-                image {
-                    large
-                }
-            }
-        }
-    }
-    studios {
-        edges {
-            isMain
-            node {
-                id
-                name
-            }
-        }
-    }
     streamingEpisodes {
         title
         thumbnail
@@ -666,4 +660,3 @@ class AniList extends _1.default {
     `;
 }
 exports.default = AniList;
-;

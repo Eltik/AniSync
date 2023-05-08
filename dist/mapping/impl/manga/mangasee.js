@@ -7,6 +7,7 @@ const axios_1 = __importDefault(require("axios"));
 const _1 = __importDefault(require("."));
 const helper_1 = require("@/src/helper");
 class MangaSee extends _1.default {
+    rateLimit = 250;
     id = "mangasee";
     url = "https://mangasee123.com";
     formats = ["MANGA" /* Format.MANGA */, "ONE_SHOT" /* Format.ONE_SHOT */];
@@ -21,6 +22,7 @@ class MangaSee extends _1.default {
                     altTitles: list[i].a,
                     year: 0,
                     img: null,
+                    format: "UNKNOWN" /* Format.UNKNOWN */,
                     providerId: this.id,
                 });
             }

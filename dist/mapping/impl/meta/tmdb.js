@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = __importDefault(require("axios"));
 const _1 = __importDefault(require("."));
 class TMDB extends _1.default {
+    rateLimit = 500;
     id = "tmdb";
     url = "https://themoviedb.org";
     formats = ["TV" /* Format.TV */, "MOVIE" /* Format.MOVIE */, "ONA" /* Format.ONA */, "SPECIAL" /* Format.SPECIAL */, "TV_SHORT" /* Format.TV_SHORT */, "OVA" /* Format.OVA */];
@@ -24,6 +25,7 @@ class TMDB extends _1.default {
                         title: result.title || result.name,
                         altTitles: [result.original_title || result.original_name, result.title || result.name],
                         img: `https://image.tmdb.org/t/p/w500${result.poster_path}`,
+                        format: "UNKNOWN" /* Format.UNKNOWN */,
                         year: result.first_air_date ? new Date(result.first_air_date).getFullYear() : 0,
                         providerId: this.id,
                     });
@@ -34,6 +36,7 @@ class TMDB extends _1.default {
                         title: result.title || result.name,
                         altTitles: [result.original_title || result.original_name, result.title || result.name],
                         img: `https://image.tmdb.org/t/p/w500${result.poster_path}`,
+                        format: "MOVIE" /* Format.MOVIE */,
                         year: result.first_air_date ? new Date(result.first_air_date).getFullYear() : 0,
                         providerId: this.id,
                     });

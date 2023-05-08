@@ -6,30 +6,27 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = __importDefault(require("axios"));
 const _1 = __importDefault(require("."));
 const cheerio_1 = require("cheerio");
-class NovelBuddy extends _1.default {
+class ReadLightNovels extends _1.default {
     rateLimit = 250;
-    id = "novelbuddy";
-    url = "https://novelbuddy.com";
+    id = "readlightnovels";
+    url = "https://readlightnovels.net";
     formats = ["NOVEL" /* Format.NOVEL */];
     async search(query) {
         const results = [];
-        const { data } = await (0, axios_1.default)(`${this.url}/search?q=${encodeURIComponent(query)}`);
+        const { data } = await axios_1.default.post(`${this.url}/?s=${encodeURIComponent(query)}`);
         const $ = (0, cheerio_1.load)(data);
-        $("div.container div.manga-list div.book-item").map((i, el) => {
-            const url = `${$(el).find("a").attr("href")}`;
-            const title = $(el).find("a").attr("title");
-            const img = `https:${$(el).find("img").attr("data-src")}`;
+        $("div.col-xs-12.col-sm-12.col-md-9.col-truyen-main > div:nth-child(1) > div > div:nth-child(2) > div.col-md-3.col-sm-6.col-xs-6.home-truyendecu").each((i, el) => {
             results.push({
-                id: url,
-                title: title?.trim(),
-                img: img,
+                id: $(el).find("a").attr("href").split(this.url)[1],
+                title: $(el).find("a").attr("title"),
+                altTitles: [],
+                img: $(el).find("a > img").attr("src"),
                 year: 0,
                 format: "NOVEL" /* Format.NOVEL */,
-                altTitles: [],
                 providerId: this.id
             });
         });
         return results;
     }
 }
-exports.default = NovelBuddy;
+exports.default = ReadLightNovels;

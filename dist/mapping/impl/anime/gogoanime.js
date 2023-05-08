@@ -7,6 +7,7 @@ const axios_1 = __importDefault(require("axios"));
 const _1 = __importDefault(require("."));
 const cheerio_1 = require("cheerio");
 class GogoAnime extends _1.default {
+    rateLimit = 250;
     id = "gogoanime";
     url = "https://gogoanime.cl";
     formats = ["MOVIE" /* Format.MOVIE */, "ONA" /* Format.ONA */, "OVA" /* Format.OVA */, "SPECIAL" /* Format.SPECIAL */, "TV" /* Format.TV */, "TV_SHORT" /* Format.TV_SHORT */];
@@ -22,11 +23,13 @@ class GogoAnime extends _1.default {
             const id = $(el).find("div.img a").attr("href");
             const year = (parseInt($("p.released").text()?.split("Released: ")[1]) ?? 0);
             const img = $(el).find("div.img a img").attr("src");
+            const format = "UNKNOWN" /* Format.UNKNOWN */;
             results.push({
                 id: id,
                 title: title,
                 altTitles: [],
                 img: img,
+                format,
                 year: year,
                 providerId: this.id
             });

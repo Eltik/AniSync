@@ -5,12 +5,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const _1 = __importDefault(require("."));
 const cheerio_1 = require("cheerio");
-const cfbypass_1 = __importDefault(require("cfbypass"));
+const cloudscraper_ts_1 = __importDefault(require("cloudscraper-ts"));
 class NovelUpdates extends _1.default {
+    rateLimit = 1000;
     id = "novelupdates";
     url = "https://www.novelupdates.com";
     formats = ["NOVEL" /* Format.NOVEL */];
-    cfbypass = new cfbypass_1.default((process.env.USE_PYTHON3.toLowerCase() == "true" ? true : false) || false);
     async search(query) {
         const results = [];
         const body = {
@@ -19,19 +19,12 @@ class NovelUpdates extends _1.default {
             strOne: query,
             strSearchType: "series"
         };
-        const req = await this.cfbypass.request({
-            url: `${this.url}/wp-admin/admin-ajax.php`,
-            options: {
-                method: "POST",
-                body: body,
-                headers: {
-                    "Content-Type": "application/x-www-form-urlencoded",
-                    Referer: this.url,
-                    "X-Requested-With": "XMLHttpRequest"
-                }
-            }
+        const req = await (0, cloudscraper_ts_1.default)({
+            uri: `${this.url}/wp-admin/admin-ajax.php`,
+            method: "POST",
+            formData: body
         });
-        const $ = (0, cheerio_1.load)(req.text());
+        const $ = (0, cheerio_1.load)(req);
         $("ul li").map((i, el) => {
             const url = `${$(el).find("a").attr("href")}`;
             const title = $(el).text();
@@ -40,8 +33,9 @@ class NovelUpdates extends _1.default {
                 id: url,
                 title: title?.trim(),
                 img: img,
-                year: 0,
                 altTitles: [],
+                year: 0,
+                format: "NOVEL" /* Format.NOVEL */,
                 providerId: this.id
             });
         });

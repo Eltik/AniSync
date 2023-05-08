@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = __importDefault(require("axios"));
 const _1 = __importDefault(require("."));
 class ComicK extends _1.default {
+    rateLimit = 250;
     id = "comick";
     url = "https://comick.app";
     formats = ["MANGA" /* Format.MANGA */, "ONE_SHOT" /* Format.ONE_SHOT */];
@@ -23,6 +24,7 @@ class ComicK extends _1.default {
                 title: result.title ?? result.slug,
                 altTitles: result.md_titles ? result.md_titles.map((title) => title.title) : [],
                 img: cover,
+                format: "UNKNOWN" /* Format.UNKNOWN */,
                 year: result.created_at ? new Date(result.created_at).getFullYear() : 0,
                 providerId: this.id,
             });

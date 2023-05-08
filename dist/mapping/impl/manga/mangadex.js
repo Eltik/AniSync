@@ -5,8 +5,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const helper_1 = require("@/src/helper");
 const _1 = __importDefault(require("."));
+const __1 = require("../..");
 const axios_1 = __importDefault(require("axios"));
 class MangaDex extends _1.default {
+    rateLimit = 250;
     id = "mangadex";
     url = "https://mangadex.org";
     formats = ["MANGA" /* Format.MANGA */, "ONE_SHOT" /* Format.ONE_SHOT */];
@@ -58,11 +60,14 @@ class MangaDex extends _1.default {
                     img = `${this.url}/covers/${id}/${element.id}.jpg.512.jpg`;
                 }
             });
+            const formatString = manga.type.toUpperCase();
+            const format = __1.Formats.includes(formatString) ? formatString : "UNKNOWN" /* Format.UNKNOWN */;
             results.push({
                 id,
                 title: title,
                 altTitles: altTitles,
                 img: img,
+                format,
                 year: attributes.year,
                 providerId: this.id,
             });

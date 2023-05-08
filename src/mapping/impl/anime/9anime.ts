@@ -2,11 +2,12 @@ import { load } from "cheerio";
 import AnimeProvider, { SubType } from ".";
 
 import axios from "axios";
-import { Format, type Result } from "../..";
+import { Format, Formats, type Result } from "../..";
 
 export default class NineAnime extends AnimeProvider {
-    override id: string = "9anime";
-    override url: string = "https://9anime.to";
+    override rateLimit = 250;
+    override id = "9anime";
+    override url = "https://9anime.to";
     override formats: Format[] = [Format.MOVIE, Format.ONA, Format.OVA, Format.SPECIAL, Format.TV, Format.TV_SHORT];
 
     private resolver:string = process.env.NINEANIME_RESOLVER || `https://9anime.resolver.com`;
@@ -30,12 +31,16 @@ export default class NineAnime extends AnimeProvider {
             const altTitles:string[] = [title.attr("data-jp")!];
 
             const year: number = (parseInt($(el).find("div.info div.meta span.dot").last()?.text()?.trim()?.split(",")[1]) ?? 0);
+            
+            const formatString: string = $(el).find("div.info div.meta span.dot").eq(-2)?.text()?.trim()!;
+            const format: Format = Formats.includes(formatString as Format) ? formatString as Format : Format.UNKNOWN;
 
             results.push({
                 id: $(el).attr("href")!,
                 title: title.text().trim(),
                 altTitles,
                 year,
+                format,
                 img: $(el).find("img").attr("src")!,
                 providerId: this.id
             })

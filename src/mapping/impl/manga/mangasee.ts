@@ -4,8 +4,9 @@ import { Format, Result } from "../..";
 import { stringSearch } from "@/src/helper";
 
 export default class MangaSee extends MangaProvider {
-    override id: string = "mangasee";
-    override url: string = "https://mangasee123.com";
+    override rateLimit = 250;
+    override id = "mangasee";
+    override url = "https://mangasee123.com";
 
     override formats: Format[] = [Format.MANGA, Format.ONE_SHOT];
 
@@ -21,6 +22,7 @@ export default class MangaSee extends MangaProvider {
                     altTitles: list[i].a,
                     year: 0,
                     img: null,
+                    format: Format.UNKNOWN,
                     providerId: this.id,
                 })
             }

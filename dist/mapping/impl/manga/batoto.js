@@ -7,6 +7,7 @@ const axios_1 = __importDefault(require("axios"));
 const _1 = __importDefault(require("."));
 const cheerio_1 = require("cheerio");
 class BatoTo extends _1.default {
+    rateLimit = 250;
     id = "batoto";
     url = "https://bato.to";
     formats = ["MANGA" /* Format.MANGA */, "ONE_SHOT" /* Format.ONE_SHOT */];
@@ -29,6 +30,7 @@ class BatoTo extends _1.default {
                 img,
                 title,
                 year: 0,
+                format: "UNKNOWN" /* Format.UNKNOWN */,
                 providerId: this.id,
             });
         });

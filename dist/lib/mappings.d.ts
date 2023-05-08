@@ -1,4 +1,5 @@
 import { Anime, Format, Manga, Type } from "../mapping";
+import AniList from "../mapping/impl/information/anilist";
 export declare const loadMapping: (data: {
     id: string;
     type: Type;
@@ -90,7 +91,39 @@ export declare const loadMapping: (data: {
     mappings: import("database").Prisma.JsonValue;
     type: string;
     relations: import("database").Prisma.JsonValue;
-    averageRating: number | null;
-    averagePopularity: number | null;
+    averageRating: number;
+    averagePopularity: number;
+    save: () => import("database").Prisma.Prisma__MangaClient<{
+        title: PrismaJson.AnimeTitle;
+        synonyms: string[];
+        bannerImage: string | null;
+        coverImage: string | null;
+        color: string | null;
+        status: import("database").AiringStatus | null;
+        genres: string[];
+        description: string | null;
+        format: import("database").MediaFormat | null;
+        duration: number | null;
+        countryOfOrigin: string | null;
+        tags: string[];
+        rating: PrismaJson.MetaSitesMetric;
+        popularity: PrismaJson.MetaSitesMetric;
+        totalChapters: number | null;
+        totalVolumes: number | null;
+        id: string;
+        malId: string;
+        slug: string;
+        kitsuId: string | null;
+        mappings: import("database").Prisma.JsonValue;
+        type: string;
+        relations: import("database").Prisma.JsonValue;
+        averageRating: number | null;
+        averagePopularity: number | null;
+    }, never, {
+        result: {};
+        model: {};
+        query: {};
+        client: {};
+    }>;
 })[] | (Anime | Manga)[] | undefined>;
-export declare const map: (query: string, type: Type, formats: Format[], aniData: any) => Promise<Anime[] | Manga[]>;
+export declare const map: (aniList: AniList, query: string, type: Type, formats: Format[], aniData: any) => Promise<Anime[] | Manga[]>;

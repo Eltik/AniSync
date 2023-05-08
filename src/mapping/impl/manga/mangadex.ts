@@ -1,15 +1,16 @@
 import { wait } from "@/src/helper";
 import MangaProvider from ".";
-import { Format, Result } from "../..";
+import { Format, Formats, Result } from "../..";
 import axios from "axios";
 
 export default class MangaDex extends MangaProvider {
-    override id: string = "mangadex";
-    override url: string = "https://mangadex.org";
+    override rateLimit = 250;
+    override id = "mangadex";
+    override url = "https://mangadex.org";
 
     override formats: Format[] = [Format.MANGA, Format.ONE_SHOT];
 
-    private api: string = "https://api.mangadex.org";
+    private api = "https://api.mangadex.org";
 
     override async search(query: string): Promise<Result[] | undefined> {
         const results:Result[] = [];
@@ -68,11 +69,15 @@ export default class MangaDex extends MangaProvider {
                 }
             })
 
+            const formatString: string = manga.type.toUpperCase();
+            const format: Format = Formats.includes(formatString as Format) ? formatString as Format : Format.UNKNOWN;
+
             results.push({
                 id,
                 title: title,
                 altTitles: altTitles,
                 img: img,
+                format,
                 year: attributes.year,
                 providerId: this.id,
             })

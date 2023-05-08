@@ -4,8 +4,9 @@ import { Format, Result } from "../..";
 import { load } from "cheerio";
 
 export default class BatoTo extends MangaProvider {
-    override id: string = "batoto";
-    override url: string = "https://bato.to";
+    override rateLimit = 250;
+    override id = "batoto";
+    override url = "https://bato.to";
     
     override formats: Format[] = [Format.MANGA, Format.ONE_SHOT];
 
@@ -33,6 +34,7 @@ export default class BatoTo extends MangaProvider {
                 img,
                 title,
                 year: 0,
+                format: Format.UNKNOWN,
                 providerId: this.id,
             });
         });

@@ -18,9 +18,11 @@ import NovelBuddy from "./impl/manga/novelbuddy";
 import NovelUpdates from "./impl/manga/novelupdates";
 import TMDB from "./impl/meta/tmdb";
 import BatoTo from "./impl/manga/batoto";
+import JNovels from "./impl/manga/jnovels";
+import ReadLightNovels from "./impl/manga/readlightnovels";
 
 const ANIME_PROVIDERS: AnimeProvider[] = [new NineAnime(), new GogoAnime(), new Zoro(), new AnimePahe()];
-const MANGA_PROVIDERS: MangaProvider[] = [new BatoTo(), new ComicK(), new MangaDex(), new MangaSee(), new NovelBuddy(), new NovelUpdates()];
+const MANGA_PROVIDERS: MangaProvider[] = [new BatoTo(), new ComicK(), new MangaDex(), new MangaSee(), new NovelBuddy(), new NovelUpdates(), new JNovels(), new ReadLightNovels()];
 const INFORMATION_PROVIDERS: InformationProvider[] = [new AniList(), new MAL(), new Kitsu()];
 const META_PROVIDERS: MetaProvider[] = [new KitsuAnime(), new KitsuManga(), new TMDB()];
 
@@ -36,6 +38,7 @@ export type Result = {
     title: string,
     altTitles: string[],
     year: number,
+    format: Format,
     img: string | null,
     providerId: string
 }
@@ -58,6 +61,20 @@ export const enum Format {
     ONE_SHOT = "ONE_SHOT",
     UNKNOWN = "UNKNOWN"
 }
+
+export const Formats = [
+    Format.TV,
+    Format.TV_SHORT,
+    Format.MOVIE,
+    Format.SPECIAL,
+    Format.OVA,
+    Format.ONA,
+    Format.MUSIC,
+    Format.MANGA,
+    Format.NOVEL,
+    Format.ONE_SHOT,
+    Format.UNKNOWN
+];
 
 export const enum Season {
     WINTER = "WINTER",

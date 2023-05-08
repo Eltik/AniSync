@@ -1,10 +1,11 @@
 import axios from "axios";
 import AnimeProvider, { SubType } from ".";
-import { Format, Result } from "../..";
+import { Format, Formats, Result } from "../..";
 
 export default class AnimePahe extends AnimeProvider {
-    override id: string = "animepahe";
-    override url: string = "https://animepahe.com";
+    override rateLimit = 250;
+    override id = "animepahe";
+    override url = "https://animepahe.com";
 
     override formats: Format[] = [Format.MOVIE, Format.ONA, Format.OVA, Format.SPECIAL, Format.TV, Format.TV_SHORT];
 
@@ -21,11 +22,15 @@ export default class AnimePahe extends AnimeProvider {
         }
 
         data.data.map((item) => {
+            const formatString: string = item.type.toUpperCase();
+            const format: Format = Formats.includes(formatString as Format) ? formatString as Format : Format.UNKNOWN;
+
             results.push({
                 id: String(item.id) ?? item.session,
                 title: item.title,
                 year: item.year,
                 img: item.poster,
+                format,
                 altTitles: [],
                 providerId: this.id
             })

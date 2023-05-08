@@ -11,12 +11,12 @@ export default class QueueExecutor<T extends any> {
 
     private queue: Set<T> = new Set<T>();
     private metaMap: Map<T, any> = new Map<T, any>();
-    private paused: boolean = false;
-    private activeBySwitch: boolean = false;
-    private active: boolean = true;
-    private isExecuteAfterDone: boolean = false;
-    private running: boolean = false;
-    private isSelfRunning: boolean = false;
+    private paused = false;
+    private activeBySwitch = false;
+    private active = true;
+    private isExecuteAfterDone = false;
+    private running = false;
+    private isSelfRunning = false;
 
     constructor(id: string) {
         this.id = id;
