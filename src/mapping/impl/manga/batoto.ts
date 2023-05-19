@@ -7,7 +7,7 @@ export default class BatoTo extends MangaProvider {
     override rateLimit = 250;
     override id = "batoto";
     override url = "https://bato.to";
-    
+
     override formats: Format[] = [Format.MANGA, Format.ONE_SHOT];
 
     override async search(query: string): Promise<Result[] | undefined> {
@@ -19,7 +19,7 @@ export default class BatoTo extends MangaProvider {
             const id = $(el).find("a").attr("href")!;
             const title = $(el).find("a.item-title").text();
             const altTitles: string[] = [];
-            
+
             const altTitleText = $(el).find("div.item-alias").first().text();
 
             altTitleText.split("/").map((altTitle) => {

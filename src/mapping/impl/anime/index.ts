@@ -14,6 +14,6 @@ export default abstract class AnimeProvider {
 }
 
 export const enum SubType {
-    DUB = 'dub',
-    SUB = 'sub'
+    DUB = "dub",
+    SUB = "sub",
 }

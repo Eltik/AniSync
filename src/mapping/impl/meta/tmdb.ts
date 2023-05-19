@@ -10,9 +10,9 @@ export default class TMDB extends MetaProvider {
 
     private tmdbApiUrl = "https://api.themoviedb.org/3";
     private apiKey = "5201b54eb0968700e693a30576d7d4dc";
-    
+
     override async search(query: string): Promise<Result[] | undefined> {
-        const results:Result[] = [];
+        const results: Result[] = [];
 
         const page = 1;
         const searchUrl = `/search/multi?api_key=${this.apiKey}&language=en-US&page=${page}&include_adult=false&query=${encodeURIComponent(query)}`;

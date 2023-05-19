@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const index_1 = require("@/src/helper/index");
+const index_1 = require("./index");
 class QueueExecutor {
     id;
     intervalId;
@@ -80,11 +80,13 @@ class QueueExecutor {
                 if (this.active) {
                     this.running = true;
                     if (this.executorFunc)
-                        this.executorFunc(true, undefined).then(_ => {
+                        this.executorFunc(true, undefined)
+                            .then((_) => {
                             if (this.callbackFunc)
                                 this.callbackFunc(true);
                             this.running = false;
-                        }).catch(err => {
+                        })
+                            .catch((err) => {
                             if (this.errorFunc)
                                 this.errorFunc(err, true);
                             this.running = false;
@@ -94,11 +96,13 @@ class QueueExecutor {
             else {
                 if (this.isSelfRunning) {
                     if (this.executorFunc)
-                        this.executorFunc(undefined, undefined).then(_ => {
+                        this.executorFunc(undefined, undefined)
+                            .then((_) => {
                             if (this.callbackFunc)
                                 this.callbackFunc(undefined);
                             this.running = false;
-                        }).catch(err => {
+                        })
+                            .catch((err) => {
                             if (this.errorFunc)
                                 this.errorFunc(err, undefined);
                             this.running = false;
@@ -112,11 +116,13 @@ class QueueExecutor {
                         this.metaMap.delete(value);
                         this.running = true;
                         if (this.executorFunc)
-                            this.executorFunc(value, meta).then(_ => {
+                            this.executorFunc(value, meta)
+                                .then((_) => {
                                 if (this.callbackFunc)
                                     this.callbackFunc(value);
                                 this.running = false;
-                            }).catch(err => {
+                            })
+                                .catch((err) => {
                                 if (this.errorFunc)
                                     this.errorFunc(err, value);
                                 this.running = false;

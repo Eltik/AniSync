@@ -1,10 +1,10 @@
-import InformationProvider, { AnimeInfo, MangaInfo } from ".";
+import InformationProvider, { AnimeInfo, MangaInfo, MediaInfoKeys } from ".";
 import { Anime, Manga } from "../..";
-export default class Kitsu extends InformationProvider {
+export default class Kitsu extends InformationProvider<Anime | Manga, AnimeInfo | MangaInfo> {
     id: string;
     url: string;
     private kitsuApiUrl;
-    get priorityArea(): (keyof AnimeInfo | MangaInfo)[];
-    get sharedArea(): (keyof AnimeInfo | MangaInfo)[];
+    get priorityArea(): MediaInfoKeys[];
+    get sharedArea(): MediaInfoKeys[];
     info(media: Anime | Manga): Promise<AnimeInfo | MangaInfo | undefined>;
 }

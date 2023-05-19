@@ -23,7 +23,7 @@ export default class AnimePahe extends AnimeProvider {
 
         data.data.map((item) => {
             const formatString: string = item.type.toUpperCase();
-            const format: Format = Formats.includes(formatString as Format) ? formatString as Format : Format.UNKNOWN;
+            const format: Format = Formats.includes(formatString as Format) ? (formatString as Format) : Format.UNKNOWN;
 
             results.push({
                 id: String(item.id) ?? item.session,
@@ -32,8 +32,8 @@ export default class AnimePahe extends AnimeProvider {
                 img: item.poster,
                 format,
                 altTitles: [],
-                providerId: this.id
-            })
+                providerId: this.id,
+            });
         });
 
         return results;

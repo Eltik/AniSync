@@ -25,7 +25,7 @@ class NineAnime extends _1.default {
         $("div.items > a.item").each((i, el) => {
             const title = $(el).find("div.name");
             const altTitles = [title.attr("data-jp")];
-            const year = (parseInt($(el).find("div.info div.meta span.dot").last()?.text()?.trim()?.split(",")[1]) ?? 0);
+            const year = parseInt($(el).find("div.info div.meta span.dot").last()?.text()?.trim()?.split(",")[1]) ?? 0;
             const formatString = $(el).find("div.info div.meta span.dot").eq(-2)?.text()?.trim();
             const format = __1.Formats.includes(formatString) ? formatString : "UNKNOWN" /* Format.UNKNOWN */;
             results.push({
@@ -35,7 +35,7 @@ class NineAnime extends _1.default {
                 year,
                 format,
                 img: $(el).find("img").attr("src"),
-                providerId: this.id
+                providerId: this.id,
             });
         });
         return results;

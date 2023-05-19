@@ -1,4 +1,4 @@
-export default class QueueExecutor<T extends any> {
+export default class QueueExecutor<T> {
     id: string;
     private intervalId;
     private intervalN;

@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>AniSync Documentation</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 20px;
+            }
+
+            h1 {
+                margin-bottom: 20px;
+            }
+
+            h2 {
+                margin-top: 40px;
+                margin-bottom: 10px;
+            }
+
+            p {
+                margin-top: 10px;
+            }
+
+            code {
+                background-color: #f4f4f4;
+                padding: 2px 4px;
+                border-radius: 4px;
+            }
+
+            pre {
+                background-color: #f4f4f4;
+                padding: 10px;
+                border-radius: 4px;
+                overflow-x: auto;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>API Documentation</h1>
+        <h2>GET /</h2>
+        <p>Returns the API documentation root.</p>
+
+        <h2>GET /stats</h2>
+        <p>Fetches the statistics.</p>
+        <p><strong>Response:</strong> JSON object containing the statistics data.</p>
+        <pre><code>HTTP/1.1 200 OK
+{
+    "anime": 0,
+    "manga": 0,
+    "novels": 0,
+    "unresolvedEvents": 0
+}</code></pre>
+
+        <h2>POST /stats</h2>
+        <p>Posts new statistics.</p>
+        <p><strong>Response:</strong> JSON object containing the updated statistics data.</p>
+        <pre><code>HTTP/1.1 200 OK
+{
+    "anime": 0,
+    "manga": 0,
+    "novels": 0,
+    "unresolvedEvents": 0
+}</code></pre>
+
+        <h2>GET /search/:type/:query</h2>
+        <p>Searches for the given query and type.</p>
+        <p><strong>Parameters:</strong></p>
+        <ul>
+            <li><strong>type:</strong> anime, manga, novel</li>
+            <li><strong>query:</strong> search query with a minimum length of 3 characters</li>
+        </ul>
+        <p><strong>Response:</strong> JSON object containing the search results.</p>
+        <pre style="max-height: 50vh;"><code>HTTP/1.1 200 OK
+[{
+    "id": "133844",
+    "malId": "48895",
+    "slug": "overlord-iv",
+    "kitsuId": "44529",
+    "coverImage": "https://media.kitsu.io/anime/44529/poster_image/3c0598d9d341c3204b03b3a2314e8c13.jpg",
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/133844-uIaUmh5aJX3M.jpg",
+    "trailer": "https://www.youtube.com/watch?v=tNYQjEyTO6s",
+    "title": {
+        "native": "オーバーロードⅣ",
+        "romaji": "Overlord IV",
+        "english": "Overlord IV"
+    },
+    "currentEpisode": 13,
+    "mappings": [{
+        "id": "/category/overlord-iv",
+        "providerId": "gogoanime",
+        "similarity": {
+            "same": true,
+            "value": 1
+        }
+    }],
+    "synonyms": [
+        "Overlord 4",
+        "โอเวอร์ลอร์ด ภาค 4",
+        "โอเวอร์ ลอร์ด จอมมารพิชิตโลก ภาค 4"
+    ],
+    "countryOfOrigin": "JP",
+    "description": "The fourth season of <i>Overlord</i>.\n<br><br>\nE-Rantel, the capital city of the newly established Sorcerer Kingdom, suffers from a dire shortage of goods. Once a prosperous city known for its trade, it now faces a crisis due to its caution—or even fear—of its king, Ainz Ooal Gown. To make amends, Ainz sends Albedo to the city as a diplomatic envoy.\n<br><br>\nMeanwhile, the cardinals of the Slane Theocracy discuss how to retaliate against Ainz after his attack crippled the Re-Estize Kingdom's army, plotting for the Baharuth Empire to take over the Sorcerer Kingdom. However, when Emperor Jircniv Rune Farlord El Nix arranges a meeting with the Theocracy's messengers at a colosseum, he is confronted by none other than Ainz himself.\n<br><br>\nWith their secret gathering now out in the open, the emperor and his guests learn that Ainz has challenged the Warrior King, the empire's greatest fighter, to a duel. With Ainz's motivations beyond his comprehension, Jircniv can do nothing but watch as humanity's future changes before his very eyes.\n<br><br>\n(Source: MAL Rewrite)",
+    "duration": 24,
+    "color": null,
+    "year": 2022,
+    "rating": {
+        "mal": 8.09,
+        "kitsu": 8.16,
+        "anilist": 8
+    },
+    "popularity": {
+        "mal": 452,
+        "kitsu": null,
+        "anilist": 90891
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "relations": [],
+    "totalEpisodes": 13,
+    "genres": [
+        "Action",
+        "Adventure",
+        "Fantasy"
+    ],
+    "tags": [
+        "Magic",
+        "Anti-Hero",
+        "Skeleton",
+        "Conspiracy",
+        "Virtual World",
+        "Isekai",
+        "Male Protagonist",
+        "Demons",
+        "Politics",
+        "Female Harem",
+        "Maids",
+        "Succubus",
+        "Gore",
+        "CGI",
+        "Monster Girl",
+        "Vampire",
+        "Revenge",
+        "Femboy",
+        "Monster Boy",
+        "Male Harem",
+        "Zombie"
+    ],
+    "averageRating": 8.08,
+    "averagePopularity": 45671.5,
+    "episodes": {
+        "data": [{
+            "episodes": [{
+                "id": "/watch/overlord-iv-18075?ep=92599",
+                "img": null,
+                "title": "Sorcerous Nation of Ainz Ooal Gown",
+                "hasDub": true,
+                "number": 1,
+                "isFiller": false
+            }],
+            "providerId": "zoro"
+        }],
+        "updatedAt": 1684265967024
+    },
+    "status": "FINISHED",
+    "season": "UNKNOWN"
+}]</code></pre>
+        <h2>POST /search</h2>
+        <p>Searches for the given query and type using request body parameters.</p>
+        <p><strong>Parameters:</strong></p>
+        <ul>
+            <li><strong>type:</strong> anime, manga, novel</li>
+            <li><strong>query:</strong> search query with a minimum length of 3 characters</li>
+        </ul>
+        <p><strong>Response:</strong> JSON object containing the search results.</p>
+        <pre style="max-height: 50vh;"><code>HTTP/1.1 200 OK
+[{
+    "id": "133844",
+    "malId": "48895",
+    "slug": "overlord-iv",
+    "kitsuId": "44529",
+    "coverImage": "https://media.kitsu.io/anime/44529/poster_image/3c0598d9d341c3204b03b3a2314e8c13.jpg",
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/133844-uIaUmh5aJX3M.jpg",
+    "trailer": "https://www.youtube.com/watch?v=tNYQjEyTO6s",
+    "title": {
+        "native": "オーバーロードⅣ",
+        "romaji": "Overlord IV",
+        "english": "Overlord IV"
+    },
+    "currentEpisode": 13,
+    "mappings": [{
+        "id": "/category/overlord-iv",
+        "providerId": "gogoanime",
+        "similarity": {
+            "same": true,
+            "value": 1
+        }
+    }],
+    "synonyms": [
+        "Overlord 4",
+        "โอเวอร์ลอร์ด ภาค 4",
+        "โอเวอร์ ลอร์ด จอมมารพิชิตโลก ภาค 4"
+    ],
+    "countryOfOrigin": "JP",
+    "description": "The fourth season of <i>Overlord</i>.\n<br><br>\nE-Rantel, the capital city of the newly established Sorcerer Kingdom, suffers from a dire shortage of goods. Once a prosperous city known for its trade, it now faces a crisis due to its caution—or even fear—of its king, Ainz Ooal Gown. To make amends, Ainz sends Albedo to the city as a diplomatic envoy.\n<br><br>\nMeanwhile, the cardinals of the Slane Theocracy discuss how to retaliate against Ainz after his attack crippled the Re-Estize Kingdom's army, plotting for the Baharuth Empire to take over the Sorcerer Kingdom. However, when Emperor Jircniv Rune Farlord El Nix arranges a meeting with the Theocracy's messengers at a colosseum, he is confronted by none other than Ainz himself.\n<br><br>\nWith their secret gathering now out in the open, the emperor and his guests learn that Ainz has challenged the Warrior King, the empire's greatest fighter, to a duel. With Ainz's motivations beyond his comprehension, Jircniv can do nothing but watch as humanity's future changes before his very eyes.\n<br><br>\n(Source: MAL Rewrite)",
+    "duration": 24,
+    "color": null,
+    "year": 2022,
+    "rating": {
+        "mal": 8.09,
+        "kitsu": 8.16,
+        "anilist": 8
+    },
+    "popularity": {
+        "mal": 452,
+        "kitsu": null,
+        "anilist": 90891
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "relations": [],
+    "totalEpisodes": 13,
+    "genres": [
+        "Action",
+        "Adventure",
+        "Fantasy"
+    ],
+    "tags": [
+        "Magic",
+        "Anti-Hero",
+        "Skeleton",
+        "Conspiracy",
+        "Virtual World",
+        "Isekai",
+        "Male Protagonist",
+        "Demons",
+        "Politics",
+        "Female Harem",
+        "Maids",
+        "Succubus",
+        "Gore",
+        "CGI",
+        "Monster Girl",
+        "Vampire",
+        "Revenge",
+        "Femboy",
+        "Monster Boy",
+        "Male Harem",
+        "Zombie"
+    ],
+    "averageRating": 8.08,
+    "averagePopularity": 45671.5,
+    "episodes": {
+        "data": [{
+            "episodes": [{
+                "id": "/watch/overlord-iv-18075?ep=92599",
+                "img": null,
+                "title": "Sorcerous Nation of Ainz Ooal Gown",
+                "hasDub": true,
+                "number": 1,
+                "isFiller": false
+            }],
+            "providerId": "zoro"
+        }],
+        "updatedAt": 1684265967024
+    },
+    "status": "FINISHED",
+    "season": "UNKNOWN"
+}]</code></pre>
+
+        <h2>GET /seasonal/:type</h2>
+        <p>Fetches seasonal data for the given type.</p>
+        <p><strong>Parameters:</strong></p>
+        <ul>
+            <li><strong>type:</strong> anime, manga, novel</li>
+        </ul>
+        <p><strong>Response:</strong> JSON object containing the seasonal data.</p>
+        <pre style="max-height: 50vh;"><code>HTTP/1.1 200 OK
+{
+    "trending": [
+        {
+            "id": "133844",
+            "malId": "48895",
+            "slug": "overlord-iv",
+            "kitsuId": "44529",
+            "coverImage": "https://media.kitsu.io/anime/44529/poster_image/3c0598d9d341c3204b03b3a2314e8c13.jpg",
+            "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/133844-uIaUmh5aJX3M.jpg",
+            "trailer": "https://www.youtube.com/watch?v=tNYQjEyTO6s",
+            "title": {
+                "native": "オーバーロードⅣ",
+                "romaji": "Overlord IV",
+                "english": "Overlord IV"
+            },
+            "currentEpisode": 13,
+            "mappings": [{
+                "id": "/category/overlord-iv",
+                "providerId": "gogoanime",
+                "similarity": {
+                    "same": true,
+                    "value": 1
+                }
+            }],
+            "synonyms": [
+                "Overlord 4",
+                "โอเวอร์ลอร์ด ภาค 4",
+                "โอเวอร์ ลอร์ด จอมมารพิชิตโลก ภาค 4"
+            ],
+            "countryOfOrigin": "JP",
+            "description": "The fourth season of <i>Overlord</i>.\n<br><br>\nE-Rantel, the capital city of the newly established Sorcerer Kingdom, suffers from a dire shortage of goods. Once a prosperous city known for its trade, it now faces a crisis due to its caution—or even fear—of its king, Ainz Ooal Gown. To make amends, Ainz sends Albedo to the city as a diplomatic envoy.\n<br><br>\nMeanwhile, the cardinals of the Slane Theocracy discuss how to retaliate against Ainz after his attack crippled the Re-Estize Kingdom's army, plotting for the Baharuth Empire to take over the Sorcerer Kingdom. However, when Emperor Jircniv Rune Farlord El Nix arranges a meeting with the Theocracy's messengers at a colosseum, he is confronted by none other than Ainz himself.\n<br><br>\nWith their secret gathering now out in the open, the emperor and his guests learn that Ainz has challenged the Warrior King, the empire's greatest fighter, to a duel. With Ainz's motivations beyond his comprehension, Jircniv can do nothing but watch as humanity's future changes before his very eyes.\n<br><br>\n(Source: MAL Rewrite)",
+            "duration": 24,
+            "color": null,
+            "year": 2022,
+            "rating": {
+                "mal": 8.09,
+                "kitsu": 8.16,
+                "anilist": 8
+            },
+            "popularity": {
+                "mal": 452,
+                "kitsu": null,
+                "anilist": 90891
+            },
+            "type": "ANIME",
+            "format": "TV",
+            "relations": [],
+            "totalEpisodes": 13,
+            "genres": [
+                "Action",
+                "Adventure",
+                "Fantasy"
+            ],
+            "tags": [
+                "Magic",
+                "Anti-Hero",
+                "Skeleton",
+                "Conspiracy",
+                "Virtual World",
+                "Isekai",
+                "Male Protagonist",
+                "Demons",
+                "Politics",
+                "Female Harem",
+                "Maids",
+                "Succubus",
+                "Gore",
+                "CGI",
+                "Monster Girl",
+                "Vampire",
+                "Revenge",
+                "Femboy",
+                "Monster Boy",
+                "Male Harem",
+                "Zombie"
+            ],
+            "averageRating": 8.08,
+            "averagePopularity": 45671.5,
+            "episodes": {
+                "data": [{
+                    "episodes": [{
+                        "id": "/watch/overlord-iv-18075?ep=92599",
+                        "img": null,
+                        "title": "Sorcerous Nation of Ainz Ooal Gown",
+                        "hasDub": true,
+                        "number": 1,
+                        "isFiller": false
+                    }],
+                    "providerId": "zoro"
+                }],
+                "updatedAt": 1684265967024
+            },
+            "status": "FINISHED",
+            "season": "UNKNOWN"
+        }
+    ],
+    "popular": [
+        {
+            "id": "133844",
+            "malId": "48895",
+            "slug": "overlord-iv",
+            "kitsuId": "44529",
+            "coverImage": "https://media.kitsu.io/anime/44529/poster_image/3c0598d9d341c3204b03b3a2314e8c13.jpg",
+            "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/133844-uIaUmh5aJX3M.jpg",
+            "trailer": "https://www.youtube.com/watch?v=tNYQjEyTO6s",
+            "title": {
+                "native": "オーバーロードⅣ",
+                "romaji": "Overlord IV",
+                "english": "Overlord IV"
+            },
+            "currentEpisode": 13,
+            "mappings": [{
+                "id": "/category/overlord-iv",
+                "providerId": "gogoanime",
+                "similarity": {
+                    "same": true,
+                    "value": 1
+                }
+            }],
+            "synonyms": [
+                "Overlord 4",
+                "โอเวอร์ลอร์ด ภาค 4",
+                "โอเวอร์ ลอร์ด จอมมารพิชิตโลก ภาค 4"
+            ],
+            "countryOfOrigin": "JP",
+            "description": "The fourth season of <i>Overlord</i>.\n<br><br>\nE-Rantel, the capital city of the newly established Sorcerer Kingdom, suffers from a dire shortage of goods. Once a prosperous city known for its trade, it now faces a crisis due to its caution—or even fear—of its king, Ainz Ooal Gown. To make amends, Ainz sends Albedo to the city as a diplomatic envoy.\n<br><br>\nMeanwhile, the cardinals of the Slane Theocracy discuss how to retaliate against Ainz after his attack crippled the Re-Estize Kingdom's army, plotting for the Baharuth Empire to take over the Sorcerer Kingdom. However, when Emperor Jircniv Rune Farlord El Nix arranges a meeting with the Theocracy's messengers at a colosseum, he is confronted by none other than Ainz himself.\n<br><br>\nWith their secret gathering now out in the open, the emperor and his guests learn that Ainz has challenged the Warrior King, the empire's greatest fighter, to a duel. With Ainz's motivations beyond his comprehension, Jircniv can do nothing but watch as humanity's future changes before his very eyes.\n<br><br>\n(Source: MAL Rewrite)",
+            "duration": 24,
+            "color": null,
+            "year": 2022,
+            "rating": {
+                "mal": 8.09,
+                "kitsu": 8.16,
+                "anilist": 8
+            },
+            "popularity": {
+                "mal": 452,
+                "kitsu": null,
+                "anilist": 90891
+            },
+            "type": "ANIME",
+            "format": "TV",
+            "relations": [],
+            "totalEpisodes": 13,
+            "genres": [
+                "Action",
+                "Adventure",
+                "Fantasy"
+            ],
+            "tags": [
+                "Magic",
+                "Anti-Hero",
+                "Skeleton",
+                "Conspiracy",
+                "Virtual World",
+                "Isekai",
+                "Male Protagonist",
+                "Demons",
+                "Politics",
+                "Female Harem",
+                "Maids",
+                "Succubus",
+                "Gore",
+                "CGI",
+                "Monster Girl",
+                "Vampire",
+                "Revenge",
+                "Femboy",
+                "Monster Boy",
+                "Male Harem",
+                "Zombie"
+            ],
+            "averageRating": 8.08,
+            "averagePopularity": 45671.5,
+            "episodes": {
+                "data": [{
+                    "episodes": [{
+                        "id": "/watch/overlord-iv-18075?ep=92599",
+                        "img": null,
+                        "title": "Sorcerous Nation of Ainz Ooal Gown",
+                        "hasDub": true,
+                        "number": 1,
+                        "isFiller": false
+                    }],
+                    "providerId": "zoro"
+                }],
+                "updatedAt": 1684265967024
+            },
+            "status": "FINISHED",
+            "season": "UNKNOWN"
+        }
+    ],
+    "top": [
+        {
+            "id": "133844",
+            "malId": "48895",
+            "slug": "overlord-iv",
+            "kitsuId": "44529",
+            "coverImage": "https://media.kitsu.io/anime/44529/poster_image/3c0598d9d341c3204b03b3a2314e8c13.jpg",
+            "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/133844-uIaUmh5aJX3M.jpg",
+            "trailer": "https://www.youtube.com/watch?v=tNYQjEyTO6s",
+            "title": {
+                "native": "オーバーロードⅣ",
+                "romaji": "Overlord IV",
+                "english": "Overlord IV"
+            },
+            "currentEpisode": 13,
+            "mappings": [{
+                "id": "/category/overlord-iv",
+                "providerId": "gogoanime",
+                "similarity": {
+                    "same": true,
+                    "value": 1
+                }
+            }],
+            "synonyms": [
+                "Overlord 4",
+                "โอเวอร์ลอร์ด ภาค 4",
+                "โอเวอร์ ลอร์ด จอมมารพิชิตโลก ภาค 4"
+            ],
+            "countryOfOrigin": "JP",
+            "description": "The fourth season of <i>Overlord</i>.\n<br><br>\nE-Rantel, the capital city of the newly established Sorcerer Kingdom, suffers from a dire shortage of goods. Once a prosperous city known for its trade, it now faces a crisis due to its caution—or even fear—of its king, Ainz Ooal Gown. To make amends, Ainz sends Albedo to the city as a diplomatic envoy.\n<br><br>\nMeanwhile, the cardinals of the Slane Theocracy discuss how to retaliate against Ainz after his attack crippled the Re-Estize Kingdom's army, plotting for the Baharuth Empire to take over the Sorcerer Kingdom. However, when Emperor Jircniv Rune Farlord El Nix arranges a meeting with the Theocracy's messengers at a colosseum, he is confronted by none other than Ainz himself.\n<br><br>\nWith their secret gathering now out in the open, the emperor and his guests learn that Ainz has challenged the Warrior King, the empire's greatest fighter, to a duel. With Ainz's motivations beyond his comprehension, Jircniv can do nothing but watch as humanity's future changes before his very eyes.\n<br><br>\n(Source: MAL Rewrite)",
+            "duration": 24,
+            "color": null,
+            "year": 2022,
+            "rating": {
+                "mal": 8.09,
+                "kitsu": 8.16,
+                "anilist": 8
+            },
+            "popularity": {
+                "mal": 452,
+                "kitsu": null,
+                "anilist": 90891
+            },
+            "type": "ANIME",
+            "format": "TV",
+            "relations": [],
+            "totalEpisodes": 13,
+            "genres": [
+                "Action",
+                "Adventure",
+                "Fantasy"
+            ],
+            "tags": [
+                "Magic",
+                "Anti-Hero",
+                "Skeleton",
+                "Conspiracy",
+                "Virtual World",
+                "Isekai",
+                "Male Protagonist",
+                "Demons",
+                "Politics",
+                "Female Harem",
+                "Maids",
+                "Succubus",
+                "Gore",
+                "CGI",
+                "Monster Girl",
+                "Vampire",
+                "Revenge",
+                "Femboy",
+                "Monster Boy",
+                "Male Harem",
+                "Zombie"
+            ],
+            "averageRating": 8.08,
+            "averagePopularity": 45671.5,
+            "episodes": {
+                "data": [{
+                    "episodes": [{
+                        "id": "/watch/overlord-iv-18075?ep=92599",
+                        "img": null,
+                        "title": "Sorcerous Nation of Ainz Ooal Gown",
+                        "hasDub": true,
+                        "number": 1,
+                        "isFiller": false
+                    }],
+                    "providerId": "zoro"
+                }],
+                "updatedAt": 1684265967024
+            },
+            "status": "FINISHED",
+            "season": "UNKNOWN"
+        }
+    ],
+    "seasonal": [
+        {
+            "id": "133844",
+            "malId": "48895",
+            "slug": "overlord-iv",
+            "kitsuId": "44529",
+            "coverImage": "https://media.kitsu.io/anime/44529/poster_image/3c0598d9d341c3204b03b3a2314e8c13.jpg",
+            "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/133844-uIaUmh5aJX3M.jpg",
+            "trailer": "https://www.youtube.com/watch?v=tNYQjEyTO6s",
+            "title": {
+                "native": "オーバーロードⅣ",
+                "romaji": "Overlord IV",
+                "english": "Overlord IV"
+            },
+            "currentEpisode": 13,
+            "mappings": [{
+                "id": "/category/overlord-iv",
+                "providerId": "gogoanime",
+                "similarity": {
+                    "same": true,
+                    "value": 1
+                }
+            }],
+            "synonyms": [
+                "Overlord 4",
+                "โอเวอร์ลอร์ด ภาค 4",
+                "โอเวอร์ ลอร์ด จอมมารพิชิตโลก ภาค 4"
+            ],
+            "countryOfOrigin": "JP",
+            "description": "The fourth season of <i>Overlord</i>.\n<br><br>\nE-Rantel, the capital city of the newly established Sorcerer Kingdom, suffers from a dire shortage of goods. Once a prosperous city known for its trade, it now faces a crisis due to its caution—or even fear—of its king, Ainz Ooal Gown. To make amends, Ainz sends Albedo to the city as a diplomatic envoy.\n<br><br>\nMeanwhile, the cardinals of the Slane Theocracy discuss how to retaliate against Ainz after his attack crippled the Re-Estize Kingdom's army, plotting for the Baharuth Empire to take over the Sorcerer Kingdom. However, when Emperor Jircniv Rune Farlord El Nix arranges a meeting with the Theocracy's messengers at a colosseum, he is confronted by none other than Ainz himself.\n<br><br>\nWith their secret gathering now out in the open, the emperor and his guests learn that Ainz has challenged the Warrior King, the empire's greatest fighter, to a duel. With Ainz's motivations beyond his comprehension, Jircniv can do nothing but watch as humanity's future changes before his very eyes.\n<br><br>\n(Source: MAL Rewrite)",
+            "duration": 24,
+            "color": null,
+            "year": 2022,
+            "rating": {
+                "mal": 8.09,
+                "kitsu": 8.16,
+                "anilist": 8
+            },
+            "popularity": {
+                "mal": 452,
+                "kitsu": null,
+                "anilist": 90891
+            },
+            "type": "ANIME",
+            "format": "TV",
+            "relations": [],
+            "totalEpisodes": 13,
+            "genres": [
+                "Action",
+                "Adventure",
+                "Fantasy"
+            ],
+            "tags": [
+                "Magic",
+                "Anti-Hero",
+                "Skeleton",
+                "Conspiracy",
+                "Virtual World",
+                "Isekai",
+                "Male Protagonist",
+                "Demons",
+                "Politics",
+                "Female Harem",
+                "Maids",
+                "Succubus",
+                "Gore",
+                "CGI",
+                "Monster Girl",
+                "Vampire",
+                "Revenge",
+                "Femboy",
+                "Monster Boy",
+                "Male Harem",
+                "Zombie"
+            ],
+            "averageRating": 8.08,
+            "averagePopularity": 45671.5,
+            "episodes": {
+                "data": [{
+                    "episodes": [{
+                        "id": "/watch/overlord-iv-18075?ep=92599",
+                        "img": null,
+                        "title": "Sorcerous Nation of Ainz Ooal Gown",
+                        "hasDub": true,
+                        "number": 1,
+                        "isFiller": false
+                    }],
+                    "providerId": "zoro"
+                }],
+                "updatedAt": 1684265967024
+            },
+            "status": "FINISHED",
+            "season": "UNKNOWN"
+        }
+    ]
+}</code></pre>
+
+        <h2>POST /seasonal</h2>
+        <p>Fetches seasonal data for the given type using request body parameters.</p>
+        <p><strong>Parameters:</strong></p>
+        <ul>
+            <li><strong>type:</strong> anime, manga, novel</li>
+        </ul>
+        <p><strong>Response:</strong> JSON object containing the seasonal data.</p>
+<pre style="max-height: 50vh;"><code>HTTP/1.1 200 OK
+{
+    "trending": [
+        {
+            "id": "133844",
+            "malId": "48895",
+            "slug": "overlord-iv",
+            "kitsuId": "44529",
+            "coverImage": "https://media.kitsu.io/anime/44529/poster_image/3c0598d9d341c3204b03b3a2314e8c13.jpg",
+            "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/133844-uIaUmh5aJX3M.jpg",
+            "trailer": "https://www.youtube.com/watch?v=tNYQjEyTO6s",
+            "title": {
+                "native": "オーバーロードⅣ",
+                "romaji": "Overlord IV",
+                "english": "Overlord IV"
+            },
+            "currentEpisode": 13,
+            "mappings": [{
+                "id": "/category/overlord-iv",
+                "providerId": "gogoanime",
+                "similarity": {
+                    "same": true,
+                    "value": 1
+                }
+            }],
+            "synonyms": [
+                "Overlord 4",
+                "โอเวอร์ลอร์ด ภาค 4",
+                "โอเวอร์ ลอร์ด จอมมารพิชิตโลก ภาค 4"
+            ],
+            "countryOfOrigin": "JP",
+            "description": "The fourth season of <i>Overlord</i>.\n<br><br>\nE-Rantel, the capital city of the newly established Sorcerer Kingdom, suffers from a dire shortage of goods. Once a prosperous city known for its trade, it now faces a crisis due to its caution—or even fear—of its king, Ainz Ooal Gown. To make amends, Ainz sends Albedo to the city as a diplomatic envoy.\n<br><br>\nMeanwhile, the cardinals of the Slane Theocracy discuss how to retaliate against Ainz after his attack crippled the Re-Estize Kingdom's army, plotting for the Baharuth Empire to take over the Sorcerer Kingdom. However, when Emperor Jircniv Rune Farlord El Nix arranges a meeting with the Theocracy's messengers at a colosseum, he is confronted by none other than Ainz himself.\n<br><br>\nWith their secret gathering now out in the open, the emperor and his guests learn that Ainz has challenged the Warrior King, the empire's greatest fighter, to a duel. With Ainz's motivations beyond his comprehension, Jircniv can do nothing but watch as humanity's future changes before his very eyes.\n<br><br>\n(Source: MAL Rewrite)",
+            "duration": 24,
+            "color": null,
+            "year": 2022,
+            "rating": {
+                "mal": 8.09,
+                "kitsu": 8.16,
+                "anilist": 8
+            },
+            "popularity": {
+                "mal": 452,
+                "kitsu": null,
+                "anilist": 90891
+            },
+            "type": "ANIME",
+            "format": "TV",
+            "relations": [],
+            "totalEpisodes": 13,
+            "genres": [
+                "Action",
+                "Adventure",
+                "Fantasy"
+            ],
+            "tags": [
+                "Magic",
+                "Anti-Hero",
+                "Skeleton",
+                "Conspiracy",
+                "Virtual World",
+                "Isekai",
+                "Male Protagonist",
+                "Demons",
+                "Politics",
+                "Female Harem",
+                "Maids",
+                "Succubus",
+                "Gore",
+                "CGI",
+                "Monster Girl",
+                "Vampire",
+                "Revenge",
+                "Femboy",
+                "Monster Boy",
+                "Male Harem",
+                "Zombie"
+            ],
+            "averageRating": 8.08,
+            "averagePopularity": 45671.5,
+            "episodes": {
+                "data": [{
+                    "episodes": [{
+                        "id": "/watch/overlord-iv-18075?ep=92599",
+                        "img": null,
+                        "title": "Sorcerous Nation of Ainz Ooal Gown",
+                        "hasDub": true,
+                        "number": 1,
+                        "isFiller": false
+                    }],
+                    "providerId": "zoro"
+                }],
+                "updatedAt": 1684265967024
+            },
+            "status": "FINISHED",
+            "season": "UNKNOWN"
+        }
+    ],
+    "popular": [
+        {
+            "id": "133844",
+            "malId": "48895",
+            "slug": "overlord-iv",
+            "kitsuId": "44529",
+            "coverImage": "https://media.kitsu.io/anime/44529/poster_image/3c0598d9d341c3204b03b3a2314e8c13.jpg",
+            "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/133844-uIaUmh5aJX3M.jpg",
+            "trailer": "https://www.youtube.com/watch?v=tNYQjEyTO6s",
+            "title": {
+                "native": "オーバーロードⅣ",
+                "romaji": "Overlord IV",
+                "english": "Overlord IV"
+            },
+            "currentEpisode": 13,
+            "mappings": [{
+                "id": "/category/overlord-iv",
+                "providerId": "gogoanime",
+                "similarity": {
+                    "same": true,
+                    "value": 1
+                }
+            }],
+            "synonyms": [
+                "Overlord 4",
+                "โอเวอร์ลอร์ด ภาค 4",
+                "โอเวอร์ ลอร์ด จอมมารพิชิตโลก ภาค 4"
+            ],
+            "countryOfOrigin": "JP",
+            "description": "The fourth season of <i>Overlord</i>.\n<br><br>\nE-Rantel, the capital city of the newly established Sorcerer Kingdom, suffers from a dire shortage of goods. Once a prosperous city known for its trade, it now faces a crisis due to its caution—or even fear—of its king, Ainz Ooal Gown. To make amends, Ainz sends Albedo to the city as a diplomatic envoy.\n<br><br>\nMeanwhile, the cardinals of the Slane Theocracy discuss how to retaliate against Ainz after his attack crippled the Re-Estize Kingdom's army, plotting for the Baharuth Empire to take over the Sorcerer Kingdom. However, when Emperor Jircniv Rune Farlord El Nix arranges a meeting with the Theocracy's messengers at a colosseum, he is confronted by none other than Ainz himself.\n<br><br>\nWith their secret gathering now out in the open, the emperor and his guests learn that Ainz has challenged the Warrior King, the empire's greatest fighter, to a duel. With Ainz's motivations beyond his comprehension, Jircniv can do nothing but watch as humanity's future changes before his very eyes.\n<br><br>\n(Source: MAL Rewrite)",
+            "duration": 24,
+            "color": null,
+            "year": 2022,
+            "rating": {
+                "mal": 8.09,
+                "kitsu": 8.16,
+                "anilist": 8
+            },
+            "popularity": {
+                "mal": 452,
+                "kitsu": null,
+                "anilist": 90891
+            },
+            "type": "ANIME",
+            "format": "TV",
+            "relations": [],
+            "totalEpisodes": 13,
+            "genres": [
+                "Action",
+                "Adventure",
+                "Fantasy"
+            ],
+            "tags": [
+                "Magic",
+                "Anti-Hero",
+                "Skeleton",
+                "Conspiracy",
+                "Virtual World",
+                "Isekai",
+                "Male Protagonist",
+                "Demons",
+                "Politics",
+                "Female Harem",
+                "Maids",
+                "Succubus",
+                "Gore",
+                "CGI",
+                "Monster Girl",
+                "Vampire",
+                "Revenge",
+                "Femboy",
+                "Monster Boy",
+                "Male Harem",
+                "Zombie"
+            ],
+            "averageRating": 8.08,
+            "averagePopularity": 45671.5,
+            "episodes": {
+                "data": [{
+                    "episodes": [{
+                        "id": "/watch/overlord-iv-18075?ep=92599",
+                        "img": null,
+                        "title": "Sorcerous Nation of Ainz Ooal Gown",
+                        "hasDub": true,
+                        "number": 1,
+                        "isFiller": false
+                    }],
+                    "providerId": "zoro"
+                }],
+                "updatedAt": 1684265967024
+            },
+            "status": "FINISHED",
+            "season": "UNKNOWN"
+        }
+    ],
+    "top": [
+        {
+            "id": "133844",
+            "malId": "48895",
+            "slug": "overlord-iv",
+            "kitsuId": "44529",
+            "coverImage": "https://media.kitsu.io/anime/44529/poster_image/3c0598d9d341c3204b03b3a2314e8c13.jpg",
+            "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/133844-uIaUmh5aJX3M.jpg",
+            "trailer": "https://www.youtube.com/watch?v=tNYQjEyTO6s",
+            "title": {
+                "native": "オーバーロードⅣ",
+                "romaji": "Overlord IV",
+                "english": "Overlord IV"
+            },
+            "currentEpisode": 13,
+            "mappings": [{
+                "id": "/category/overlord-iv",
+                "providerId": "gogoanime",
+                "similarity": {
+                    "same": true,
+                    "value": 1
+                }
+            }],
+            "synonyms": [
+                "Overlord 4",
+                "โอเวอร์ลอร์ด ภาค 4",
+                "โอเวอร์ ลอร์ด จอมมารพิชิตโลก ภาค 4"
+            ],
+            "countryOfOrigin": "JP",
+            "description": "The fourth season of <i>Overlord</i>.\n<br><br>\nE-Rantel, the capital city of the newly established Sorcerer Kingdom, suffers from a dire shortage of goods. Once a prosperous city known for its trade, it now faces a crisis due to its caution—or even fear—of its king, Ainz Ooal Gown. To make amends, Ainz sends Albedo to the city as a diplomatic envoy.\n<br><br>\nMeanwhile, the cardinals of the Slane Theocracy discuss how to retaliate against Ainz after his attack crippled the Re-Estize Kingdom's army, plotting for the Baharuth Empire to take over the Sorcerer Kingdom. However, when Emperor Jircniv Rune Farlord El Nix arranges a meeting with the Theocracy's messengers at a colosseum, he is confronted by none other than Ainz himself.\n<br><br>\nWith their secret gathering now out in the open, the emperor and his guests learn that Ainz has challenged the Warrior King, the empire's greatest fighter, to a duel. With Ainz's motivations beyond his comprehension, Jircniv can do nothing but watch as humanity's future changes before his very eyes.\n<br><br>\n(Source: MAL Rewrite)",
+            "duration": 24,
+            "color": null,
+            "year": 2022,
+            "rating": {
+                "mal": 8.09,
+                "kitsu": 8.16,
+                "anilist": 8
+            },
+            "popularity": {
+                "mal": 452,
+                "kitsu": null,
+                "anilist": 90891
+            },
+            "type": "ANIME",
+            "format": "TV",
+            "relations": [],
+            "totalEpisodes": 13,
+            "genres": [
+                "Action",
+                "Adventure",
+                "Fantasy"
+            ],
+            "tags": [
+                "Magic",
+                "Anti-Hero",
+                "Skeleton",
+                "Conspiracy",
+                "Virtual World",
+                "Isekai",
+                "Male Protagonist",
+                "Demons",
+                "Politics",
+                "Female Harem",
+                "Maids",
+                "Succubus",
+                "Gore",
+                "CGI",
+                "Monster Girl",
+                "Vampire",
+                "Revenge",
+                "Femboy",
+                "Monster Boy",
+                "Male Harem",
+                "Zombie"
+            ],
+            "averageRating": 8.08,
+            "averagePopularity": 45671.5,
+            "episodes": {
+                "data": [{
+                    "episodes": [{
+                        "id": "/watch/overlord-iv-18075?ep=92599",
+                        "img": null,
+                        "title": "Sorcerous Nation of Ainz Ooal Gown",
+                        "hasDub": true,
+                        "number": 1,
+                        "isFiller": false
+                    }],
+                    "providerId": "zoro"
+                }],
+                "updatedAt": 1684265967024
+            },
+            "status": "FINISHED",
+            "season": "UNKNOWN"
+        }
+    ],
+    "seasonal": [
+        {
+            "id": "133844",
+            "malId": "48895",
+            "slug": "overlord-iv",
+            "kitsuId": "44529",
+            "coverImage": "https://media.kitsu.io/anime/44529/poster_image/3c0598d9d341c3204b03b3a2314e8c13.jpg",
+            "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/133844-uIaUmh5aJX3M.jpg",
+            "trailer": "https://www.youtube.com/watch?v=tNYQjEyTO6s",
+            "title": {
+                "native": "オーバーロードⅣ",
+                "romaji": "Overlord IV",
+                "english": "Overlord IV"
+            },
+            "currentEpisode": 13,
+            "mappings": [{
+                "id": "/category/overlord-iv",
+                "providerId": "gogoanime",
+                "similarity": {
+                    "same": true,
+                    "value": 1
+                }
+            }],
+            "synonyms": [
+                "Overlord 4",
+                "โอเวอร์ลอร์ด ภาค 4",
+                "โอเวอร์ ลอร์ด จอมมารพิชิตโลก ภาค 4"
+            ],
+            "countryOfOrigin": "JP",
+            "description": "The fourth season of <i>Overlord</i>.\n<br><br>\nE-Rantel, the capital city of the newly established Sorcerer Kingdom, suffers from a dire shortage of goods. Once a prosperous city known for its trade, it now faces a crisis due to its caution—or even fear—of its king, Ainz Ooal Gown. To make amends, Ainz sends Albedo to the city as a diplomatic envoy.\n<br><br>\nMeanwhile, the cardinals of the Slane Theocracy discuss how to retaliate against Ainz after his attack crippled the Re-Estize Kingdom's army, plotting for the Baharuth Empire to take over the Sorcerer Kingdom. However, when Emperor Jircniv Rune Farlord El Nix arranges a meeting with the Theocracy's messengers at a colosseum, he is confronted by none other than Ainz himself.\n<br><br>\nWith their secret gathering now out in the open, the emperor and his guests learn that Ainz has challenged the Warrior King, the empire's greatest fighter, to a duel. With Ainz's motivations beyond his comprehension, Jircniv can do nothing but watch as humanity's future changes before his very eyes.\n<br><br>\n(Source: MAL Rewrite)",
+            "duration": 24,
+            "color": null,
+            "year": 2022,
+            "rating": {
+                "mal": 8.09,
+                "kitsu": 8.16,
+                "anilist": 8
+            },
+            "popularity": {
+                "mal": 452,
+                "kitsu": null,
+                "anilist": 90891
+            },
+            "type": "ANIME",
+            "format": "TV",
+            "relations": [],
+            "totalEpisodes": 13,
+            "genres": [
+                "Action",
+                "Adventure",
+                "Fantasy"
+            ],
+            "tags": [
+                "Magic",
+                "Anti-Hero",
+                "Skeleton",
+                "Conspiracy",
+                "Virtual World",
+                "Isekai",
+                "Male Protagonist",
+                "Demons",
+                "Politics",
+                "Female Harem",
+                "Maids",
+                "Succubus",
+                "Gore",
+                "CGI",
+                "Monster Girl",
+                "Vampire",
+                "Revenge",
+                "Femboy",
+                "Monster Boy",
+                "Male Harem",
+                "Zombie"
+            ],
+            "averageRating": 8.08,
+            "averagePopularity": 45671.5,
+            "episodes": {
+                "data": [{
+                    "episodes": [{
+                        "id": "/watch/overlord-iv-18075?ep=92599",
+                        "img": null,
+                        "title": "Sorcerous Nation of Ainz Ooal Gown",
+                        "hasDub": true,
+                        "number": 1,
+                        "isFiller": false
+                    }],
+                    "providerId": "zoro"
+                }],
+                "updatedAt": 1684265967024
+            },
+            "status": "FINISHED",
+            "season": "UNKNOWN"
+        }
+    ]
+}</code></pre>
+
+        <h2>GET /info/:id</h2>
+        <p>Fetches information for the given ID.</p>
+        <p><strong>Parameters:</strong></p>
+        <ul>
+            <li><strong>id:</strong> unique identifier</li>
+        </ul>
+        <p><strong>Response:</strong> JSON object containing the information.</p>
+        <pre style="max-height: 50vh;"><code>HTTP/1.1 200 OK
+{
+    "id": "133844",
+    "malId": "48895",
+    "slug": "overlord-iv",
+    "kitsuId": "44529",
+    "coverImage": "https://media.kitsu.io/anime/44529/poster_image/3c0598d9d341c3204b03b3a2314e8c13.jpg",
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/133844-uIaUmh5aJX3M.jpg",
+    "trailer": "https://www.youtube.com/watch?v=tNYQjEyTO6s",
+    "title": {
+        "native": "オーバーロードⅣ",
+        "romaji": "Overlord IV",
+        "english": "Overlord IV"
+    },
+    "currentEpisode": 13,
+    "mappings": [{
+        "id": "/category/overlord-iv",
+        "providerId": "gogoanime",
+        "similarity": {
+            "same": true,
+            "value": 1
+        }
+    }],
+    "synonyms": [
+        "Overlord 4",
+        "โอเวอร์ลอร์ด ภาค 4",
+        "โอเวอร์ ลอร์ด จอมมารพิชิตโลก ภาค 4"
+    ],
+    "countryOfOrigin": "JP",
+    "description": "The fourth season of <i>Overlord</i>.\n<br><br>\nE-Rantel, the capital city of the newly established Sorcerer Kingdom, suffers from a dire shortage of goods. Once a prosperous city known for its trade, it now faces a crisis due to its caution—or even fear—of its king, Ainz Ooal Gown. To make amends, Ainz sends Albedo to the city as a diplomatic envoy.\n<br><br>\nMeanwhile, the cardinals of the Slane Theocracy discuss how to retaliate against Ainz after his attack crippled the Re-Estize Kingdom's army, plotting for the Baharuth Empire to take over the Sorcerer Kingdom. However, when Emperor Jircniv Rune Farlord El Nix arranges a meeting with the Theocracy's messengers at a colosseum, he is confronted by none other than Ainz himself.\n<br><br>\nWith their secret gathering now out in the open, the emperor and his guests learn that Ainz has challenged the Warrior King, the empire's greatest fighter, to a duel. With Ainz's motivations beyond his comprehension, Jircniv can do nothing but watch as humanity's future changes before his very eyes.\n<br><br>\n(Source: MAL Rewrite)",
+    "duration": 24,
+    "color": null,
+    "year": 2022,
+    "rating": {
+        "mal": 8.09,
+        "kitsu": 8.16,
+        "anilist": 8
+    },
+    "popularity": {
+        "mal": 452,
+        "kitsu": null,
+        "anilist": 90891
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "relations": [],
+    "totalEpisodes": 13,
+    "genres": [
+        "Action",
+        "Adventure",
+        "Fantasy"
+    ],
+    "tags": [
+        "Magic",
+        "Anti-Hero",
+        "Skeleton",
+        "Conspiracy",
+        "Virtual World",
+        "Isekai",
+        "Male Protagonist",
+        "Demons",
+        "Politics",
+        "Female Harem",
+        "Maids",
+        "Succubus",
+        "Gore",
+        "CGI",
+        "Monster Girl",
+        "Vampire",
+        "Revenge",
+        "Femboy",
+        "Monster Boy",
+        "Male Harem",
+        "Zombie"
+    ],
+    "averageRating": 8.08,
+    "averagePopularity": 45671.5,
+    "episodes": {
+        "data": [{
+            "episodes": [{
+                "id": "/watch/overlord-iv-18075?ep=92599",
+                "img": null,
+                "title": "Sorcerous Nation of Ainz Ooal Gown",
+                "hasDub": true,
+                "number": 1,
+                "isFiller": false
+            }],
+            "providerId": "zoro"
+        }],
+        "updatedAt": 1684265967024
+    },
+    "status": "FINISHED",
+    "season": "UNKNOWN"
+}</code></pre>
+
+        <h2>POST /info</h2>
+        <p>Fetches information for the given ID using request body parameters.</p>
+        <p><strong>Parameters:</strong></p>
+        <ul>
+            <li><strong>id:</strong> unique identifier</li>
+        </ul>
+        <p><strong>Response:</strong> JSON object containing the information.</p>
+        <pre style="max-height: 50vh;"><code>HTTP/1.1 200 OK
+{
+    "id": "133844",
+    "malId": "48895",
+    "slug": "overlord-iv",
+    "kitsuId": "44529",
+    "coverImage": "https://media.kitsu.io/anime/44529/poster_image/3c0598d9d341c3204b03b3a2314e8c13.jpg",
+    "bannerImage": "https://s4.anilist.co/file/anilistcdn/media/anime/banner/133844-uIaUmh5aJX3M.jpg",
+    "trailer": "https://www.youtube.com/watch?v=tNYQjEyTO6s",
+    "title": {
+        "native": "オーバーロードⅣ",
+        "romaji": "Overlord IV",
+        "english": "Overlord IV"
+    },
+    "currentEpisode": 13,
+    "mappings": [{
+        "id": "/category/overlord-iv",
+        "providerId": "gogoanime",
+        "similarity": {
+            "same": true,
+            "value": 1
+        }
+    }],
+    "synonyms": [
+        "Overlord 4",
+        "โอเวอร์ลอร์ด ภาค 4",
+        "โอเวอร์ ลอร์ด จอมมารพิชิตโลก ภาค 4"
+    ],
+    "countryOfOrigin": "JP",
+    "description": "The fourth season of <i>Overlord</i>.\n<br><br>\nE-Rantel, the capital city of the newly established Sorcerer Kingdom, suffers from a dire shortage of goods. Once a prosperous city known for its trade, it now faces a crisis due to its caution—or even fear—of its king, Ainz Ooal Gown. To make amends, Ainz sends Albedo to the city as a diplomatic envoy.\n<br><br>\nMeanwhile, the cardinals of the Slane Theocracy discuss how to retaliate against Ainz after his attack crippled the Re-Estize Kingdom's army, plotting for the Baharuth Empire to take over the Sorcerer Kingdom. However, when Emperor Jircniv Rune Farlord El Nix arranges a meeting with the Theocracy's messengers at a colosseum, he is confronted by none other than Ainz himself.\n<br><br>\nWith their secret gathering now out in the open, the emperor and his guests learn that Ainz has challenged the Warrior King, the empire's greatest fighter, to a duel. With Ainz's motivations beyond his comprehension, Jircniv can do nothing but watch as humanity's future changes before his very eyes.\n<br><br>\n(Source: MAL Rewrite)",
+    "duration": 24,
+    "color": null,
+    "year": 2022,
+    "rating": {
+        "mal": 8.09,
+        "kitsu": 8.16,
+        "anilist": 8
+    },
+    "popularity": {
+        "mal": 452,
+        "kitsu": null,
+        "anilist": 90891
+    },
+    "type": "ANIME",
+    "format": "TV",
+    "relations": [],
+    "totalEpisodes": 13,
+    "genres": [
+        "Action",
+        "Adventure",
+        "Fantasy"
+    ],
+    "tags": [
+        "Magic",
+        "Anti-Hero",
+        "Skeleton",
+        "Conspiracy",
+        "Virtual World",
+        "Isekai",
+        "Male Protagonist",
+        "Demons",
+        "Politics",
+        "Female Harem",
+        "Maids",
+        "Succubus",
+        "Gore",
+        "CGI",
+        "Monster Girl",
+        "Vampire",
+        "Revenge",
+        "Femboy",
+        "Monster Boy",
+        "Male Harem",
+        "Zombie"
+    ],
+    "averageRating": 8.08,
+    "averagePopularity": 45671.5,
+    "episodes": {
+        "data": [{
+            "episodes": [{
+                "id": "/watch/overlord-iv-18075?ep=92599",
+                "img": null,
+                "title": "Sorcerous Nation of Ainz Ooal Gown",
+                "hasDub": true,
+                "number": 1,
+                "isFiller": false
+            }],
+            "providerId": "zoro"
+        }],
+        "updatedAt": 1684265967024
+    },
+    "status": "FINISHED",
+    "season": "UNKNOWN"
+}</code></pre>
+    </body>
+</html>

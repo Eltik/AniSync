@@ -7,5 +7,5 @@ export default {
     mappingQueue,
     seasonQueue,
     createEntry,
-    searchQueue
-}
+    searchQueue,
+};

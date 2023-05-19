@@ -1,12 +1,12 @@
 import { AxiosRequestConfig, AxiosResponse } from "axios";
 import { Anime, Format, Manga, Type } from "../..";
-import InformationProvider, { AnimeInfo, MangaInfo } from ".";
-export default class AniList extends InformationProvider {
+import InformationProvider, { AnimeInfo, MangaInfo, MediaInfoKeys } from ".";
+export default class AniList extends InformationProvider<Anime | Manga, AnimeInfo | MangaInfo> {
     id: string;
     url: string;
     private api;
-    get priorityArea(): (keyof AnimeInfo | MangaInfo)[];
-    get sharedArea(): (keyof AnimeInfo | MangaInfo)[];
+    get priorityArea(): MediaInfoKeys[];
+    get sharedArea(): MediaInfoKeys[];
     search(query: string, type: Type, formats: Format[], page?: number, perPage?: number): Promise<AnimeInfo[] | MangaInfo[] | undefined>;
     info(media: Anime | Manga): Promise<AnimeInfo | MangaInfo | undefined>;
     getMedia(id: string): Promise<AnimeInfo | MangaInfo | undefined>;
@@ -17,7 +17,7 @@ export default class AniList extends InformationProvider {
         top: any;
     } | undefined>;
     private fetchManamiProject;
-    batchRequest(queries: string[]): Promise<any | undefined>;
+    batchRequest(queries: string[], maxQueries: number): Promise<any | undefined>;
     private executeGraphQLQuery;
     /**
      * @description Custom request function for handling AniList rate limit.

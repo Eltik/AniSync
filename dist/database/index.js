@@ -29,7 +29,7 @@ const averageMetric = (object) => {
     return validCount === 0 ? 0 : Number.parseFloat((average / validCount).toFixed(2));
 };
 const $prisma = new client_1.PrismaClient({
-    log: ["error"]
+    log: ["error"],
 });
 const dedupeFields = ["synonyms", "genres"];
 $prisma.$use(async (params, next) => {
@@ -37,8 +37,8 @@ $prisma.$use(async (params, next) => {
         if (!params?.args)
             return next(params);
         for (const field of dedupeFields) {
-            if (params.args['data'] && params.args['data'][field]) {
-                params.args['data'][field] = Array.from(new Set(params.args['data'][field]));
+            if (params.args["data"] && params.args["data"][field]) {
+                params.args["data"][field] = Array.from(new Set(params.args["data"][field]));
             }
         }
     }
@@ -54,7 +54,7 @@ const modifiedPrisma = $prisma.$extends({
                 if (result?.genres)
                     result.genres = Array.from(new Set(result.genres));
                 return result;
-            }
+            },
         },
         manga: {
             async $allOperations({ model, operation, args, query }) {
@@ -64,8 +64,8 @@ const modifiedPrisma = $prisma.$extends({
                 if (result?.genres)
                     result.genres = Array.from(new Set(result.genres));
                 return result;
-            }
-        }
+            },
+        },
     },
     result: {
         anime: {
@@ -75,20 +75,20 @@ const modifiedPrisma = $prisma.$extends({
                     delete anime["averagePopularity"];
                     delete anime["averageRating"];
                     return () => $prisma.anime.update({ where: { id: anime.id }, data: anime });
-                }
+                },
             },
             averageRating: {
                 needs: { rating: true },
                 compute(anime) {
                     return averageMetric(anime.rating);
-                }
+                },
             },
             averagePopularity: {
                 needs: { popularity: true },
                 compute(anime) {
                     return averageMetric(anime.popularity);
-                }
-            }
+                },
+            },
         },
         manga: {
             save: {
@@ -97,60 +97,60 @@ const modifiedPrisma = $prisma.$extends({
                     delete manga["averagePopularity"];
                     delete manga["averageRating"];
                     return () => $prisma.manga.update({ where: { id: manga.id }, data: manga });
-                }
+                },
             },
             averageRating: {
                 needs: { rating: true },
                 compute(manga) {
                     return averageMetric(manga.rating);
-                }
+                },
             },
             averagePopularity: {
                 needs: { popularity: true },
                 compute(manga) {
                     return averageMetric(manga.popularity);
-                }
-            }
-        }
-    }
+                },
+            },
+        },
+    },
 });
 const globalForPrisma = global;
 exports.prisma = globalForPrisma.prisma || modifiedPrisma;
 if (process.env.NODE_ENV !== "production")
     globalForPrisma.prisma = modifiedPrisma;
 const seasonal = async (trending, popular, top, seasonal) => {
-    const trend = trending.map(a => String(a.aniListId));
-    const pop = popular.map(a => String(a.aniListId));
-    const t = top.map(a => String(a.aniListId));
-    const season = seasonal.map(a => String(a.aniListId));
+    const trend = trending.map((a) => String(a.aniListId));
+    const pop = popular.map((a) => String(a.aniListId));
+    const t = top.map((a) => String(a.aniListId));
+    const season = seasonal.map((a) => String(a.aniListId));
     if (trending[0] && trending[0].type === "ANIME" /* Type.ANIME */) {
         const trending = await exports.prisma.anime.findMany({
             where: {
                 id: {
-                    in: [...trend]
-                }
-            }
+                    in: [...trend],
+                },
+            },
         });
         const popular = await exports.prisma.anime.findMany({
             where: {
                 id: {
-                    in: [...pop]
-                }
-            }
+                    in: [...pop],
+                },
+            },
         });
         const top = await exports.prisma.anime.findMany({
             where: {
                 id: {
-                    in: [...t]
-                }
-            }
+                    in: [...t],
+                },
+            },
         });
         const seasonal = await exports.prisma.anime.findMany({
             where: {
                 id: {
-                    in: [...season]
-                }
-            }
+                    in: [...season],
+                },
+            },
         });
         return { trending, popular, top, seasonal };
     }
@@ -158,30 +158,30 @@ const seasonal = async (trending, popular, top, seasonal) => {
         const trending = await exports.prisma.manga.findMany({
             where: {
                 id: {
-                    in: [...trend]
-                }
-            }
+                    in: [...trend],
+                },
+            },
         });
         const popular = await exports.prisma.manga.findMany({
             where: {
                 id: {
-                    in: [...pop]
-                }
-            }
+                    in: [...pop],
+                },
+            },
         });
         const top = await exports.prisma.manga.findMany({
             where: {
                 id: {
-                    in: [...t]
-                }
-            }
+                    in: [...t],
+                },
+            },
         });
         const seasonal = await exports.prisma.manga.findMany({
             where: {
                 id: {
-                    in: [...season]
-                }
-            }
+                    in: [...season],
+                },
+            },
         });
         return { trending, popular, top, seasonal };
     }
@@ -200,7 +200,9 @@ const search = async (query, type, formats, page, perPage) => {
                 OR  "anime".title->>'romaji'  ILIKE ${"%" + query + "%"}
                 OR  "anime".title->>'native'  ILIKE ${"%" + query + "%"}
             )
-            ${formats.length > 0 ? client_2.Prisma.sql `AND "anime"."format" IN (${client_2.Prisma.join(formats.map(f => client_2.Prisma.raw(`'${f}'`)), ", ")})` : client_2.Prisma.empty}
+            ${formats.length > 0
+            ? client_2.Prisma.sql `AND "anime"."format" IN (${client_2.Prisma.join(formats.map((f) => client_2.Prisma.raw(`'${f}'`)), ", ")})`
+            : client_2.Prisma.empty}
         `;
     }
     else {
@@ -213,7 +215,9 @@ const search = async (query, type, formats, page, perPage) => {
                 OR  "manga".title->>'romaji'  ILIKE ${"%" + query + "%"}
                 OR  "manga".title->>'native'  ILIKE ${"%" + query + "%"}
             )
-            ${formats.length > 0 ? client_2.Prisma.sql `AND "manga"."format" IN (${client_2.Prisma.join(formats.map(f => client_2.Prisma.raw(`'${f}'`)), ", ")})` : client_2.Prisma.empty}
+            ${formats.length > 0
+            ? client_2.Prisma.sql `AND "manga"."format" IN (${client_2.Prisma.join(formats.map((f) => client_2.Prisma.raw(`'${f}'`)), ", ")})`
+            : client_2.Prisma.empty}
         `;
     }
     let [count, results] = [0, []];
@@ -257,18 +261,18 @@ const search = async (query, type, formats, page, perPage) => {
                 `,
         ]);
     }
-    const total = Number((count)[0].count);
+    const total = Number(count[0].count);
     const lastPage = Math.ceil(Number(total) / perPage);
     return results;
 };
 exports.search = search;
 const info = async (id) => {
     let media = await exports.prisma.anime.findUnique({
-        where: { id }
+        where: { id },
     });
     if (!media) {
         media = await exports.prisma.manga.findUnique({
-            where: { id }
+            where: { id },
         });
     }
     if (!media)

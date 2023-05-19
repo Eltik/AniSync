@@ -1,10 +1,10 @@
 import AnimeProvider from "./impl/anime";
-import InformationProvider from "./impl/information";
+import InformationProvider, { AnimeInfo, MangaInfo } from "./impl/information";
 import MangaProvider from "./impl/manga";
 import MetaProvider from "./impl/meta";
 declare const ANIME_PROVIDERS: AnimeProvider[];
 declare const MANGA_PROVIDERS: MangaProvider[];
-declare const INFORMATION_PROVIDERS: InformationProvider[];
+declare const INFORMATION_PROVIDERS: InformationProvider<Anime | Manga, AnimeInfo | MangaInfo>[];
 declare const META_PROVIDERS: MetaProvider[];
 export { ANIME_PROVIDERS, MANGA_PROVIDERS, INFORMATION_PROVIDERS, META_PROVIDERS };
 export type Result = {

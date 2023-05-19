@@ -30,25 +30,33 @@ exports.map = exports.loadMapping = void 0;
 const mapping_1 = require("../mapping");
 const colors_1 = __importDefault(require("colors"));
 const anilist_1 = __importDefault(require("../mapping/impl/information/anilist"));
-const helper_1 = require("@/src/helper");
-const event_1 = __importStar(require("@/src/helper/event"));
-const database_1 = require("database");
+const helper_1 = require("../helper");
+const event_1 = __importStar(require("../helper/event"));
+const database_1 = require("../database");
 const stringSimilarity_1 = require("../helper/stringSimilarity");
 // Return a mapped result using the ID given
 const loadMapping = async (data) => {
-    // First check if exists in database
-    const existing = data.type === "ANIME" /* Type.ANIME */ ? await database_1.prisma.anime.findFirst({
-        where: {
-            id: String(data.id)
+    try {
+        // First check if exists in database
+        const existing = data.type === "ANIME" /* Type.ANIME */
+            ? await database_1.prisma.anime.findFirst({
+                where: {
+                    id: String(data.id),
+                },
+            })
+            : await database_1.prisma.manga.findFirst({
+                where: {
+                    id: String(data.id),
+                },
+            });
+        if (existing) {
+            await event_1.default.emitAsync(event_1.Events.COMPLETED_MAPPING_LOAD, [existing]);
+            return [existing];
         }
-    }) : await database_1.prisma.manga.findFirst({
-        where: {
-            id: String(data.id)
-        }
-    });
-    if (existing) {
-        await event_1.default.emitAsync(event_1.Events.COMPLETED_MAPPING_LOAD, [existing]);
-        return [existing];
+    }
+    catch (e) {
+        console.error(e);
+        console.log(colors_1.default.red("Error while fetching from database."));
     }
     console.log(colors_1.default.gray("Loading mapping for ") + colors_1.default.blue(data.id) + colors_1.default.gray("..."));
     const aniList = new anilist_1.default();
@@ -64,31 +72,28 @@ const loadMapping = async (data) => {
             return [result[i]];
         }
     }
+    await event_1.default.emitAsync(event_1.Events.COMPLETED_MAPPING_LOAD, []);
+    return [];
 };
 exports.loadMapping = loadMapping;
 const map = async (aniList, query, type, formats, aniData) => {
-    console.log(colors_1.default.gray("Searching for ") + colors_1.default.blue(query) + colors_1.default.gray(" of type ") + colors_1.default.blue(type) + colors_1.default.gray(" and of formats ") + (colors_1.default.blue((formats.length > 0 ? formats.toString() : "NONE")))) + colors_1.default.gray("...");
-    const providers = (type === "ANIME" /* Type.ANIME */ ? mapping_1.ANIME_PROVIDERS : mapping_1.MANGA_PROVIDERS);
+    console.log(colors_1.default.gray("Searching for ") + colors_1.default.blue(query) + colors_1.default.gray(" of type ") + colors_1.default.blue(type) + colors_1.default.gray(" and of formats ") + colors_1.default.blue(formats.length > 0 ? formats.toString() : "NONE")) + colors_1.default.gray("...");
+    const providers = type === "ANIME" /* Type.ANIME */ ? mapping_1.ANIME_PROVIDERS : mapping_1.MANGA_PROVIDERS;
     providers.push(...mapping_1.META_PROVIDERS);
     // Filter out unsuitable providers
-    const suitableProviders = providers.filter(provider => {
+    const suitableProviders = providers.filter((provider) => {
         if (formats && provider.formats) {
-            return formats.some(format => provider.formats.includes(format));
+            return formats.some((format) => provider.formats.includes(format));
         }
         return true;
     });
     // List of all titles and synonyms
-    const titlesAndSynonyms = [
-        aniData.title.english,
-        aniData.title.romaji,
-        aniData.title.native,
-        ...aniData.synonyms
-    ].filter(e => typeof e === "string" && e);
+    const titlesAndSynonyms = [aniData.title.english, aniData.title.romaji, aniData.title.native, ...aniData.synonyms].filter((e) => typeof e === "string" && e);
     // Search via the titles and synonyms in case a provider requires you to search by the romaji or native titles or one of the synonyms.
-    const promises = suitableProviders.map(provider => {
-        const searchPromises = titlesAndSynonyms.map(title => provider.search(title).catch(() => []));
-        return Promise.all(searchPromises).then(results => {
-            return results.find(r => r.length !== 0) || [];
+    const promises = suitableProviders.map((provider) => {
+        const searchPromises = titlesAndSynonyms.map((title) => provider.search(title).catch(() => []));
+        return Promise.all(searchPromises).then((results) => {
+            return results.find((r) => r.length !== 0) || [];
         });
     });
     const resultsArray = await Promise.all(promises);
@@ -121,11 +126,9 @@ const map = async (aniList, query, type, formats, aniData) => {
             }
         `;
     });
-    const results = (await aniList.batchRequest(searchQueries).catch((err) => {
+    const results = (await aniList.batchRequest(searchQueries, 30).catch((err) => {
         return [];
-    })).map((data) => {
-        return data;
-    }).filter(Boolean);
+    })).filter(Boolean);
     const batchResults = results.reduce((accumulator, currentObject) => {
         const mediaArrays = Object.values(currentObject).map((anime) => anime.media);
         return accumulator.concat(...mediaArrays);
@@ -134,28 +137,25 @@ const map = async (aniList, query, type, formats, aniData) => {
     // Loop through provider results
     for (let i = 0; i < resultsArray.length; i++) {
         for (let j = 0; j < resultsArray[i].length; j++) {
-            const year = (aniData.year ?? aniData.startDate?.year) ?? null;
-            if (year && (resultsArray[i][j].year !== 0)) {
+            const year = aniData.year ?? aniData.startDate?.year ?? null;
+            if (year && resultsArray[i][j].year !== 0) {
                 if (Number(resultsArray[i][j].year) !== Number(aniData.year)) {
                     continue;
                 }
             }
-            const format = (aniData.format);
-            if (format && (resultsArray[i][j].format !== "UNKNOWN" /* Format.UNKNOWN */)) {
+            const format = aniData.format;
+            if (format && resultsArray[i][j].format !== "UNKNOWN" /* Format.UNKNOWN */) {
                 if (format !== resultsArray[i][j].format) {
                     continue;
                 }
             }
-            const aniListResults = batchResults.map(result => {
-                const titles = [
-                    result.title.english,
-                    result.title.romaji,
-                    result.title.native,
-                    ...result.synonyms
-                ].filter(e => typeof e === "string" && e);
+            const aniListResults = batchResults
+                .map((result) => {
+                const titles = [result.title.english, result.title.romaji, result.title.native, ...result.synonyms].filter((e) => typeof e === "string" && e);
                 const similarity = (0, stringSimilarity_1.findBestMatch)(resultsArray[i][j].title, titles).bestMatch;
                 return { ...result, similarity: similarity.rating };
-            }).filter(result => result.similarity > 0.6);
+            })
+                .filter((result) => result.similarity > 0.6);
             // Find the best result from the AniList results
             let best = null;
             aniListResults.map(async (result) => {
@@ -179,9 +179,9 @@ const map = async (aniList, query, type, formats, aniData) => {
                 mappings.push({
                     id: best.aniList.id,
                     malId: best.aniList.idMal,
-                    slug: (0, helper_1.slugify)((best.aniList.title.english ?? best.aniList.title.romaji ?? best.aniList.title.native)),
+                    slug: (0, helper_1.slugify)(best.aniList.title.english ?? best.aniList.title.romaji ?? best.aniList.title.native),
                     data: mapping,
-                    similarity: best.similarity
+                    similarity: best.similarity,
                 });
             }
         }
@@ -202,7 +202,7 @@ async function createMedia(mappings, type) {
                 const toPush = {
                     id: mapping.data.id,
                     providerId: mapping.data.providerId,
-                    similarity: mapping.similarity
+                    similarity: mapping.similarity,
                 };
                 results[j].mappings.push(toPush);
             }
@@ -230,8 +230,8 @@ async function createMedia(mappings, type) {
                         {
                             id: mapping.data.id,
                             providerId: mapping.data.providerId,
-                            similarity: mapping.similarity
-                        }
+                            similarity: mapping.similarity,
+                        },
                     ],
                     synonyms: [],
                     countryOfOrigin: null,
@@ -253,7 +253,7 @@ async function createMedia(mappings, type) {
                     format: "UNKNOWN" /* Format.UNKNOWN */,
                     relations: [],
                     totalEpisodes: 0,
-                    tags: []
+                    tags: [],
                 };
                 results.push(anime);
             }
@@ -276,8 +276,8 @@ async function createMedia(mappings, type) {
                         {
                             id: mapping.data.id,
                             providerId: mapping.data.providerId,
-                            similarity: mapping.similarity
-                        }
+                            similarity: mapping.similarity,
+                        },
                     ],
                     synonyms: [],
                     countryOfOrigin: null,
@@ -298,7 +298,7 @@ async function createMedia(mappings, type) {
                     relations: [],
                     totalChapters: 0,
                     totalVolumes: 0,
-                    tags: []
+                    tags: [],
                 };
                 results.push(manga);
             }
@@ -306,7 +306,7 @@ async function createMedia(mappings, type) {
     }
     for (let i = 0; i < results.length; i++) {
         for (let j = 0; j < results[i].mappings.length; j++) {
-            if (results[i].mappings[j].providerId === "kitsu") {
+            if (results[i].mappings[j].providerId === "kitsuanime" || results[i].mappings[j].providerId === "kitsumanga") {
                 results[i].kitsuId = results[i].mappings[j].id;
             }
         }
@@ -337,7 +337,7 @@ function fillMediaInfo(media, info, provider) {
                 continue;
             const v = media[ak];
             let write = false;
-            if ((!v || v === "UNKNOWN") && (!!info[ak] && info[ak] !== "UNKNOWN")) {
+            if ((!v || v === "UNKNOWN") && !!info[ak] && info[ak] !== "UNKNOWN") {
                 write = true;
             }
             else {

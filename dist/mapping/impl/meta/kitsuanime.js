@@ -17,9 +17,9 @@ class KitsuAnime extends _1.default {
         const searchUrl = `/anime?filter[text]=${encodeURIComponent(query)}`;
         const req = await (0, axios_1.default)(this.kitsuApiUrl + searchUrl, {
             headers: {
-                "Accept": "application/vnd.api+json",
-                "Content-Type": "application/vnd.api+json"
-            }
+                Accept: "application/vnd.api+json",
+                "Content-Type": "application/vnd.api+json",
+            },
         }).catch((err) => {
             return null;
         });

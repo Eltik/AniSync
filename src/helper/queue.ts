@@ -1,6 +1,6 @@
-import { setIntervalImmediately } from '@/src/helper/index';
+import { setIntervalImmediately } from "@/src/helper/index";
 
-export default class QueueExecutor<T extends any> {
+export default class QueueExecutor<T> {
     id: string;
     private intervalId: NodeJS.Timer | undefined;
     private intervalN: number | undefined;
@@ -100,23 +100,29 @@ export default class QueueExecutor<T extends any> {
             if (this.activeBySwitch) {
                 if (this.active) {
                     this.running = true;
-                    if (this.executorFunc) this.executorFunc(true as any, undefined).then(_ => {
-                        if (this.callbackFunc) this.callbackFunc(true as any);
-                        this.running = false;
-                    }).catch(err => {
-                        if (this.errorFunc) this.errorFunc(err, true as any);
-                        this.running = false;
-                    });
+                    if (this.executorFunc)
+                        this.executorFunc(true as any, undefined)
+                            .then((_) => {
+                                if (this.callbackFunc) this.callbackFunc(true as any);
+                                this.running = false;
+                            })
+                            .catch((err) => {
+                                if (this.errorFunc) this.errorFunc(err, true as any);
+                                this.running = false;
+                            });
                 }
             } else {
                 if (this.isSelfRunning) {
-                    if (this.executorFunc) this.executorFunc(undefined as T, undefined).then(_ => {
-                        if (this.callbackFunc) this.callbackFunc(undefined as T);
-                        this.running = false;
-                    }).catch(err => {
-                        if (this.errorFunc) this.errorFunc(err, undefined as T);
-                        this.running = false;
-                    });
+                    if (this.executorFunc)
+                        this.executorFunc(undefined as T, undefined)
+                            .then((_) => {
+                                if (this.callbackFunc) this.callbackFunc(undefined as T);
+                                this.running = false;
+                            })
+                            .catch((err) => {
+                                if (this.errorFunc) this.errorFunc(err, undefined as T);
+                                this.running = false;
+                            });
                 } else {
                     const value = this.queue.values().next().value;
                     if (value) {
@@ -124,16 +130,18 @@ export default class QueueExecutor<T extends any> {
                         this.queue.delete(value);
                         this.metaMap.delete(value);
                         this.running = true;
-                        if (this.executorFunc) this.executorFunc(value, meta).then(_ => {
-                            if (this.callbackFunc) this.callbackFunc(value);
-                            this.running = false;
-                        }).catch(err => {
-                            if (this.errorFunc) this.errorFunc(err, value);
-                            this.running = false;
-                        });
+                        if (this.executorFunc)
+                            this.executorFunc(value, meta)
+                                .then((_) => {
+                                    if (this.callbackFunc) this.callbackFunc(value);
+                                    this.running = false;
+                                })
+                                .catch((err) => {
+                                    if (this.errorFunc) this.errorFunc(err, value);
+                                    this.running = false;
+                                });
                     }
                 }
-
             }
         }, this.intervalN);
 

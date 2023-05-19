@@ -1,6 +1,5 @@
 import AnimeProvider from "./impl/anime";
-import NineAnime from "./impl/anime/9anime";
-import InformationProvider from "./impl/information";
+import InformationProvider, { AnimeInfo, MangaInfo } from "./impl/information";
 import AniList from "./impl/information/anilist";
 import MangaProvider from "./impl/manga";
 import ComicK from "./impl/manga/comicK";
@@ -8,6 +7,7 @@ import MAL from "./impl/information/mal";
 import Kitsu from "./impl/information/kitsu";
 import KitsuAnime from "./impl/meta/kitsuanime";
 import KitsuManga from "./impl/meta/kitsumanga";
+import NineAnime from "./impl/anime/nineanime";
 import GogoAnime from "./impl/anime/gogoanime";
 import Zoro from "./impl/anime/zoro";
 import AnimePahe from "./impl/anime/animepahe";
@@ -23,29 +23,24 @@ import ReadLightNovels from "./impl/manga/readlightnovels";
 
 const ANIME_PROVIDERS: AnimeProvider[] = [new NineAnime(), new GogoAnime(), new Zoro(), new AnimePahe()];
 const MANGA_PROVIDERS: MangaProvider[] = [new BatoTo(), new ComicK(), new MangaDex(), new MangaSee(), new NovelBuddy(), new NovelUpdates(), new JNovels(), new ReadLightNovels()];
-const INFORMATION_PROVIDERS: InformationProvider[] = [new AniList(), new MAL(), new Kitsu()];
+const INFORMATION_PROVIDERS: InformationProvider<Anime | Manga, AnimeInfo | MangaInfo>[] = [new AniList(), new MAL(), new Kitsu()];
 const META_PROVIDERS: MetaProvider[] = [new KitsuAnime(), new KitsuManga(), new TMDB()];
 
-export {
-    ANIME_PROVIDERS,
-    MANGA_PROVIDERS,
-    INFORMATION_PROVIDERS,
-    META_PROVIDERS
-}
+export { ANIME_PROVIDERS, MANGA_PROVIDERS, INFORMATION_PROVIDERS, META_PROVIDERS };
 
 export type Result = {
-    id: string,
-    title: string,
-    altTitles: string[],
-    year: number,
-    format: Format,
-    img: string | null,
-    providerId: string
-}
+    id: string;
+    title: string;
+    altTitles: string[];
+    year: number;
+    format: Format;
+    img: string | null;
+    providerId: string;
+};
 
 export const enum Type {
     ANIME = "ANIME",
-    MANGA = "MANGA"
+    MANGA = "MANGA",
 }
 
 export const enum Format {
@@ -59,29 +54,17 @@ export const enum Format {
     MANGA = "MANGA",
     NOVEL = "NOVEL",
     ONE_SHOT = "ONE_SHOT",
-    UNKNOWN = "UNKNOWN"
+    UNKNOWN = "UNKNOWN",
 }
 
-export const Formats = [
-    Format.TV,
-    Format.TV_SHORT,
-    Format.MOVIE,
-    Format.SPECIAL,
-    Format.OVA,
-    Format.ONA,
-    Format.MUSIC,
-    Format.MANGA,
-    Format.NOVEL,
-    Format.ONE_SHOT,
-    Format.UNKNOWN
-];
+export const Formats = [Format.TV, Format.TV_SHORT, Format.MOVIE, Format.SPECIAL, Format.OVA, Format.ONA, Format.MUSIC, Format.MANGA, Format.NOVEL, Format.ONE_SHOT, Format.UNKNOWN];
 
 export const enum Season {
     WINTER = "WINTER",
     SPRING = "SPRING",
     SUMMER = "SUMMER",
     FALL = "FALL",
-    UNKNOWN = "UNKNOWN"
+    UNKNOWN = "UNKNOWN",
 }
 
 export const enum MediaStatus {
@@ -89,7 +72,7 @@ export const enum MediaStatus {
     RELEASING = "RELEASING",
     NOT_YET_RELEASED = "NOT_YET_RELEASED",
     CANCELLED = "CANCELLED",
-    HIATUS = "HIATUS"
+    HIATUS = "HIATUS",
 }
 
 export const enum Genres {
@@ -110,7 +93,7 @@ export const enum Genres {
     SLICE_OF_LIFE = "Slice of Life",
     SPORTS = "Sports",
     SUPERNATURAL = "Supernatural",
-    THRILLER = "Thriller"
+    THRILLER = "Thriller",
 }
 
 export type Anime = {
@@ -129,7 +112,7 @@ export type Anime = {
         native: string | null;
     };
     currentEpisode: number | null;
-    mappings: { id: string, providerId: string, similarity: number }[];
+    mappings: { id: string; providerId: string; similarity: number }[];
     synonyms: string[];
     countryOfOrigin: string | null;
     description: string | null;
@@ -152,7 +135,7 @@ export type Anime = {
     relations: any[];
     totalEpisodes?: number;
     tags: string[];
-}
+};
 
 export type Manga = {
     id: string;
@@ -167,7 +150,7 @@ export type Manga = {
         english: string | null;
         native: string | null;
     };
-    mappings: { id: string, providerId: string, similarity: number }[];
+    mappings: { id: string; providerId: string; similarity: number }[];
     synonyms: string[];
     countryOfOrigin: string | null;
     description: string | null;
@@ -189,4 +172,4 @@ export type Manga = {
     relations: any[];
     totalChapters: number | null;
     tags: string[];
-}
+};

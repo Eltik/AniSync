@@ -5,12 +5,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = __importDefault(require("axios"));
 const _1 = __importDefault(require("."));
-const helper_1 = require("@/src/helper");
+const helper_1 = require("../../../helper");
 const fs_1 = require("fs");
 const path_1 = require("path");
 const promises_1 = require("fs/promises");
 const colors_1 = __importDefault(require("colors"));
-const stringSimilarity_1 = require("@/src/helper/stringSimilarity");
+const stringSimilarity_1 = require("../../../helper/stringSimilarity");
 class AniList extends _1.default {
     id = "anilist";
     url = "https://anilist.co";
@@ -27,7 +27,7 @@ class AniList extends _1.default {
         if (possible.length > 0 && type === "ANIME" /* Type.ANIME */) {
             const data = possible.map((media) => {
                 const sources = media.sources;
-                const aniList = (sources.find((source) => source.startsWith("https://anilist.co/")))?.match(/(?<=\/)\d+/)?.[0];
+                const aniList = sources.find((source) => source.startsWith("https://anilist.co/"))?.match(/(?<=\/)\d+/)?.[0];
                 const mal = sources.find((source) => source.startsWith("https://myanimelist.net/"))?.match(/(?<=\/)\d+/)?.[0];
                 if (!aniList) {
                     return null;
@@ -38,10 +38,10 @@ class AniList extends _1.default {
                     title: {
                         english: media.title,
                         romaji: null,
-                        native: null
+                        native: null,
                     },
                     trailer: null,
-                    currentEpisode: (media.status === "FINISHED" /* MediaStatus.FINISHED */ || media.status === "CANCELLED" /* MediaStatus.CANCELLED */) ? (media.episodes ?? 0) : 0,
+                    currentEpisode: media.status === "FINISHED" /* MediaStatus.FINISHED */ || media.status === "CANCELLED" /* MediaStatus.CANCELLED */ ? media.episodes ?? 0 : 0,
                     duration: null,
                     coverImage: media.picture ?? null,
                     bannerImage: null,
@@ -58,7 +58,7 @@ class AniList extends _1.default {
                     year: media.animeSeason.year ?? null,
                     type: type,
                     countryOfOrigin: null,
-                    tags: media.tags
+                    tags: media.tags,
                 };
             });
             if (data.filter((media) => media !== null).length > 0) {
@@ -87,16 +87,16 @@ class AniList extends _1.default {
                 type: type,
                 format: formats,
                 page: page ? page : 0,
-                perPage: perPage ? perPage : 15
-            }
+                perPage: perPage ? perPage : 15,
+            },
         };
         const req = await this.request(this.api, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/json"
+                Accept: "application/json",
             },
-            data: aniListArgs
+            data: aniListArgs,
         });
         if (!req) {
             return undefined;
@@ -110,10 +110,10 @@ class AniList extends _1.default {
                     title: {
                         english: data.title.english ?? null,
                         romaji: data.title.romaji ?? null,
-                        native: data.title.native ?? null
+                        native: data.title.native ?? null,
                     },
                     trailer: null,
-                    currentEpisode: (data.status === "FINISHED" /* MediaStatus.FINISHED */ || data.status === "CANCELLED" /* MediaStatus.CANCELLED */) ? (data.episodes ?? 0) : 0,
+                    currentEpisode: data.status === "FINISHED" /* MediaStatus.FINISHED */ || data.status === "CANCELLED" /* MediaStatus.CANCELLED */ ? data.episodes ?? 0 : 0,
                     duration: data.duration ?? null,
                     coverImage: data.coverImage.extraLarge ?? null,
                     bannerImage: data.bannerImage ?? null,
@@ -130,7 +130,7 @@ class AniList extends _1.default {
                     year: data.seasonYear ?? data.startDate?.year ?? null,
                     type: data.type,
                     countryOfOrigin: data.countryOfOrigin ?? null,
-                    tags: data.tags
+                    tags: data.tags,
                 };
             });
         }
@@ -142,7 +142,7 @@ class AniList extends _1.default {
                     title: {
                         english: data.title.english ?? null,
                         romaji: data.title.romaji ?? null,
-                        native: data.title.native ?? null
+                        native: data.title.native ?? null,
                     },
                     coverImage: data.coverImage.extraLarge ?? null,
                     bannerImage: data.bannerImage ?? null,
@@ -159,7 +159,7 @@ class AniList extends _1.default {
                     year: data.seasonYear ?? data.startDate?.year ?? null,
                     type: data.type,
                     countryOfOrigin: data.countryOfOrigin ?? null,
-                    tags: data.tags.map((tag) => tag.name)
+                    tags: data.tags.map((tag) => tag.name),
                 };
             });
         }
@@ -172,18 +172,18 @@ class AniList extends _1.default {
             }
         }`;
         const variables = {
-            id: anilistId
+            id: anilistId,
         };
         const req = await this.request(this.api, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/json"
+                Accept: "application/json",
             },
             data: {
                 query,
-                variables
-            }
+                variables,
+            },
         });
         if (!req) {
             return undefined;
@@ -193,10 +193,10 @@ class AniList extends _1.default {
             title: {
                 english: data.title.english ?? null,
                 romaji: data.title.romaji ?? null,
-                native: data.title.native ?? null
+                native: data.title.native ?? null,
             },
             trailer: null,
-            currentEpisode: (data.status === "FINISHED" /* MediaStatus.FINISHED */ || data.status === "CANCELLED" /* MediaStatus.CANCELLED */) ? (data.episodes ?? 0) : 0,
+            currentEpisode: data.status === "FINISHED" /* MediaStatus.FINISHED */ || data.status === "CANCELLED" /* MediaStatus.CANCELLED */ ? data.episodes ?? 0 : 0,
             duration: data.duration ?? null,
             coverImage: data.coverImage.extraLarge ?? null,
             bannerImage: data.bannerImage ?? null,
@@ -214,7 +214,7 @@ class AniList extends _1.default {
             format: data.format,
             year: data.seasonYear ?? data.startDate?.year ?? null,
             countryOfOrigin: data.countryOfOrigin ?? null,
-            tags: data.tags.map((tag) => tag.name)
+            tags: data.tags.map((tag) => tag.name),
         };
     }
     async getMedia(id) {
@@ -224,18 +224,18 @@ class AniList extends _1.default {
             }
         }`;
         const variables = {
-            id: id
+            id: id,
         };
         const req = await this.request(this.api, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/json"
+                Accept: "application/json",
             },
             data: {
                 query,
-                variables
-            }
+                variables,
+            },
         });
         if (!req) {
             return undefined;
@@ -245,10 +245,10 @@ class AniList extends _1.default {
             title: {
                 english: data.title.english ?? null,
                 romaji: data.title.romaji ?? null,
-                native: data.title.native ?? null
+                native: data.title.native ?? null,
             },
             trailer: null,
-            currentEpisode: (data.status === "FINISHED" /* MediaStatus.FINISHED */ || data.status === "CANCELLED" /* MediaStatus.CANCELLED */) ? (data.episodes ?? 0) : 0,
+            currentEpisode: data.status === "FINISHED" /* MediaStatus.FINISHED */ || data.status === "CANCELLED" /* MediaStatus.CANCELLED */ ? data.episodes ?? 0 : 0,
             duration: data.duration ?? null,
             coverImage: data.coverImage.extraLarge ?? null,
             bannerImage: data.bannerImage ?? null,
@@ -265,7 +265,7 @@ class AniList extends _1.default {
             year: data.seasonYear ?? data.startDate?.year ?? null,
             type: data.type,
             countryOfOrigin: data.countryOfOrigin ?? null,
-            tags: data.tags.map((tag) => tag.name)
+            tags: data.tags.map((tag) => tag.name),
         };
     }
     async fetchSeasonal(type, formats) {
@@ -304,28 +304,28 @@ class AniList extends _1.default {
                 seasonYear: 2023,
                 format: formats,
                 page: 0,
-                perPage: 20
-            }
+                perPage: 20,
+            },
         };
         const req = await this.request(this.api, {
             data: JSON.stringify(aniListArgs),
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-            }
+            },
         });
         const data = req?.data.data;
         if (!data) {
             return undefined;
         }
-        const trending = data.trending.media.map((data) => {
+        const trending = data.trending.media?.map((data) => {
             return {
                 aniListId: data.id,
                 malId: data.idMal,
                 title: {
                     english: data.title.english ?? null,
                     romaji: data.title.romaji ?? null,
-                    native: data.title.native ?? null
+                    native: data.title.native ?? null,
                 },
                 coverImage: data.coverImage.extraLarge ?? null,
                 bannerImage: data.bannerImage ?? null,
@@ -342,7 +342,7 @@ class AniList extends _1.default {
                 countryOfOrigin: data.countryOfOrigin ?? null,
                 year: data.seasonYear ?? data.startDate?.year ?? null,
                 type: data.type,
-                tags: data.tags.map((tag) => tag.name)
+                tags: data.tags.map((tag) => tag.name),
             };
         });
         const seasonal = data.season.media?.map((data) => {
@@ -352,7 +352,7 @@ class AniList extends _1.default {
                 title: {
                     english: data.title.english ?? null,
                     romaji: data.title.romaji ?? null,
-                    native: data.title.native ?? null
+                    native: data.title.native ?? null,
                 },
                 coverImage: data.coverImage.extraLarge ?? null,
                 bannerImage: data.bannerImage ?? null,
@@ -369,17 +369,17 @@ class AniList extends _1.default {
                 countryOfOrigin: data.countryOfOrigin ?? null,
                 year: data.seasonYear ?? data.startDate?.year ?? null,
                 type: data.type,
-                tags: data.tags.map((tag) => tag.name)
+                tags: data.tags.map((tag) => tag.name),
             };
         });
-        const popular = data.popular.media.map((data) => {
+        const popular = data.popular.media?.map((data) => {
             return {
                 aniListId: data.id,
                 malId: data.idMal,
                 title: {
                     english: data.title.english ?? null,
                     romaji: data.title.romaji ?? null,
-                    native: data.title.native ?? null
+                    native: data.title.native ?? null,
                 },
                 coverImage: data.coverImage.extraLarge ?? null,
                 bannerImage: data.bannerImage ?? null,
@@ -396,17 +396,17 @@ class AniList extends _1.default {
                 countryOfOrigin: data.countryOfOrigin ?? null,
                 year: data.seasonYear ?? data.startDate?.year ?? null,
                 type: data.type,
-                tags: data.tags.map((tag) => tag.name)
+                tags: data.tags.map((tag) => tag.name),
             };
         });
-        const top = data.top.media.map((data) => {
+        const top = data.top.media?.map((data) => {
             return {
                 aniListId: data.id,
                 malId: data.idMal,
                 title: {
                     english: data.title.english ?? null,
                     romaji: data.title.romaji ?? null,
-                    native: data.title.native ?? null
+                    native: data.title.native ?? null,
                 },
                 coverImage: data.coverImage.extraLarge ?? null,
                 bannerImage: data.bannerImage ?? null,
@@ -423,21 +423,22 @@ class AniList extends _1.default {
                 countryOfOrigin: data.countryOfOrigin ?? null,
                 year: data.seasonYear ?? data.startDate?.year ?? null,
                 type: data.type,
-                tags: data.tags.map((tag) => tag.name)
+                tags: data.tags.map((tag) => tag.name),
             };
         });
         return {
             trending,
             seasonal,
             popular,
-            top
+            top,
         };
     }
     async fetchManamiProject(query, formats) {
         try {
             if ((0, fs_1.existsSync)((0, path_1.join)(__dirname, "./manami.json"))) {
                 const data = JSON.parse(await (0, promises_1.readFile)((0, path_1.join)(__dirname, "./manami.json"), "utf-8"));
-                if (Date.now() - data.time > 86400000) { // 1 day
+                if (Date.now() - data.time > 86400000) {
+                    // 1 day
                     const { data } = await axios_1.default.get("https://raw.githubusercontent.com/manami-project/anime-offline-database/master/anime-offline-database.json").then((res) => res.data);
                     data.time = Date.now();
                     await (0, promises_1.writeFile)((0, path_1.join)(__dirname, "./manami.json"), JSON.stringify(data, null, 2), "utf-8");
@@ -447,7 +448,7 @@ class AniList extends _1.default {
                     const titleMatchScore = (0, stringSimilarity_1.compareTwoStrings)(query, data.title.toLowerCase());
                     const synonymsMatchScore = data.synonyms.some((synonym) => (0, stringSimilarity_1.compareTwoStrings)(query, synonym.toLowerCase()) > 0.6);
                     const formatMatch = formats.includes(data.type);
-                    return titleMatchScore > 0.6 || synonymsMatchScore && formatMatch;
+                    return titleMatchScore > 0.6 || (synonymsMatchScore && formatMatch);
                 });
                 return results;
             }
@@ -460,7 +461,7 @@ class AniList extends _1.default {
                     const titleMatchScore = (0, stringSimilarity_1.compareTwoStrings)(query, data.title.toLowerCase());
                     const synonymsMatchScore = data.synonyms.some((synonym) => (0, stringSimilarity_1.compareTwoStrings)(query, synonym.toLowerCase()) > 0.6);
                     const formatMatch = formats.includes(data.type);
-                    return titleMatchScore > 0.6 || synonymsMatchScore && formatMatch;
+                    return titleMatchScore > 0.6 || (synonymsMatchScore && formatMatch);
                 });
                 return results;
             }
@@ -470,14 +471,13 @@ class AniList extends _1.default {
             return [];
         }
     }
-    async batchRequest(queries) {
-        const MAX_QUERIES = 30; // Can send 5 queries per request
+    async batchRequest(queries, maxQueries) {
         const results = [];
         let currentQuery = "{";
         let queryCount = 0;
         for (let i = 0; i < queries.length; i++) {
             const query = queries[i];
-            if (queryCount === MAX_QUERIES) {
+            if (queryCount === maxQueries) {
                 const result = await this.executeGraphQLQuery(currentQuery + "}");
                 if (!result) {
                     continue;
@@ -503,12 +503,12 @@ class AniList extends _1.default {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/json"
+                Accept: "application/json",
             },
             data: {
                 query,
-                variables
-            }
+                variables,
+            },
         }).catch((err) => {
             return null;
         });
@@ -521,13 +521,13 @@ class AniList extends _1.default {
             return err;
         });
         const response = req.response ? req.response : req;
-        const remainingRequests = parseInt(response.headers?.['x-ratelimit-remaining']) || 0;
-        const requestLimit = parseInt(response.headers?.['x-ratelimit-limit']) || 0;
-        const resetTime = parseInt(response.headers?.['x-ratelimit-reset']) || 0;
+        const remainingRequests = parseInt(response.headers?.["x-ratelimit-remaining"]) || 0;
+        const requestLimit = parseInt(response.headers?.["x-ratelimit-limit"]) || 0;
+        const resetTime = parseInt(response.headers?.["x-ratelimit-reset"]) || 0;
         if (remainingRequests >= 60) {
             const delay = resetTime * 1000 - Date.now();
             if (delay > 0) {
-                await new Promise(resolve => setTimeout(resolve, delay));
+                await new Promise((resolve) => setTimeout(resolve, delay));
             }
             return await (0, axios_1.default)(url, options).catch((err) => {
                 const response = err.response;
@@ -547,11 +547,11 @@ class AniList extends _1.default {
                 }
             });
         }
-        if (response.headers?.['retry-after']) {
+        if (response.headers?.["retry-after"]) {
             //console.log(colors.yellow("Rate limit headers found. Waiting..."));
-            const delay = parseInt(response.headers?.['retry-after']) * 3000;
+            const delay = parseInt(response.headers?.["retry-after"]) * 3000;
             if (delay > 0) {
-                await new Promise(resolve => setTimeout(resolve, delay));
+                await new Promise((resolve) => setTimeout(resolve, delay));
             }
             return await (0, axios_1.default)(url, options).catch((err) => {
                 const response = err.response;

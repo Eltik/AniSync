@@ -19,15 +19,15 @@
         "baseUrl": ".",
         "paths": {
             "@/*": ["./*"],
-            "database": ["./src/database"],
+            "database": ["./src/database"]
         },
         "outDir": "./dist"
     },
-    "include": ["**/*.ts", "src/**/*.ts"],
-    "exclude": ["node_modules", "./dist"],
+    "include": ["src"],
+    "exclude": ["node_modules", "dist"],
     "ts-node": {
         "compilerOptions": {
-            "module": "commonjs",
+            "module": "commonjs"
         }
     }
 }

@@ -35,7 +35,7 @@ class Zoro extends _1.default {
                 year: 0,
                 format,
                 img: img,
-                providerId: this.id
+                providerId: this.id,
             });
         });
         return results;

@@ -26,7 +26,7 @@ class NovelBuddy extends _1.default {
                 year: 0,
                 format: "NOVEL" /* Format.NOVEL */,
                 altTitles: [],
-                providerId: this.id
+                providerId: this.id,
             });
         });
         return results;

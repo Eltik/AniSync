@@ -30,11 +30,7 @@ export const importDatabase = async (): Promise<void> => {
             }),
         ]);
 
-        console.log(
-            colors.green(
-                `Database imported successfully! Imported ${importedAnime.count} anime and ${importedManga.count} manga.`
-            )
-        );
+        console.log(colors.green(`Database imported successfully! Imported ${importedAnime.count} anime and ${importedManga.count} manga.`));
 
         return;
     } catch (error) {

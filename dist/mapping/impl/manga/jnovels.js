@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = __importDefault(require("axios"));
 const _1 = __importDefault(require("."));
 const cheerio_1 = require("cheerio");
-const stringSimilarity_1 = require("@/src/helper/stringSimilarity");
+const stringSimilarity_1 = require("../../../helper/stringSimilarity");
 class JNovels extends _1.default {
     rateLimit = 250;
     id = "jnovels";
@@ -27,7 +27,7 @@ class JNovels extends _1.default {
                 img: null,
                 year: 0,
                 format: "NOVEL" /* Format.NOVEL */,
-                providerId: this.id
+                providerId: this.id,
             });
         });
         for (const result of list) {
@@ -48,7 +48,7 @@ class JNovels extends _1.default {
                     img: null,
                     year: 0,
                     format: "NOVEL" /* Format.NOVEL */,
-                    providerId: this.id
+                    providerId: this.id,
                 });
             });
             for (const result of list) {

@@ -1,18 +1,17 @@
 import axios from "axios";
-import InformationProvider, { AnimeInfo, MangaInfo } from ".";
-import { Anime, Format, Manga, Season, Type } from "../..";
-
-export default class Kitsu extends InformationProvider {
+import InformationProvider, { AnimeInfo, MangaInfo, MediaInfoKeys } from ".";
+import { Anime, Format, Manga, Season } from "../..";
+export default class Kitsu extends InformationProvider<Anime | Manga, AnimeInfo | MangaInfo> {
     override id = "kitsu";
     override url = "https://kitsu.io";
 
     private kitsuApiUrl = "https://kitsu.io/api/edge";
 
-    override get priorityArea(): (keyof AnimeInfo | MangaInfo)[] {
+    override get priorityArea(): MediaInfoKeys[] {
         return ["coverImage"];
     }
 
-    override get sharedArea(): (keyof AnimeInfo | MangaInfo)[] {
+    override get sharedArea(): MediaInfoKeys[] {
         return ["synonyms", "genres"];
     }
 
@@ -34,7 +33,7 @@ export default class Kitsu extends InformationProvider {
             title: {
                 english: attributes.titles.en ?? null,
                 romaji: attributes.titles.en_jp ?? null,
-                native: attributes.titles.ja_jp ?? null
+                native: attributes.titles.ja_jp ?? null,
             },
             currentEpisode: null,
             trailer: null,
@@ -49,12 +48,12 @@ export default class Kitsu extends InformationProvider {
             description: attributes.synopsis ?? null,
             year: null,
             totalEpisodes: attributes.episodeCount ?? 0,
-            genres: genres ? genres.map(genre => genre.attributes.name) : [],
+            genres: genres ? genres.map((genre) => genre.attributes.name) : [],
             rating: attributes.averageRating ? Number.parseFloat((Number.parseFloat(attributes.averageRating) / 10).toFixed(2)) : null,
             popularity: null,
             countryOfOrigin: null,
-            tags: []
-        }
+            tags: [],
+        };
     }
 }
 
@@ -62,24 +61,24 @@ type KitsuResponse = {
     data: {
         attributes: {
             titles: {
-                en: string | null,
-                en_jp: string | null,
-                ja_jp: string | null
-            },
-            description: string | null,
-            subtype: string,
-            status: string,
-            showType: string,
-            synopsis: string | null,
-            episodeLength: number | null,
+                en: string | null;
+                en_jp: string | null;
+                ja_jp: string | null;
+            };
+            description: string | null;
+            subtype: string;
+            status: string;
+            showType: string;
+            synopsis: string | null;
+            episodeLength: number | null;
             posterImage: {
-                original: string | null
-            },
+                original: string | null;
+            };
             coverImage: {
-                original: string | null
-            },
-            averageRating: string | null,
-            episodeCount: number | null
-        }
-    }
-}
+                original: string | null;
+            };
+            averageRating: string | null;
+            episodeCount: number | null;
+        };
+    };
+};

@@ -6,7 +6,7 @@ export default abstract class MetaProvider {
     abstract url: string;
     abstract formats: Format[];
 
-    async search(query: string, type:Type): Promise<Result[] | undefined> {
+    async search(query: string, type: Type): Promise<Result[] | undefined> {
         return undefined;
     }
 }

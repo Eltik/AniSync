@@ -1,6 +1,6 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { Anime, Format, Genres, Manga, MediaStatus, Season, Type } from "../..";
-import InformationProvider, { AnimeInfo, MangaInfo } from ".";
+import InformationProvider, { AnimeInfo, MangaInfo, MediaInfoKeys } from ".";
 import { wait } from "@/src/helper";
 import { existsSync } from "fs";
 import { join } from "path";
@@ -8,27 +8,27 @@ import { readFile, writeFile } from "fs/promises";
 import colors from "colors";
 import { compareTwoStrings } from "@/src/helper/stringSimilarity";
 
-export default class AniList extends InformationProvider {
+export default class AniList extends InformationProvider<Anime | Manga, AnimeInfo | MangaInfo> {
     override id = "anilist";
     override url = "https://anilist.co";
 
     private api = "https://graphql.anilist.co";
 
-    override get priorityArea(): (keyof AnimeInfo | MangaInfo)[] {
+    override get priorityArea(): MediaInfoKeys[] {
         return ["bannerImage"];
     }
 
-    override get sharedArea(): (keyof AnimeInfo | MangaInfo)[] {
+    override get sharedArea(): MediaInfoKeys[] {
         return ["synonyms", "genres", "tags"];
     }
 
-    override async search(query: string, type:Type, formats: Format[], page?:number, perPage?:number): Promise<AnimeInfo[] | MangaInfo[] | undefined> {
+    override async search(query: string, type: Type, formats: Format[], page?: number, perPage?: number): Promise<AnimeInfo[] | MangaInfo[] | undefined> {
         // First try manami-project
         const possible = await this.fetchManamiProject(query, formats);
         if (possible.length > 0 && type === Type.ANIME) {
-            const data = possible.map((media:any) => {
+            const data = possible.map((media: any) => {
                 const sources = media.sources;
-                const aniList = (sources.find((source: string) => source.startsWith("https://anilist.co/")))?.match(/(?<=\/)\d+/)?.[0];
+                const aniList = sources.find((source: string) => source.startsWith("https://anilist.co/"))?.match(/(?<=\/)\d+/)?.[0];
                 const mal = sources.find((source: string) => source.startsWith("https://myanimelist.net/"))?.match(/(?<=\/)\d+/)?.[0];
 
                 if (!aniList) {
@@ -41,10 +41,10 @@ export default class AniList extends InformationProvider {
                     title: {
                         english: media.title,
                         romaji: null,
-                        native: null
+                        native: null,
                     },
                     trailer: null,
-                    currentEpisode: (media.status === MediaStatus.FINISHED || media.status === MediaStatus.CANCELLED) ? (media.episodes ?? 0) : 0,
+                    currentEpisode: media.status === MediaStatus.FINISHED || media.status === MediaStatus.CANCELLED ? media.episodes ?? 0 : 0,
                     duration: null,
                     coverImage: media.picture ?? null,
                     bannerImage: null,
@@ -61,15 +61,15 @@ export default class AniList extends InformationProvider {
                     year: media.animeSeason.year ?? null,
                     type: type,
                     countryOfOrigin: null,
-                    tags: media.tags
-                }
-            })
+                    tags: media.tags,
+                };
+            });
 
-            if (data.filter((media:any) => media !== null).length > 0) {
-                return data.filter((media:any) => media !== null);
+            if (data.filter((media: any) => media !== null).length > 0) {
+                return data.filter((media: any) => media !== null);
             }
         }
-        
+
         const aniListArgs = {
             query: `
             query($page: Int, $perPage: Int, $search: String, $type: MediaType, $format: [MediaFormat]) {
@@ -92,22 +92,22 @@ export default class AniList extends InformationProvider {
                 type: type,
                 format: formats,
                 page: page ? page : 0,
-                perPage: perPage ? perPage : 15
-            }
-        }
+                perPage: perPage ? perPage : 15,
+            },
+        };
         const req = await this.request(this.api, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/json"
+                Accept: "application/json",
             },
-            data: aniListArgs
+            data: aniListArgs,
         });
         if (!req) {
             return undefined;
         }
         const media = req?.data.data.Page.media;
-        
+
         if (type === Type.ANIME) {
             return media.map((data: Media) => {
                 return {
@@ -116,10 +116,10 @@ export default class AniList extends InformationProvider {
                     title: {
                         english: data.title.english ?? null,
                         romaji: data.title.romaji ?? null,
-                        native: data.title.native ?? null
+                        native: data.title.native ?? null,
                     },
                     trailer: null,
-                    currentEpisode: (data.status === MediaStatus.FINISHED || data.status === MediaStatus.CANCELLED) ? (data.episodes ?? 0) : 0,
+                    currentEpisode: data.status === MediaStatus.FINISHED || data.status === MediaStatus.CANCELLED ? data.episodes ?? 0 : 0,
                     duration: data.duration ?? null,
                     coverImage: data.coverImage.extraLarge ?? null,
                     bannerImage: data.bannerImage ?? null,
@@ -129,15 +129,15 @@ export default class AniList extends InformationProvider {
                     color: null,
                     status: data.status,
                     season: data.season as Season,
-                    genres: data.genres as Genres[] ?? [],
+                    genres: (data.genres as Genres[]) ?? [],
                     rating: data.meanScore ? data.meanScore / 10 : null,
                     description: data.description ?? null,
                     format: data.format,
                     year: data.seasonYear ?? data.startDate?.year ?? null,
                     type: data.type,
                     countryOfOrigin: data.countryOfOrigin ?? null,
-                    tags: data.tags
-                }
+                    tags: data.tags,
+                };
             });
         } else {
             return media.map((data: Media) => {
@@ -147,7 +147,7 @@ export default class AniList extends InformationProvider {
                     title: {
                         english: data.title.english ?? null,
                         romaji: data.title.romaji ?? null,
-                        native: data.title.native ?? null
+                        native: data.title.native ?? null,
                     },
                     coverImage: data.coverImage.extraLarge ?? null,
                     bannerImage: data.bannerImage ?? null,
@@ -157,15 +157,15 @@ export default class AniList extends InformationProvider {
                     totalVolumes: data.volumes ?? 0,
                     color: null,
                     status: data.status,
-                    genres: data.genres as Genres[] ?? [],
+                    genres: (data.genres as Genres[]) ?? [],
                     rating: data.meanScore ? data.meanScore / 10 : null,
                     description: data.description ?? null,
                     format: data.format,
                     year: data.seasonYear ?? data.startDate?.year ?? null,
                     type: data.type,
                     countryOfOrigin: data.countryOfOrigin ?? null,
-                    tags: data.tags.map((tag) => tag.name)
-                }
+                    tags: data.tags.map((tag) => tag.name),
+                };
             });
         }
     }
@@ -179,33 +179,33 @@ export default class AniList extends InformationProvider {
             }
         }`;
         const variables = {
-            id: anilistId
+            id: anilistId,
         };
 
         const req = await this.request(this.api, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/json"
+                Accept: "application/json",
             },
             data: {
                 query,
-                variables
-            }
+                variables,
+            },
         });
         if (!req) {
             return undefined;
         }
         const data: Media = req.data.data.Media;
-        
+
         return {
             title: {
                 english: data.title.english ?? null,
                 romaji: data.title.romaji ?? null,
-                native: data.title.native ?? null
+                native: data.title.native ?? null,
             },
             trailer: null,
-            currentEpisode: (data.status === MediaStatus.FINISHED || data.status === MediaStatus.CANCELLED) ? (data.episodes ?? 0) : 0,
+            currentEpisode: data.status === MediaStatus.FINISHED || data.status === MediaStatus.CANCELLED ? data.episodes ?? 0 : 0,
             duration: data.duration ?? null,
             coverImage: data.coverImage.extraLarge ?? null,
             bannerImage: data.bannerImage ?? null,
@@ -217,14 +217,14 @@ export default class AniList extends InformationProvider {
             color: null,
             status: data.status as MediaStatus,
             season: data.season as Season,
-            genres: data.genres as Genres[] ?? [],
+            genres: (data.genres as Genres[]) ?? [],
             rating: data.meanScore ? data.meanScore / 10 : null,
             description: data.description ?? null,
             format: data.format,
             year: data.seasonYear ?? data.startDate?.year ?? null,
             countryOfOrigin: data.countryOfOrigin ?? null,
-            tags: data.tags.map((tag) => tag.name)
-        }
+            tags: data.tags.map((tag) => tag.name),
+        };
     }
 
     public async getMedia(id: string): Promise<AnimeInfo | MangaInfo | undefined> {
@@ -234,33 +234,33 @@ export default class AniList extends InformationProvider {
             }
         }`;
         const variables = {
-            id: id
+            id: id,
         };
 
         const req = await this.request(this.api, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/json"
+                Accept: "application/json",
             },
             data: {
                 query,
-                variables
-            }
+                variables,
+            },
         });
         if (!req) {
             return undefined;
         }
         const data: Media = req.data.data.Media;
-        
+
         return {
             title: {
                 english: data.title.english ?? null,
                 romaji: data.title.romaji ?? null,
-                native: data.title.native ?? null
+                native: data.title.native ?? null,
             },
             trailer: null,
-            currentEpisode: (data.status === MediaStatus.FINISHED || data.status === MediaStatus.CANCELLED) ? (data.episodes ?? 0) : 0,
+            currentEpisode: data.status === MediaStatus.FINISHED || data.status === MediaStatus.CANCELLED ? data.episodes ?? 0 : 0,
             duration: data.duration ?? null,
             coverImage: data.coverImage.extraLarge ?? null,
             bannerImage: data.bannerImage ?? null,
@@ -270,18 +270,18 @@ export default class AniList extends InformationProvider {
             color: null,
             status: data.status as MediaStatus,
             season: data.season as Season,
-            genres: data.genres as Genres[] ?? [],
+            genres: (data.genres as Genres[]) ?? [],
             rating: data.meanScore ? data.meanScore / 10 : null,
             description: data.description ?? null,
             format: data.format,
             year: data.seasonYear ?? data.startDate?.year ?? null,
             type: data.type,
             countryOfOrigin: data.countryOfOrigin ?? null,
-            tags: data.tags.map((tag) => tag.name)
-        } as any
+            tags: data.tags.map((tag) => tag.name),
+        } as any;
     }
 
-    public async fetchSeasonal(type:Type, formats:Format[]) {
+    public async fetchSeasonal(type: Type, formats: Format[]) {
         const aniListArgs = {
             query: `
             query($season: MediaSeason, $seasonYear: Int, $format: [MediaFormat], $page: Int, $perPage: Int, $type: MediaType) {
@@ -317,31 +317,31 @@ export default class AniList extends InformationProvider {
                 seasonYear: 2023,
                 format: formats,
                 page: 0,
-                perPage: 20
-            }
-        }
+                perPage: 20,
+            },
+        };
 
         const req = await this.request(this.api, {
             data: JSON.stringify(aniListArgs),
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-            }
+            },
         });
-        
+
         const data = req?.data.data;
         if (!data) {
             return undefined;
         }
 
-        const trending = data.trending.media.map((data: Media) => {
+        const trending = data.trending.media?.map((data: Media) => {
             return {
                 aniListId: data.id,
                 malId: data.idMal,
                 title: {
                     english: data.title.english ?? null,
                     romaji: data.title.romaji ?? null,
-                    native: data.title.native ?? null
+                    native: data.title.native ?? null,
                 },
                 coverImage: data.coverImage.extraLarge ?? null,
                 bannerImage: data.bannerImage ?? null,
@@ -351,15 +351,15 @@ export default class AniList extends InformationProvider {
                 totalVolumes: data.volumes ?? 0,
                 color: null,
                 status: data.status,
-                genres: data.genres as Genres[] ?? [],
+                genres: (data.genres as Genres[]) ?? [],
                 rating: data.meanScore ? data.meanScore / 10 : null,
                 description: data.description ?? null,
                 format: data.format,
                 countryOfOrigin: data.countryOfOrigin ?? null,
                 year: data.seasonYear ?? data.startDate?.year ?? null,
                 type: data.type,
-                tags: data.tags.map((tag) => tag.name)
-            }
+                tags: data.tags.map((tag) => tag.name),
+            };
         });
 
         const seasonal = data.season.media?.map((data: Media) => {
@@ -369,7 +369,7 @@ export default class AniList extends InformationProvider {
                 title: {
                     english: data.title.english ?? null,
                     romaji: data.title.romaji ?? null,
-                    native: data.title.native ?? null
+                    native: data.title.native ?? null,
                 },
                 coverImage: data.coverImage.extraLarge ?? null,
                 bannerImage: data.bannerImage ?? null,
@@ -379,25 +379,25 @@ export default class AniList extends InformationProvider {
                 totalVolumes: data.volumes ?? 0,
                 color: null,
                 status: data.status,
-                genres: data.genres as Genres[] ?? [],
+                genres: (data.genres as Genres[]) ?? [],
                 rating: data.meanScore ? data.meanScore / 10 : null,
                 description: data.description ?? null,
                 format: data.format,
                 countryOfOrigin: data.countryOfOrigin ?? null,
                 year: data.seasonYear ?? data.startDate?.year ?? null,
                 type: data.type,
-                tags: data.tags.map((tag) => tag.name)
-            }
+                tags: data.tags.map((tag) => tag.name),
+            };
         });
 
-        const popular = data.popular.media.map((data: Media) => {
+        const popular = data.popular.media?.map((data: Media) => {
             return {
                 aniListId: data.id,
                 malId: data.idMal,
                 title: {
                     english: data.title.english ?? null,
                     romaji: data.title.romaji ?? null,
-                    native: data.title.native ?? null
+                    native: data.title.native ?? null,
                 },
                 coverImage: data.coverImage.extraLarge ?? null,
                 bannerImage: data.bannerImage ?? null,
@@ -407,25 +407,25 @@ export default class AniList extends InformationProvider {
                 totalVolumes: data.volumes ?? 0,
                 color: null,
                 status: data.status,
-                genres: data.genres as Genres[] ?? [],
+                genres: (data.genres as Genres[]) ?? [],
                 rating: data.meanScore ? data.meanScore / 10 : null,
                 description: data.description ?? null,
                 format: data.format,
                 countryOfOrigin: data.countryOfOrigin ?? null,
                 year: data.seasonYear ?? data.startDate?.year ?? null,
                 type: data.type,
-                tags: data.tags.map((tag) => tag.name)
-            }
+                tags: data.tags.map((tag) => tag.name),
+            };
         });
 
-        const top = data.top.media.map((data: Media) => {
+        const top = data.top.media?.map((data: Media) => {
             return {
                 aniListId: data.id,
                 malId: data.idMal,
                 title: {
                     english: data.title.english ?? null,
                     romaji: data.title.romaji ?? null,
-                    native: data.title.native ?? null
+                    native: data.title.native ?? null,
                 },
                 coverImage: data.coverImage.extraLarge ?? null,
                 bannerImage: data.bannerImage ?? null,
@@ -435,42 +435,43 @@ export default class AniList extends InformationProvider {
                 totalVolumes: data.volumes ?? 0,
                 color: null,
                 status: data.status,
-                genres: data.genres as Genres[] ?? [],
+                genres: (data.genres as Genres[]) ?? [],
                 rating: data.meanScore ? data.meanScore / 10 : null,
                 description: data.description ?? null,
                 format: data.format,
                 countryOfOrigin: data.countryOfOrigin ?? null,
                 year: data.seasonYear ?? data.startDate?.year ?? null,
                 type: data.type,
-                tags: data.tags.map((tag) => tag.name)
-            }
+                tags: data.tags.map((tag) => tag.name),
+            };
         });
 
         return {
             trending,
             seasonal,
             popular,
-            top
-        }
+            top,
+        };
     }
 
-    private async fetchManamiProject(query:string, formats:Format[]) {
+    private async fetchManamiProject(query: string, formats: Format[]) {
         try {
             if (existsSync(join(__dirname, "./manami.json"))) {
                 const data = JSON.parse(await readFile(join(__dirname, "./manami.json"), "utf-8"));
-                if (Date.now() - data.time > 86400000) { // 1 day
+                if (Date.now() - data.time > 86400000) {
+                    // 1 day
                     const { data } = await axios.get("https://raw.githubusercontent.com/manami-project/anime-offline-database/master/anime-offline-database.json").then((res) => res.data);
                     data.time = Date.now();
                     await writeFile(join(__dirname, "./manami.json"), JSON.stringify(data, null, 2), "utf-8");
                     console.log(colors.yellow("Manami Project data has been cached."));
                 }
-                
+
                 const results = data.filter((data: any) => {
                     const titleMatchScore = compareTwoStrings(query, data.title.toLowerCase());
                     const synonymsMatchScore = data.synonyms.some((synonym: string) => compareTwoStrings(query, synonym.toLowerCase()) > 0.6);
                     const formatMatch = formats.includes(data.type);
 
-                    return titleMatchScore > 0.6 || synonymsMatchScore && formatMatch;
+                    return titleMatchScore > 0.6 || (synonymsMatchScore && formatMatch);
                 });
                 return results;
             } else {
@@ -484,7 +485,7 @@ export default class AniList extends InformationProvider {
                     const synonymsMatchScore = data.synonyms.some((synonym: string) => compareTwoStrings(query, synonym.toLowerCase()) > 0.6);
                     const formatMatch = formats.includes(data.type);
 
-                    return titleMatchScore > 0.6 || synonymsMatchScore && formatMatch;
+                    return titleMatchScore > 0.6 || (synonymsMatchScore && formatMatch);
                 });
                 return results;
             }
@@ -494,15 +495,14 @@ export default class AniList extends InformationProvider {
         }
     }
 
-    public async batchRequest(queries: string[]): Promise<any | undefined> {
-        const MAX_QUERIES = 30; // Can send 5 queries per request
+    public async batchRequest(queries: string[], maxQueries: number): Promise<any | undefined> {
         const results: any[] = [];
         let currentQuery = "{";
         let queryCount = 0;
-      
+
         for (let i = 0; i < queries.length; i++) {
             const query = queries[i];
-            if (queryCount === MAX_QUERIES) {
+            if (queryCount === maxQueries) {
                 const result = await this.executeGraphQLQuery(currentQuery + "}");
                 if (!result) {
                     continue;
@@ -511,18 +511,18 @@ export default class AniList extends InformationProvider {
                 currentQuery = "{";
                 queryCount = 0;
             }
-        
+
             currentQuery += `${query}\n`;
             queryCount++;
         }
-      
+
         if (currentQuery.length > 0) {
             const result = await this.executeGraphQLQuery(currentQuery + "}");
             if (result) {
                 results.push(...Object.values(result?.data));
             }
         }
-      
+
         return results;
     }
 
@@ -532,35 +532,35 @@ export default class AniList extends InformationProvider {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/json"
+                Accept: "application/json",
             },
             data: {
                 query,
-                variables
-            }
+                variables,
+            },
         }).catch((err) => {
             return null;
-        })
+        });
     }
 
     /**
      * @description Custom request function for handling AniList rate limit.
      */
     public async request(url: string, options?: AxiosRequestConfig, retries = 0): Promise<AxiosResponse | null> {
-        const req:any = await axios(url, options).catch((err) => {
+        const req: any = await axios(url, options).catch((err) => {
             return err;
         });
 
         const response = req.response ? req.response : req;
 
-        const remainingRequests = parseInt(response.headers?.['x-ratelimit-remaining']) || 0;
-        const requestLimit = parseInt(response.headers?.['x-ratelimit-limit']) || 0;
-        const resetTime = parseInt(response.headers?.['x-ratelimit-reset']) || 0;
-        
+        const remainingRequests = parseInt(response.headers?.["x-ratelimit-remaining"]) || 0;
+        const requestLimit = parseInt(response.headers?.["x-ratelimit-limit"]) || 0;
+        const resetTime = parseInt(response.headers?.["x-ratelimit-reset"]) || 0;
+
         if (remainingRequests >= 60) {
             const delay = resetTime * 1000 - Date.now();
             if (delay > 0) {
-                await new Promise(resolve => setTimeout(resolve, delay));
+                await new Promise((resolve) => setTimeout(resolve, delay));
             }
             return await axios(url, options).catch((err) => {
                 const response = err.response;
@@ -578,11 +578,11 @@ export default class AniList extends InformationProvider {
                 }
             });
         }
-        if (response.headers?.['retry-after']) {
+        if (response.headers?.["retry-after"]) {
             //console.log(colors.yellow("Rate limit headers found. Waiting..."));
-            const delay = parseInt(response.headers?.['retry-after']) * 3000;
+            const delay = parseInt(response.headers?.["retry-after"]) * 3000;
             if (delay > 0) {
-                await new Promise(resolve => setTimeout(resolve, delay));
+                await new Promise((resolve) => setTimeout(resolve, delay));
             }
             return await axios(url, options).catch((err) => {
                 const response = err.response;
@@ -608,7 +608,7 @@ export default class AniList extends InformationProvider {
             }
         }
         return response;
-    }  
+    }
 
     public query = `
     id
@@ -690,8 +690,8 @@ export default class AniList extends InformationProvider {
 }
 
 interface Media {
-    id:number;
-    idMal:number;
+    id: number;
+    idMal: number;
     title: {
         english?: string;
         romaji: string;
@@ -699,113 +699,115 @@ interface Media {
         userPreferred: string;
     };
     coverImage: {
-        extraLarge:string;
-        large:string;
+        extraLarge: string;
+        large: string;
     };
-    bannerImage:string;
+    bannerImage: string;
     startDate: {
-        year:number;
-        month:number;
-        day:number;
+        year: number;
+        month: number;
+        day: number;
     };
     endDate: {
-        year:number;
-        month:number;
-        day:number;
+        year: number;
+        month: number;
+        day: number;
     };
-    description:string;
-    season:"WINTER"|"SPRING"|"SUMMER"|"FALL";
-    seasonYear:number;
-    type:Type;
-    format:Format;
-    status:"FINISHED"|"RELEASING"|"NOT_YET_RELEASED"|"CANCELLED";
-    episodes?:number;
-    duration?:number;
-    chapters?:number;
-    volumes?:number;
-    genres:string[];
-    synonyms:string[]
-    source:"ORIGINAL"|"LIGHT_NOVEL"|"VISUAL_NOVEL"|"VIDEO_GAME"|"OTHER"|"NOVEL"|"MANGA"|"DOUJINSHI"|"ANIME"|"WEB_MANGA"|"BOOK"|"CARD_GAME"|"COMIC"|"GAME"|"MUSIC"|"NOVEL"|"ONE_SHOT"|"OTHER"|"PICTURE_BOOK"|"RADIO"|"TV"|"UNKNOWN";
-    isAdult:boolean;
-    meanScore:number;
-    averageScore:number;
-    popularity:number;
-    favourites:number;
-    countryOfOrigin:string;
-    isLicensed:boolean;
+    description: string;
+    season: "WINTER" | "SPRING" | "SUMMER" | "FALL";
+    seasonYear: number;
+    type: Type;
+    format: Format;
+    status: "FINISHED" | "RELEASING" | "NOT_YET_RELEASED" | "CANCELLED";
+    episodes?: number;
+    duration?: number;
+    chapters?: number;
+    volumes?: number;
+    genres: string[];
+    synonyms: string[];
+    source: "ORIGINAL" | "LIGHT_NOVEL" | "VISUAL_NOVEL" | "VIDEO_GAME" | "OTHER" | "NOVEL" | "MANGA" | "DOUJINSHI" | "ANIME" | "WEB_MANGA" | "BOOK" | "CARD_GAME" | "COMIC" | "GAME" | "MUSIC" | "NOVEL" | "ONE_SHOT" | "OTHER" | "PICTURE_BOOK" | "RADIO" | "TV" | "UNKNOWN";
+    isAdult: boolean;
+    meanScore: number;
+    averageScore: number;
+    popularity: number;
+    favourites: number;
+    countryOfOrigin: string;
+    isLicensed: boolean;
     airingSchedule: {
         edges: {
             node: {
-                airingAt?:any;
-                timeUntilAiring?:any
-                episode?:any;
-            }
-        }
-    }
+                airingAt?: any;
+                timeUntilAiring?: any;
+                episode?: any;
+            };
+        };
+    };
     relations: {
-        edges: [RelationsNode]
+        edges: [RelationsNode];
     };
     characterPreview: {
         edges: {
-            id:number;
-            role:string;
-            name?:string;
+            id: number;
+            role: string;
+            name?: string;
             voiceActors: {
-                id:number;
+                id: number;
                 name: {
-                    userPreferred:string;
+                    userPreferred: string;
                 };
-                language:string;
+                language: string;
                 image: {
-                    large:string;
+                    large: string;
                 };
             };
             node: {
-                id:number;
+                id: number;
                 name: {
-                    userPreferred:string;
+                    userPreferred: string;
                 };
                 image: {
-                    large:string;
+                    large: string;
                 };
             };
         };
     };
     studios: {
         edges: {
-            isMain:boolean;
+            isMain: boolean;
             node: {
-                id:number;
-                name:string;
+                id: number;
+                name: string;
             };
         };
     };
-    streamingEpisodes: [{
-        title?:string;
-        thumbnail?:string;
-        url?:string;
-    }];
+    streamingEpisodes: [
+        {
+            title?: string;
+            thumbnail?: string;
+            url?: string;
+        }
+    ];
     trailer: {
-        id:string;
-        site:string;
+        id: string;
+        site: string;
     };
-    tags: [{ id:number; name:string; }];
+    tags: [{ id: number; name: string }];
 }
 
 interface RelationsNode {
-    id:number;
-    relationType:string;
+    id: number;
+    relationType: string;
     node: {
-        id:number;
+        id: number;
         title: {
-            userPreferred:string;
+            userPreferred: string;
         };
-        format:Format;
-        type:Type;
-        status:string;
-        bannerImage:string;
+        format: Format;
+        type: Type;
+        status: string;
+        bannerImage: string;
         coverImage: {
-            large:string;
-        }
+            large: string;
+        };
     };
 }

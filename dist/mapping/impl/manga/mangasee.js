@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const axios_1 = __importDefault(require("axios"));
 const _1 = __importDefault(require("."));
-const helper_1 = require("@/src/helper");
+const helper_1 = require("../../../helper");
 class MangaSee extends _1.default {
     rateLimit = 250;
     id = "mangasee";
@@ -30,9 +30,12 @@ class MangaSee extends _1.default {
         return results;
     }
     async getMangaList() {
-        const req = await (0, axios_1.default)(`${this.url}/_search.php`, { method: "POST", headers: {
-                Referer: this.url
-            } });
+        const req = await (0, axios_1.default)(`${this.url}/_search.php`, {
+            method: "POST",
+            headers: {
+                Referer: this.url,
+            },
+        });
         const data = req.data;
         return data;
     }

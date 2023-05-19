@@ -30,7 +30,7 @@ class AnimePahe extends _1.default {
                 img: item.poster,
                 format,
                 altTitles: [],
-                providerId: this.id
+                providerId: this.id,
             });
         });
         return results;

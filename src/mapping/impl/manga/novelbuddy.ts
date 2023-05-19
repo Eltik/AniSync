@@ -7,7 +7,7 @@ export default class NovelBuddy extends MangaProvider {
     override rateLimit = 250;
     override id = "novelbuddy";
     override url = "https://novelbuddy.com";
-    
+
     override formats: Format[] = [Format.NOVEL];
 
     override async search(query: string): Promise<Result[] | undefined> {
@@ -29,9 +29,9 @@ export default class NovelBuddy extends MangaProvider {
                 year: 0,
                 format: Format.NOVEL,
                 altTitles: [],
-                providerId: this.id
-            })
-        })
+                providerId: this.id,
+            });
+        });
 
         return results;
     }

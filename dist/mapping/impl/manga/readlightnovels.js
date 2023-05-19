@@ -23,7 +23,7 @@ class ReadLightNovels extends _1.default {
                 img: $(el).find("a > img").attr("src"),
                 year: 0,
                 format: "NOVEL" /* Format.NOVEL */,
-                providerId: this.id
+                providerId: this.id,
             });
         });
         return results;

@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.findBestMatch = exports.compareTwoStrings = void 0;
 // From npm package string-similarity
 function compareTwoStrings(first, second) {
-    first = first.replace(/\s+/g, '');
-    second = second.replace(/\s+/g, '');
+    first = first.replace(/\s+/g, "");
+    second = second.replace(/\s+/g, "");
     if (first === second)
         return 1; // identical or empty
     if (first.length < 2 || second.length < 2)
@@ -18,9 +18,7 @@ function compareTwoStrings(first, second) {
     let intersectionSize = 0;
     for (let i = 0; i < second.length - 1; i++) {
         const bigram = second.substring(i, i + 2);
-        const count = firstBigrams.has(bigram)
-            ? firstBigrams.get(bigram)
-            : 0;
+        const count = firstBigrams.has(bigram) ? firstBigrams.get(bigram) : 0;
         if (count > 0) {
             firstBigrams.set(bigram, count - 1);
             intersectionSize++;
@@ -31,7 +29,7 @@ function compareTwoStrings(first, second) {
 exports.compareTwoStrings = compareTwoStrings;
 function findBestMatch(mainString, targetStrings) {
     if (!areArgsValid(mainString, targetStrings))
-        throw new Error('Bad arguments: First argument should be a string, second should be an array of strings');
+        throw new Error("Bad arguments: First argument should be a string, second should be an array of strings");
     const ratings = [];
     let bestMatchIndex = 0;
     for (let i = 0; i < targetStrings.length; i++) {
@@ -47,13 +45,15 @@ function findBestMatch(mainString, targetStrings) {
 }
 exports.findBestMatch = findBestMatch;
 function areArgsValid(mainString, targetStrings) {
-    if (typeof mainString !== 'string')
+    if (typeof mainString !== "string")
         return false;
     if (!Array.isArray(targetStrings))
         return false;
     if (!targetStrings.length)
         return false;
-    if (targetStrings.find(function (s) { return typeof s !== 'string'; }))
+    if (targetStrings.find(function (s) {
+        return typeof s !== "string";
+    }))
         return false;
     return true;
 }

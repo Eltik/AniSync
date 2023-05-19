@@ -6,7 +6,7 @@ export default class ComicK extends MangaProvider {
     override rateLimit = 250;
     override id = "comick";
     override url = "https://comick.app";
-    
+
     override formats: Format[] = [Format.MANGA, Format.ONE_SHOT];
 
     private api = "https://api.comick.app";
@@ -17,7 +17,7 @@ export default class ComicK extends MangaProvider {
         const results: Result[] = [];
 
         data.map((result) => {
-            let cover:any = result.md_covers ? result.md_covers[0] : null;
+            let cover: any = result.md_covers ? result.md_covers[0] : null;
             if (cover && cover.b2key != undefined) {
                 cover = "https://meo.comick.pictures/" + cover.b2key;
             }

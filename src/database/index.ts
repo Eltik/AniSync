@@ -1,10 +1,11 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from "@prisma/client";
 import { Prisma as Pris } from "@prisma/client";
-import { Anime, Format, Manga, Type } from '../mapping';
-export * from '@prisma/client';
+import { Anime, Format, Manga, Type } from "../mapping";
+export * from "@prisma/client";
 
 const averageMetric = (object: PrismaJson.MetaSitesMetric) => {
-    let average = 0, validCount = 0;
+    let average = 0,
+        validCount = 0;
     for (const [_, v] of Object.entries(object)) {
         if (v && typeof v === "number") {
             average += v;
@@ -12,11 +13,11 @@ const averageMetric = (object: PrismaJson.MetaSitesMetric) => {
         }
     }
 
-    return validCount === 0 ? 0 : Number.parseFloat((average / validCount).toFixed(2))
-}
+    return validCount === 0 ? 0 : Number.parseFloat((average / validCount).toFixed(2));
+};
 
 const $prisma = new PrismaClient({
-    log: ["error"]
+    log: ["error"],
 });
 
 const dedupeFields = ["synonyms", "genres"];
@@ -26,8 +27,8 @@ $prisma.$use(async (params, next) => {
         if (!params?.args) return next(params);
 
         for (const field of dedupeFields) {
-            if (params.args['data'] && params.args['data'][field]) {
-                params.args['data'][field] = Array.from(new Set(params.args['data'][field]))
+            if (params.args["data"] && params.args["data"][field]) {
+                params.args["data"][field] = Array.from(new Set(params.args["data"][field]));
             }
         }
     }
@@ -45,7 +46,7 @@ const modifiedPrisma = $prisma.$extends({
                 if (result?.genres) result.genres = Array.from(new Set(result.genres));
 
                 return result;
-            }
+            },
         },
         manga: {
             async $allOperations({ model, operation, args, query }) {
@@ -55,8 +56,8 @@ const modifiedPrisma = $prisma.$extends({
                 if (result?.genres) result.genres = Array.from(new Set(result.genres));
 
                 return result;
-            }
-        }
+            },
+        },
     },
     result: {
         anime: {
@@ -67,20 +68,20 @@ const modifiedPrisma = $prisma.$extends({
                     delete anime["averageRating"];
 
                     return () => $prisma.anime.update({ where: { id: anime.id }, data: anime });
-                }
+                },
             },
             averageRating: {
                 needs: { rating: true },
                 compute(anime) {
                     return averageMetric(anime.rating);
-                }
+                },
             },
             averagePopularity: {
                 needs: { popularity: true },
                 compute(anime) {
                     return averageMetric(anime.popularity);
-                }
-            }
+                },
+            },
         },
         manga: {
             save: {
@@ -90,25 +91,25 @@ const modifiedPrisma = $prisma.$extends({
                     delete manga["averageRating"];
 
                     return () => $prisma.manga.update({ where: { id: manga.id }, data: manga });
-                }
+                },
             },
             averageRating: {
                 needs: { rating: true },
                 compute(manga) {
                     return averageMetric(manga.rating);
-                }
+                },
             },
             averagePopularity: {
                 needs: { popularity: true },
                 compute(manga) {
                     return averageMetric(manga.popularity);
-                }
-            }
-        }
-    }
+                },
+            },
+        },
+    },
 });
 
-const globalForPrisma = global as unknown as { prisma: typeof modifiedPrisma }
+const globalForPrisma = global as unknown as { prisma: typeof modifiedPrisma };
 
 export const prisma = globalForPrisma.prisma || modifiedPrisma;
 
@@ -116,67 +117,62 @@ if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = modifiedPris
 
 declare global {
     namespace PrismaJson {
-        type AnimeTitle = {
+        type Title = {
             english: string | null;
             romaji: string | null;
             native: string | null;
-        }
+        };
 
-        type AnimeRating = MetaSitesMetric;
-        type AnimePopularity = MetaSitesMetric;
+        type Rating = MetaSitesMetric;
+        type Popularity = MetaSitesMetric;
 
         type MetaSitesMetric = {
             anilist: number | SplitEntryMapping | null;
             mal: number | SplitEntryMapping | null;
             kitsu: number | SplitEntryMapping | null;
-        }
-
-        type SubdubMapping = {
-            sub: string | number | null;
-            dub: string | number | null;
-        }
+        };
 
         type SplitEntryMapping = `${number}@${number}-${number}`;
     }
 }
 
 export const seasonal = async (trending: Anime[] | Manga[], popular: Anime[] | Manga[], top: Anime[] | Manga[], seasonal: Anime[] | Manga[]) => {
-    const trend = trending.map(a => String(a.aniListId));
-    const pop = popular.map(a => String(a.aniListId));
-    const t = top.map(a => String(a.aniListId));
-    const season = seasonal.map(a => String(a.aniListId));
+    const trend = trending.map((a) => String(a.aniListId));
+    const pop = popular.map((a) => String(a.aniListId));
+    const t = top.map((a) => String(a.aniListId));
+    const season = seasonal.map((a) => String(a.aniListId));
 
     if (trending[0] && trending[0].type === Type.ANIME) {
         const trending = await prisma.anime.findMany({
             where: {
                 id: {
-                    in: [...trend]
-                }
-            }
+                    in: [...trend],
+                },
+            },
         });
 
         const popular = await prisma.anime.findMany({
             where: {
                 id: {
-                    in: [...pop]
-                }
-            }
+                    in: [...pop],
+                },
+            },
         });
 
         const top = await prisma.anime.findMany({
             where: {
                 id: {
-                    in: [...t]
-                }
-            }
+                    in: [...t],
+                },
+            },
         });
 
         const seasonal = await prisma.anime.findMany({
             where: {
                 id: {
-                    in: [...season]
-                }
-            }
+                    in: [...season],
+                },
+            },
         });
 
         return { trending, popular, top, seasonal };
@@ -184,43 +180,43 @@ export const seasonal = async (trending: Anime[] | Manga[], popular: Anime[] | M
         const trending = await prisma.manga.findMany({
             where: {
                 id: {
-                    in: [...trend]
-                }
-            }
+                    in: [...trend],
+                },
+            },
         });
 
         const popular = await prisma.manga.findMany({
             where: {
                 id: {
-                    in: [...pop]
-                }
-            }
+                    in: [...pop],
+                },
+            },
         });
 
         const top = await prisma.manga.findMany({
             where: {
                 id: {
-                    in: [...t]
-                }
-            }
+                    in: [...t],
+                },
+            },
         });
 
         const seasonal = await prisma.manga.findMany({
             where: {
                 id: {
-                    in: [...season]
-                }
-            }
+                    in: [...season],
+                },
+            },
         });
 
         return { trending, popular, top, seasonal };
     }
-}
+};
 
 export const search = async (query: string, type: Type, formats: Format[], page: number, perPage: number) => {
     const skip = page > 0 ? perPage * (page - 1) : 0;
     let where;
-    
+
     if (type === Type.ANIME) {
         where = Pris.sql`
             WHERE
@@ -231,10 +227,14 @@ export const search = async (query: string, type: Type, formats: Format[], page:
                 OR  "anime".title->>'romaji'  ILIKE ${"%" + query + "%"}
                 OR  "anime".title->>'native'  ILIKE ${"%" + query + "%"}
             )
-            ${formats.length > 0 ? Pris.sql`AND "anime"."format" IN (${Pris.join(
-                formats.map(f => Pris.raw(`'${f}'`)),
-                ", "
-            )})` : Pris.empty}
+            ${
+                formats.length > 0
+                    ? Pris.sql`AND "anime"."format" IN (${Pris.join(
+                          formats.map((f) => Pris.raw(`'${f}'`)),
+                          ", "
+                      )})`
+                    : Pris.empty
+            }
         `;
     } else {
         where = Pris.sql`
@@ -246,10 +246,14 @@ export const search = async (query: string, type: Type, formats: Format[], page:
                 OR  "manga".title->>'romaji'  ILIKE ${"%" + query + "%"}
                 OR  "manga".title->>'native'  ILIKE ${"%" + query + "%"}
             )
-            ${formats.length > 0 ? Pris.sql`AND "manga"."format" IN (${Pris.join(
-                formats.map(f => Pris.raw(`'${f}'`)),
-                ", "
-            )})` : Pris.empty}
+            ${
+                formats.length > 0
+                    ? Pris.sql`AND "manga"."format" IN (${Pris.join(
+                          formats.map((f) => Pris.raw(`'${f}'`)),
+                          ", "
+                      )})`
+                    : Pris.empty
+            }
         `;
     }
 
@@ -294,20 +298,20 @@ export const search = async (query: string, type: Type, formats: Format[], page:
         ]);
     }
 
-    const total = Number((count)[0].count);
+    const total = Number(count[0].count);
     const lastPage = Math.ceil(Number(total) / perPage);
 
     return results;
-}
+};
 
 export const info = async (id: string): Promise<Anime | Manga | null> => {
     let media: any = await prisma.anime.findUnique({
-        where: { id }
+        where: { id },
     });
 
     if (!media) {
         media = await prisma.manga.findUnique({
-            where: { id }
+            where: { id },
         });
     }
 
@@ -317,4 +321,4 @@ export const info = async (id: string): Promise<Anime | Manga | null> => {
     if (media.genres) media.genres = Array.from(new Set(media.genres));
 
     return media;
-}
+};

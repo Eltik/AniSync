@@ -12,7 +12,7 @@ export default class MangaSee extends MangaProvider {
 
     override async search(query: string): Promise<Result[] | undefined> {
         const list = await this.getMangaList();
-        const results:Result[] = [];
+        const results: Result[] = [];
 
         for (let i = 0; i < list.length; i++) {
             if (stringSearch(list[i].s, query) >= 1) {
@@ -24,17 +24,20 @@ export default class MangaSee extends MangaProvider {
                     img: null,
                     format: Format.UNKNOWN,
                     providerId: this.id,
-                })
+                });
             }
         }
         return results;
     }
 
     private async getMangaList(): Promise<SearchResult[]> {
-        const req = await axios(`${this.url}/_search.php`, { method: "POST", headers: {
-            Referer: this.url
-        }});
-        const data:[SearchResult] = req.data;
+        const req = await axios(`${this.url}/_search.php`, {
+            method: "POST",
+            headers: {
+                Referer: this.url,
+            },
+        });
+        const data: [SearchResult] = req.data;
         return data;
     }
 }

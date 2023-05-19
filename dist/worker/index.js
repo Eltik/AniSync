@@ -11,5 +11,5 @@ exports.default = {
     mappingQueue: mapping_1.default,
     seasonQueue: season_1.default,
     createEntry: entry_1.default,
-    searchQueue: search_1.default
+    searchQueue: search_1.default,
 };

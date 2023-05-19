@@ -8,12 +8,12 @@ export default class JNovels extends MangaProvider {
     override rateLimit = 250;
     override id = "jnovels";
     override url = "https://jnovels.com";
-    
+
     override formats: Format[] = [Format.NOVEL];
 
     override async search(query: string): Promise<Result[] | undefined> {
-        const results:Result[] = [];
-        const list:Result[] = [];
+        const results: Result[] = [];
+        const list: Result[] = [];
 
         const req = await axios(`${this.url}/11light-1novel20-pdf/`);
         const $ = load(req.data);
@@ -29,9 +29,9 @@ export default class JNovels extends MangaProvider {
                 img: null,
                 year: 0,
                 format: Format.NOVEL,
-                providerId: this.id
-            })
-        })
+                providerId: this.id,
+            });
+        });
 
         for (const result of list) {
             if (compareTwoStrings(query, result.title) > 0.3) {
@@ -54,9 +54,9 @@ export default class JNovels extends MangaProvider {
                     img: null,
                     year: 0,
                     format: Format.NOVEL,
-                    providerId: this.id
-                })
-            })
+                    providerId: this.id,
+                });
+            });
 
             for (const result of list) {
                 if (compareTwoStrings(query, result.title) > 0.3) {

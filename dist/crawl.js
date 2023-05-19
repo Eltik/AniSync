@@ -35,7 +35,7 @@ const database_1 = require("./database");
 const anilist_1 = __importDefault(require("./mapping/impl/information/anilist"));
 const mappings_1 = require("./lib/mappings");
 const worker_1 = __importDefault(require("./worker"));
-const event_1 = __importStar(require("@/src/helper/event"));
+const event_1 = __importStar(require("./helper/event"));
 const type = "ANIME" /* Type.ANIME */;
 let maxIds = 0;
 event_1.default.on(event_1.Events.COMPLETED_MAPPING_LOAD, (data) => {
@@ -68,20 +68,20 @@ worker_1.default.createEntry.start();
         if (i >= maxIds) {
             break;
         }
-        const possible = type === "ANIME" /* Type.ANIME */ ?
-            await database_1.prisma.anime.findFirst({
+        const possible = type === "ANIME" /* Type.ANIME */
+            ? await database_1.prisma.anime.findFirst({
                 where: {
                     id: {
-                        equals: ids[i]
-                    }
-                }
-            }) :
-            await database_1.prisma.manga.findFirst({
+                        equals: ids[i],
+                    },
+                },
+            })
+            : await database_1.prisma.manga.findFirst({
                 where: {
                     id: {
-                        equals: ids[i]
-                    }
-                }
+                        equals: ids[i],
+                    },
+                },
             });
         if (!possible) {
             const start = new Date(Date.now());

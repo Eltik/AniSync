@@ -10,19 +10,14 @@ export const exportDatabase = async () => {
     console.log(colors.blue("Exporting database..."));
 
     try {
-        const [animeResult, mangaResult] = await Promise.allSettled([
-            prisma.anime.findMany(),
-            prisma.manga.findMany(),
-          ]);
-          
+        const [animeResult, mangaResult] = await Promise.allSettled([prisma.anime.findMany(), prisma.manga.findMany()]);
+
         const anime = animeResult.status === "fulfilled" ? animeResult.value : null;
         const manga = mangaResult.status === "fulfilled" ? mangaResult.value : null;
-        
+
         if (anime == null || manga == null) {
-            const errors = [animeResult, mangaResult]
-                .filter((result) => result.status === "rejected")
-                .map((result) => result.status);
-            
+            const errors = [animeResult, mangaResult].filter((result) => result.status === "rejected").map((result) => result.status);
+
             throw new Error(`Failed to fetch data: ${errors.join(", ")}`);
         }
 

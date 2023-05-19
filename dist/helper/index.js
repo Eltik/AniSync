@@ -4,7 +4,7 @@ exports.slugify = exports.setIntervalImmediately = exports.stringSearch = export
 const stringSimilarity_1 = require("./stringSimilarity");
 exports.USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36";
 function wait(time) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
         setTimeout(resolve, time);
     });
 }
@@ -21,19 +21,19 @@ function isJson(str) {
 exports.isJson = isJson;
 function substringBefore(str, toFind) {
     const index = str.indexOf(toFind);
-    return index == -1 ? '' : str.substring(0, index);
+    return index == -1 ? "" : str.substring(0, index);
 }
 exports.substringBefore = substringBefore;
 function substringAfter(str, toFind) {
     const index = str.indexOf(toFind);
-    return index == -1 ? '' : str.substring(index + toFind.length);
+    return index == -1 ? "" : str.substring(index + toFind.length);
 }
 exports.substringAfter = substringAfter;
 function sanitizeTitle(title) {
-    let resTitle = title.replace(/ *(\(dub\)|\(sub\)|\(uncensored\)|\(uncut\)|\(subbed\)|\(dubbed\))/i, '');
-    resTitle = resTitle.replace(/ *\([^)]+audio\)/i, '');
-    resTitle = resTitle.replace(/ BD( |$)/i, '');
-    resTitle = resTitle.replace(/\(TV\)/g, '');
+    let resTitle = title.replace(/ *(\(dub\)|\(sub\)|\(uncensored\)|\(uncut\)|\(subbed\)|\(dubbed\))/i, "");
+    resTitle = resTitle.replace(/ *\([^)]+audio\)/i, "");
+    resTitle = resTitle.replace(/ BD( |$)/i, "");
+    resTitle = resTitle.replace(/\(TV\)/g, "");
     resTitle = resTitle.trim();
     resTitle = resTitle.substring(0, 99); // truncate
     return resTitle;
@@ -44,7 +44,7 @@ function similarity(externalTitle, title, titleArray = []) {
         title = "";
     }
     let simi = (0, stringSimilarity_1.compareTwoStrings)(sanitizeTitle(title.toLowerCase()), externalTitle.toLowerCase());
-    titleArray.forEach(el => {
+    titleArray.forEach((el) => {
         if (el) {
             const tempSimi = (0, stringSimilarity_1.compareTwoStrings)(title.toLowerCase(), el.toLowerCase());
             if (tempSimi > simi)
@@ -153,8 +153,5 @@ const defaultReplacements = [
     ["ц", "ts"],
     ["ж", "zh"],
     // White_Space, General_Category=Dash_Punctuation and Control Codes
-    [
-        "[\\u0009-\\u000D\\u001C-\\u001F\\u0020\\u002D\\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\u058A\\u05BE\\u1400\\u1806\\u2010-\\u2015\\u2E17\\u2E1A\\u2E3A\\u2E3B\\u2E40\\u301C\\u3030\\u30A0\\uFE31\\uFE32\\uFE58\\uFE63\\uFF0D]",
-        "-",
-    ],
+    ["[\\u0009-\\u000D\\u001C-\\u001F\\u0020\\u002D\\u0085\\u00A0\\u1680\\u2000-\\u200A\\u2028\\u2029\\u202F\\u205F\\u3000\\u058A\\u05BE\\u1400\\u1806\\u2010-\\u2015\\u2E17\\u2E1A\\u2E3A\\u2E3B\\u2E40\\u301C\\u3030\\u30A0\\uFE31\\uFE32\\uFE58\\uFE63\\uFF0D]", "-"],
 ];

@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.exportDatabase = void 0;
-const database_1 = require("database");
+const database_1 = require("../database");
 const fs_1 = require("fs");
 const colors_1 = __importDefault(require("colors"));
 const exportDatabase = async () => {
@@ -13,16 +13,11 @@ const exportDatabase = async () => {
     }
     console.log(colors_1.default.blue("Exporting database..."));
     try {
-        const [animeResult, mangaResult] = await Promise.allSettled([
-            database_1.prisma.anime.findMany(),
-            database_1.prisma.manga.findMany(),
-        ]);
+        const [animeResult, mangaResult] = await Promise.allSettled([database_1.prisma.anime.findMany(), database_1.prisma.manga.findMany()]);
         const anime = animeResult.status === "fulfilled" ? animeResult.value : null;
         const manga = mangaResult.status === "fulfilled" ? mangaResult.value : null;
         if (anime == null || manga == null) {
-            const errors = [animeResult, mangaResult]
-                .filter((result) => result.status === "rejected")
-                .map((result) => result.status);
+            const errors = [animeResult, mangaResult].filter((result) => result.status === "rejected").map((result) => result.status);
             throw new Error(`Failed to fetch data: ${errors.join(", ")}`);
         }
         const data = {

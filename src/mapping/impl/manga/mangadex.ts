@@ -13,27 +13,27 @@ export default class MangaDex extends MangaProvider {
     private api = "https://api.mangadex.org";
 
     override async search(query: string): Promise<Result[] | undefined> {
-        const results:Result[] = [];
+        const results: Result[] = [];
 
-        let mangaList:any[] = [];
+        let mangaList: any[] = [];
 
         for (let page = 0; page <= 1; page += 1) {
-            const uri = new URL('/manga', this.api);
-            uri.searchParams.set('title', query);
-            uri.searchParams.set('limit', "25");
-            uri.searchParams.set('offset', String(25 * page).toString());
-            uri.searchParams.set('order[relevance]', 'desc');
-            uri.searchParams.append('contentRating[]', 'safe');
-            uri.searchParams.append('contentRating[]', 'suggestive');
-            uri.searchParams.append('contentRating[]', 'erotica');
-            uri.searchParams.append('contentRating[]', 'pornographic');
+            const uri = new URL("/manga", this.api);
+            uri.searchParams.set("title", query);
+            uri.searchParams.set("limit", "25");
+            uri.searchParams.set("offset", String(25 * page).toString());
+            uri.searchParams.set("order[relevance]", "desc");
+            uri.searchParams.append("contentRating[]", "safe");
+            uri.searchParams.append("contentRating[]", "suggestive");
+            uri.searchParams.append("contentRating[]", "erotica");
+            uri.searchParams.append("contentRating[]", "pornographic");
             uri.searchParams.append("includes[]", "cover_art");
 
             const request = await axios(uri.href);
             // API rate limit
             await wait(250);
 
-            mangaList = ([...mangaList, ...request.data.data]);
+            mangaList = [...mangaList, ...request.data.data];
         }
 
         for (let i = 0; i < mangaList.length; i++) {
@@ -42,9 +42,9 @@ export default class MangaDex extends MangaProvider {
             const relationships = manga.relationships;
 
             const title = attributes.title["en"] ?? attributes.title["ja"] ?? attributes.title["ja-ro"] ?? attributes.title["ko"];
-            
+
             const altTitles: string[] = [];
-            
+
             attributes.altTitles.map((element, index) => {
                 const temp = element;
                 if (temp["ja-ro"] != undefined) {
@@ -59,7 +59,7 @@ export default class MangaDex extends MangaProvider {
                 if (temp["en"] != undefined) {
                     altTitles.push(temp["en"]);
                 }
-            })
+            });
 
             const id = manga.id;
             let img = "";
@@ -67,10 +67,10 @@ export default class MangaDex extends MangaProvider {
                 if (element.type === "cover_art") {
                     img = `${this.url}/covers/${id}/${element.id}.jpg.512.jpg`;
                 }
-            })
+            });
 
             const formatString: string = manga.type.toUpperCase();
-            const format: Format = Formats.includes(formatString as Format) ? formatString as Format : Format.UNKNOWN;
+            const format: Format = Formats.includes(formatString as Format) ? (formatString as Format) : Format.UNKNOWN;
 
             results.push({
                 id,
@@ -80,7 +80,7 @@ export default class MangaDex extends MangaProvider {
                 format,
                 year: attributes.year,
                 providerId: this.id,
-            })
+            });
         }
         return results;
     }
