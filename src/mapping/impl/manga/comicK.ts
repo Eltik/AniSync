@@ -1,6 +1,6 @@
-import axios from "axios";
 import MangaProvider from ".";
 import { Format, Result } from "../..";
+import request from "cloudscraper-ts";
 
 export default class ComicK extends MangaProvider {
     override rateLimit = 250;
@@ -12,7 +12,12 @@ export default class ComicK extends MangaProvider {
     private api = "https://api.comick.app";
 
     override async search(query: string): Promise<Result[] | undefined> {
-        const data: SearchResult[] = (await axios(`${this.api}/v1.0/search?q=${encodeURIComponent(query)}&limit=25&page=1`)).data;
+        const data: SearchResult[] = JSON.parse(
+            await request({
+                uri: `${this.api}/v1.0/search?q=${encodeURIComponent(query)}&limit=25&page=1`,
+                method: "GET",
+            })
+        );
 
         const results: Result[] = [];
 

@@ -3,8 +3,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const axios_1 = __importDefault(require("axios"));
 const _1 = __importDefault(require("."));
+const cloudscraper_ts_1 = __importDefault(require("cloudscraper-ts"));
 class ComicK extends _1.default {
     rateLimit = 250;
     id = "comick";
@@ -12,7 +12,10 @@ class ComicK extends _1.default {
     formats = ["MANGA" /* Format.MANGA */, "ONE_SHOT" /* Format.ONE_SHOT */];
     api = "https://api.comick.app";
     async search(query) {
-        const data = (await (0, axios_1.default)(`${this.api}/v1.0/search?q=${encodeURIComponent(query)}&limit=25&page=1`)).data;
+        const data = JSON.parse(await (0, cloudscraper_ts_1.default)({
+            uri: `${this.api}/v1.0/search?q=${encodeURIComponent(query)}&limit=25&page=1`,
+            method: "GET",
+        }));
         const results = [];
         data.map((result) => {
             let cover = result.md_covers ? result.md_covers[0] : null;
