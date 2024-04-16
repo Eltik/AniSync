@@ -7,7 +7,7 @@ import { Format, Formats, type Result } from "../..";
 export default class NineAnime extends AnimeProvider {
     override rateLimit = 250;
     override id = "9anime";
-    override url = "https://9anime.to";
+    override url = "https://aniwave.ws";
     override formats: Format[] = [Format.MOVIE, Format.ONA, Format.OVA, Format.SPECIAL, Format.TV, Format.TV_SHORT];
 
     private resolver: string = process.env.NINEANIME_RESOLVER || `https://9anime.resolver.com`;

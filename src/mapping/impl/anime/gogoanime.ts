@@ -6,7 +6,7 @@ import { load } from "cheerio";
 export default class GogoAnime extends AnimeProvider {
     override rateLimit = 250;
     override id = "gogoanime";
-    override url = "https://gogoanime.cl";
+    override url = "https://anitaku.to";
 
     override formats: Format[] = [Format.MOVIE, Format.ONA, Format.OVA, Format.SPECIAL, Format.TV, Format.TV_SHORT];
 
